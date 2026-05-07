@@ -78,6 +78,7 @@ export class ColoredText {
 export type ClientMessage = ColoredText[];
 
 const MAX_MESSAGES = 1000;
+const GAME_NAME = 'Skyward Sword HD';
 
 export class APClientManager {
     client?: Client;
@@ -228,7 +229,7 @@ export class APClientManager {
                 (slotData['required_dungeons'] as string[]) ?? [];
             client.socket.send({
                 cmd: 'GetDataPackage',
-                games: ['Skyward Sword'],
+                games: [GAME_NAME],
             });
             this.cubeDataKey = `skyward_sword_cubes_${content.team}_${content.slot}`;
             client.socket.send({
@@ -242,8 +243,22 @@ export class APClientManager {
         });
 
         client.socket.on('dataPackage', (content) => {
-            const ssData = content.data.games['Skyward Sword'];
-            console.log(ssData);
+            const ssData = content.data.games[GAME_NAME];
+            console.log(
+                'AP DataPackage games:',
+                Object.keys(content.data.games),
+            );
+            console.log(`${GAME_NAME} DataPackage:`, ssData);
+            if (ssData) {
+                console.log(
+                    `${GAME_NAME} locations:`,
+                    Object.keys(ssData.location_name_to_id ?? {}).length,
+                );
+                console.log(
+                    `${GAME_NAME} items:`,
+                    Object.keys(ssData.item_name_to_id ?? {}).length,
+                );
+            }
             if (ssData !== undefined) {
                 this.idToLocation = invert<string, number>(
                     ssData.location_name_to_id,
@@ -392,7 +407,7 @@ export class APClientManager {
         try {
             this.status = { state: 'loggingIn' };
             this.notifyStatusSubscribers();
-            await client.login(server, slot, 'Skyward Sword', {
+            await client.login(server, slot, GAME_NAME, {
                 tags: ['Tracker'],
                 password: password,
             });
