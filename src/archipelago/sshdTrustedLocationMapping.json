@@ -1,0 +1,1244 @@
+[
+  {
+    "hdName": "Knight Academy - Fledge's Gift",
+    "trackerCheckId": "\\Skyloft\\Upper Skyloft\\Knight Academy\\Fledge's Gift",
+    "trackerName": "Upper Skyloft - Fledge's Gift",
+    "mapping": "manual"
+  },
+  {
+    "hdName": "Knight Academy - Item from Cawlin",
+    "trackerCheckId": "\\Skyloft\\Upper Skyloft\\Knight Academy\\Item from Cawlin",
+    "trackerName": "Upper Skyloft - Item from Cawlin",
+    "mapping": "manual"
+  },
+  {
+    "hdName": "Knight Academy - Zelda's Closet",
+    "trackerCheckId": "\\Skyloft\\Upper Skyloft\\Knight Academy\\Zelda's Room\\In Zelda's Closet",
+    "trackerName": "Upper Skyloft - In Zelda's Closet",
+    "mapping": "manual"
+  },
+  {
+    "hdName": "Knight Academy - Crystal in Zelda's Room",
+    "trackerCheckId": "\\Skyloft\\Upper Skyloft\\Knight Academy\\Zelda's Room\\Crystal in Zelda's Room",
+    "trackerName": "Upper Skyloft - Crystal in Zelda's Room",
+    "mapping": "manual"
+  },
+  {
+    "hdName": "Knight Academy - Crystal in Link's Room",
+    "trackerCheckId": "\\Skyloft\\Upper Skyloft\\Knight Academy\\Link's Room\\Crystal in Link's Room",
+    "trackerName": "Upper Skyloft - Crystal in Link's Room",
+    "mapping": "manual"
+  },
+  {
+    "hdName": "Knight Academy - Crystal in Knight Academy Plant",
+    "trackerCheckId": "\\Skyloft\\Upper Skyloft\\Knight Academy\\Crystal in Knight Academy Plant",
+    "trackerName": "Upper Skyloft - Crystal in Knight Academy Plant",
+    "mapping": "manual"
+  },
+  {
+    "hdName": "Sparring Hall - Chest in Back Room",
+    "trackerCheckId": "\\Skyloft\\Upper Skyloft\\Sparring Hall\\Sparring Hall Chest",
+    "trackerName": "Upper Skyloft - Sparring Hall Chest",
+    "mapping": "manual"
+  },
+  {
+    "hdName": "Sparring Hall - Crystal on Roof Beam",
+    "trackerCheckId": "\\Skyloft\\Upper Skyloft\\Sparring Hall\\Crystal in Sparring Hall",
+    "trackerName": "Upper Skyloft - Crystal in Sparring Hall",
+    "mapping": "manual"
+  },
+  {
+    "hdName": "Upper Skyloft - Owlan's Gift",
+    "trackerCheckId": "\\Skyloft\\Upper Skyloft\\Owlan's Gift",
+    "trackerName": "Upper Skyloft - Owlan's Gift",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Inside the Statue of the Goddess - Raise Sword Item 1",
+    "trackerCheckId": "\\Skyloft\\Upper Skyloft\\Goddess Statue\\First Goddess Sword Item in Goddess Statue",
+    "trackerName": "Upper Skyloft - First Goddess Sword Item in Goddess Statue",
+    "mapping": "manual"
+  },
+  {
+    "hdName": "Inside the Statue of the Goddess - Raise Sword Item 2",
+    "trackerCheckId": "\\Skyloft\\Upper Skyloft\\Goddess Statue\\Second Goddess Sword Item in Goddess Statue",
+    "trackerName": "Upper Skyloft - Second Goddess Sword Item in Goddess Statue",
+    "mapping": "manual"
+  },
+  {
+    "hdName": "Upper Skyloft - Chest below Goddess Statue",
+    "trackerCheckId": "\\Skyloft\\Upper Skyloft\\Chest near Goddess Statue",
+    "trackerName": "Upper Skyloft - Chest near Goddess Statue",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Upper Skyloft - Ring Knight Academy Bell",
+    "trackerCheckId": "\\Skyloft\\Upper Skyloft\\Ring Knight Academy Bell",
+    "trackerName": "Upper Skyloft - Ring Knight Academy Bell",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Upper Skyloft - 600 Points in Pumpkin Pull",
+    "trackerCheckId": "\\Skyloft\\Upper Skyloft\\Pumpkin Archery -- 600 Points",
+    "trackerName": "Upper Skyloft - Pumpkin Archery -- 600 Points",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Bazaar - Luv the Potion Lady's Gift",
+    "trackerCheckId": "\\Skyloft\\Central Skyloft\\Bazaar\\Potion Lady's Gift",
+    "trackerName": "Central Skyloft - Potion Lady's Gift",
+    "mapping": "manual"
+  },
+  {
+    "hdName": "Bazaar - Repair Gondo's Junk",
+    "trackerCheckId": "\\Skyloft\\Central Skyloft\\Bazaar\\Repair Gondo's Junk",
+    "trackerName": "Central Skyloft - Repair Gondo's Junk",
+    "mapping": "manual"
+  },
+  {
+    "hdName": "Bazaar - Goddess Chest",
+    "trackerCheckId": "\\Skyloft\\Central Skyloft\\Bazaar\\Bazaar Goddess Chest",
+    "trackerName": "Central Skyloft - Bazaar Goddess Chest",
+    "mapping": "manual"
+  },
+  {
+    "hdName": "Central Skyloft - Crystal in Orielle and Parrow's House",
+    "trackerCheckId": "\\Skyloft\\Central Skyloft\\Orielle and Parrow's House\\Crystal in Orielle and Parrow's House",
+    "trackerName": "Central Skyloft - Crystal in Orielle and Parrow's House",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Central Skyloft - Crystal between Wooden Planks",
+    "trackerCheckId": "\\Skyloft\\Central Skyloft\\Crystal between Wooden Planks",
+    "trackerName": "Central Skyloft - Crystal between Wooden Planks",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Central Skyloft - Crystal below West Cliff",
+    "trackerCheckId": "\\Skyloft\\Central Skyloft\\Crystal on West Cliff",
+    "trackerName": "Central Skyloft - Crystal on West Cliff",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Central Skyloft - Crystal on Light Tower",
+    "trackerCheckId": "\\Skyloft\\Central Skyloft\\Crystal on Light Tower",
+    "trackerName": "Central Skyloft - Crystal on Light Tower",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Central Skyloft - Parrow's Gift",
+    "trackerCheckId": "\\Skyloft\\Central Skyloft\\Parrow's Gift",
+    "trackerName": "Central Skyloft - Parrow's Gift",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Central Skyloft - Parrow's Gratitude",
+    "trackerCheckId": "\\Skyloft\\Central Skyloft\\Parrow's Crystals",
+    "trackerName": "Central Skyloft - Parrow's Crystals",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Central Skyloft - Wryna's Gratitude",
+    "trackerCheckId": "\\Skyloft\\Central Skyloft\\Wryna's House\\Wryna's Crystals",
+    "trackerName": "Central Skyloft - Wryna's Crystals",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Central Skyloft - Chest in Shed",
+    "trackerCheckId": "\\Skyloft\\Central Skyloft\\Shed Chest",
+    "trackerName": "Central Skyloft - Shed Chest",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Central Skyloft - Goddess Chest in Shed",
+    "trackerCheckId": "\\Skyloft\\Central Skyloft\\Shed Goddess Chest",
+    "trackerName": "Central Skyloft - Shed Goddess Chest",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Central Skyloft - Crystal on Waterfall Island",
+    "trackerCheckId": "\\Skyloft\\Central Skyloft\\Waterfall Island\\Crystal on Waterfall Island",
+    "trackerName": "Central Skyloft - Crystal on Waterfall Island",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Central Skyloft - Waterfall Cave First Chest",
+    "trackerCheckId": "\\Skyloft\\Central Skyloft\\Waterfall Cave\\Waterfall Cave First Chest",
+    "trackerName": "Central Skyloft - Waterfall Cave First Chest",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Central Skyloft - Waterfall Cave Second Chest",
+    "trackerCheckId": "\\Skyloft\\Central Skyloft\\Waterfall Cave\\Waterfall Cave Second Chest",
+    "trackerName": "Central Skyloft - Waterfall Cave Second Chest",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Central Skyloft - First Rupee in Waterfall Cave Crawlspace",
+    "trackerCheckId": "\\Skyloft\\Central Skyloft\\Waterfall Cave\\Rupee Waterfall Cave Crawlspace",
+    "trackerName": "Central Skyloft - Rupee Waterfall Cave Crawlspace",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Central Skyloft - Second Rupee in Waterfall Cave Crawlspace",
+    "trackerCheckId": "\\Skyloft\\Central Skyloft\\Waterfall Cave\\Rupee Waterfall Cave Crawlspace",
+    "trackerName": "Central Skyloft - Rupee Waterfall Cave Crawlspace",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Central Skyloft - Goddess Chest on West Cliff Island",
+    "trackerCheckId": "\\Skyloft\\Central Skyloft\\West Cliff Goddess Chest",
+    "trackerName": "Central Skyloft - West Cliff Goddess Chest",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Central Skyloft - Goddess Chest on Waterfall Island",
+    "trackerCheckId": "\\Skyloft\\Central Skyloft\\Waterfall Island\\Waterfall Goddess Chest",
+    "trackerName": "Central Skyloft - Waterfall Goddess Chest",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Skyloft Village - Crystal near Pumpkin Patch",
+    "trackerCheckId": "\\Skyloft\\Skyloft Village\\Crystal near Pumpkin Patch",
+    "trackerName": "Skyloft Village - Crystal near Pumpkin Patch",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Batreaux's House - 5 Gratitude Crystals Reward",
+    "trackerCheckId": "\\Skyloft\\Skyloft Village\\Batreaux's House\\5 Crystals",
+    "trackerName": "Batreaux's House - 5 Crystals",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Batreaux's House - 10 Gratitude Crystals Reward",
+    "trackerCheckId": "\\Skyloft\\Skyloft Village\\Batreaux's House\\10 Crystals",
+    "trackerName": "Batreaux's House - 10 Crystals",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Batreaux's House - 30 Gratitude Crystals Reward",
+    "trackerCheckId": "\\Skyloft\\Skyloft Village\\Batreaux's House\\30 Crystals",
+    "trackerName": "Batreaux's House - 30 Crystals",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Batreaux's House - 30 Gratitude Crystals Reward Chest",
+    "trackerCheckId": "\\Skyloft\\Skyloft Village\\Batreaux's House\\30 Crystals Chest",
+    "trackerName": "Batreaux's House - 30 Crystals Chest",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Batreaux's House - 40 Gratitude Crystals Reward",
+    "trackerCheckId": "\\Skyloft\\Skyloft Village\\Batreaux's House\\40 Crystals",
+    "trackerName": "Batreaux's House - 40 Crystals",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Batreaux's House - 50 Gratitude Crystals Reward",
+    "trackerCheckId": "\\Skyloft\\Skyloft Village\\Batreaux's House\\50 Crystals",
+    "trackerName": "Batreaux's House - 50 Crystals",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Batreaux's House - 70 Gratitude Crystals Second Reward",
+    "trackerCheckId": "\\Skyloft\\Skyloft Village\\Batreaux's House\\70 Crystals Second Reward",
+    "trackerName": "Batreaux's House - 70 Crystals Second Reward",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Batreaux's House - 80 Gratitude Crystals Reward",
+    "trackerCheckId": "\\Skyloft\\Skyloft Village\\Batreaux's House\\80 Crystals",
+    "trackerName": "Batreaux's House - 80 Crystals",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Beedle's Airshop - 300 Rupee Item",
+    "trackerCheckId": "\\Skyloft\\Beedle's Shop\\Stall\\300 Rupee Item",
+    "trackerName": "Beedle's Shop - 300 Rupee Item",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Beedle's Airshop - 600 Rupee Item",
+    "trackerCheckId": "\\Skyloft\\Beedle's Shop\\Stall\\600 Rupee Item",
+    "trackerName": "Beedle's Shop - 600 Rupee Item",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Beedle's Airshop - 1200 Rupee Item",
+    "trackerCheckId": "\\Skyloft\\Beedle's Shop\\Stall\\1200 Rupee Item",
+    "trackerName": "Beedle's Shop - 1200 Rupee Item",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Beedle's Airshop - 800 Rupee Item",
+    "trackerCheckId": "\\Skyloft\\Beedle's Shop\\Stall\\800 Rupee Item",
+    "trackerName": "Beedle's Shop - 800 Rupee Item",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Beedle's Airshop - 1600 Rupee Item",
+    "trackerCheckId": "\\Skyloft\\Beedle's Shop\\Stall\\1600 Rupee Item",
+    "trackerName": "Beedle's Shop - 1600 Rupee Item",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Beedle's Airshop - First 100 Rupee Item",
+    "trackerCheckId": "\\Skyloft\\Beedle's Shop\\Stall\\First 100 Rupee Item",
+    "trackerName": "Beedle's Shop - First 100 Rupee Item",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Beedle's Airshop - Second 100 Rupee Item",
+    "trackerCheckId": "\\Skyloft\\Beedle's Shop\\Stall\\Second 100 Rupee Item",
+    "trackerName": "Beedle's Shop - Second 100 Rupee Item",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Beedle's Airshop - Third 100 Rupee Item",
+    "trackerCheckId": "\\Skyloft\\Beedle's Shop\\Stall\\Third 100 Rupee Item",
+    "trackerName": "Beedle's Shop - Third 100 Rupee Item",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Beedle's Airshop - 50 Rupee Item",
+    "trackerCheckId": "\\Skyloft\\Beedle's Shop\\Stall\\50 Rupee Item",
+    "trackerName": "Beedle's Shop - 50 Rupee Item",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Beedle's Airshop - 1000 Rupee Item",
+    "trackerCheckId": "\\Skyloft\\Beedle's Shop\\Stall\\1000 Rupee Item",
+    "trackerName": "Beedle's Shop - 1000 Rupee Item",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Lumpy Pumpkin - Harp Duet with Kina",
+    "trackerCheckId": "\\Sky\\South East\\Lumpy Pumpkin\\Lumpy Pumpkin Building\\Harp Minigame",
+    "trackerName": "Sky - Lumpy Pumpkin - Harp Minigame",
+    "mapping": "manual"
+  },
+  {
+    "hdName": "Fun Fun Island - 500 Rupees in Dodoh's High Dive",
+    "trackerCheckId": "\\Sky\\South West\\Fun Fun Island\\Fun Fun Island Minigame -- 500 Rupees",
+    "trackerName": "Sky - Fun Fun Island Minigame -- 500 Rupees",
+    "mapping": "manual"
+  },
+  {
+    "hdName": "The Sky - Chest in Breakable Boulder near Fun Fun Island",
+    "trackerCheckId": "\\Sky\\South West\\Chest in Breakable Boulder near Fun Fun Island",
+    "trackerName": "Sky - Chest in Breakable Boulder near Fun Fun Island",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "The Sky - Chest in Breakable Boulder near Lumpy Pumpkin",
+    "trackerCheckId": "\\Sky\\South East\\Chest in Breakable Boulder near Lumpy Pumpkin",
+    "trackerName": "Sky - Chest in Breakable Boulder near Lumpy Pumpkin",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Island near Bamboo Island - Goddess Chest in Cave",
+    "trackerCheckId": "\\Sky\\North East\\Goddess Chest in Cave on Island next to Bamboo Island",
+    "trackerName": "Sky - Goddess Chest in Cave on Island next to Bamboo Island",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Northeast Island - Goddess Chest behind Bombable Rocks",
+    "trackerCheckId": "\\Sky\\North East\\Northeast Island Goddess Chest behind Bombable Rocks",
+    "trackerName": "Sky - Northeast Island Goddess Chest behind Bombable Rocks",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Northeast Island - Goddess Chest in Cage",
+    "trackerCheckId": "\\Sky\\North East\\Northeast Island Cage Goddess Chest",
+    "trackerName": "Sky - Northeast Island Cage Goddess Chest",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Beedle's Island - Goddess Chest in Cage",
+    "trackerCheckId": "\\Sky\\North East\\Beedle's Island\\Cage\\Beedle's Island Cage Goddess Chest",
+    "trackerName": "Sky - Beedle's Island Cage Goddess Chest",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Lumpy Pumpkin - Goddess Chest on Roof",
+    "trackerCheckId": "\\Sky\\South East\\Lumpy Pumpkin\\Goddess Chest on the Roof",
+    "trackerName": "Sky - Lumpy Pumpkin - Goddess Chest on the Roof",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Island Closest to Faron Pillar - Goddess Chest",
+    "trackerCheckId": "\\Sky\\South East\\Goddess Chest on Island Closest to Faron Pillar",
+    "trackerName": "Sky - Goddess Chest on Island Closest to Faron Pillar",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Volcanic Island - Outside Goddess Chest",
+    "trackerCheckId": "\\Sky\\South West\\Volcanic Island\\Goddess Chest outside Volcanic Island",
+    "trackerName": "Sky - Goddess Chest outside Volcanic Island",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Volcanic Island - Inside Goddess Chest",
+    "trackerCheckId": "\\Sky\\South West\\Volcanic Island\\Goddess Chest inside Volcanic Island",
+    "trackerName": "Sky - Goddess Chest inside Volcanic Island",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Triple Island - Upper Goddess Chest",
+    "trackerCheckId": "\\Sky\\South West\\Triple Island\\Southwest Triple Island Upper Goddess Chest",
+    "trackerName": "Sky - Southwest Triple Island Upper Goddess Chest",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Triple Island - Lower Goddess Chest",
+    "trackerCheckId": "\\Sky\\South West\\Triple Island\\Southwest Triple Island Lower Goddess Chest",
+    "trackerName": "Sky - Southwest Triple Island Lower Goddess Chest",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Triple Island - Goddess Chest in Cage",
+    "trackerCheckId": "\\Sky\\South West\\Triple Island\\Southwest Triple Island Cage Goddess Chest",
+    "trackerName": "Sky - Southwest Triple Island Cage Goddess Chest",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Bug Heaven - Goddess Chest",
+    "trackerCheckId": "\\Sky\\Thunderhead\\Bug Heaven\\Bug Heaven Goddess Chest",
+    "trackerName": "Thunderhead - Bug Heaven Goddess Chest",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Bug Heaven - 10 Bugs in 3 Minutes",
+    "trackerCheckId": "\\Sky\\Thunderhead\\Bug Heaven\\Bug Heaven -- 10 Bugs in 3 Minutes",
+    "trackerName": "Thunderhead - Bug Heaven -- 10 Bugs in 3 Minutes",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Inside the Thunderhead - Mogma Mitts Island First Goddess Chest",
+    "trackerCheckId": "\\Sky\\Thunderhead\\Mogma Mitts Island\\First Goddess Chest on Mogma Mitts Island",
+    "trackerName": "Thunderhead - First Goddess Chest on Mogma Mitts Island",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Inside the Thunderhead - Mogma Mitts Island Second Goddess Chest",
+    "trackerCheckId": "\\Sky\\Thunderhead\\Mogma Mitts Island\\Second Goddess Chest on Mogma Mitts Island",
+    "trackerName": "Thunderhead - Second Goddess Chest on Mogma Mitts Island",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Isle of Songs - Top Goddess Chest",
+    "trackerCheckId": "\\Sky\\Thunderhead\\Isle of Songs\\Goddess Chest on top of Isle of Songs",
+    "trackerName": "Thunderhead - Goddess Chest on top of Isle of Songs",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Isle of Songs - Strike Crest with Goddess Sword",
+    "trackerCheckId": "\\Sky\\Thunderhead\\Isle of Songs\\Inside\\Strike Crest with Goddess Sword",
+    "trackerName": "Thunderhead - Isle of Songs - Strike Crest with Goddess Sword",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Isle of Songs - Strike Crest with Longsword",
+    "trackerCheckId": "\\Sky\\Thunderhead\\Isle of Songs\\Inside\\Strike Crest with Longsword",
+    "trackerName": "Thunderhead - Isle of Songs - Strike Crest with Longsword",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Isle of Songs - Strike Crest with White Sword",
+    "trackerCheckId": "\\Sky\\Thunderhead\\Isle of Songs\\Inside\\Strike Crest with White Sword",
+    "trackerName": "Thunderhead - Isle of Songs - Strike Crest with White Sword",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Inside the Thunderhead - Chest on East Island",
+    "trackerCheckId": "\\Sky\\Thunderhead\\East Island\\East Island Chest",
+    "trackerName": "Thunderhead - East Island Chest",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Inside the Thunderhead - Goddess Chest on East Island",
+    "trackerCheckId": "\\Sky\\Thunderhead\\East Island\\East Island Goddess Chest",
+    "trackerName": "Thunderhead - East Island Goddess Chest",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Inside the Thunderhead - Song from Levias",
+    "trackerCheckId": "\\Sky\\Thunderhead\\Song from Levias",
+    "trackerName": "Thunderhead - Song from Levias",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Sealed Temple - Chest near The Old One",
+    "trackerCheckId": "\\Faron\\Sealed Grounds\\Sealed Temple\\Chest inside Sealed Temple",
+    "trackerName": "Sealed Grounds - Chest inside Sealed Temple",
+    "mapping": "manual"
+  },
+  {
+    "hdName": "Sealed Grounds - Gorko's Goddess Wall Reward",
+    "trackerCheckId": "\\Faron\\Sealed Grounds\\Behind the Temple\\Gorko's Goddess Wall Reward",
+    "trackerName": "Sealed Grounds - Gorko's Goddess Wall Reward",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Temple of Hylia - Zelda's Blessing",
+    "trackerCheckId": "\\Faron\\Sealed Grounds\\Hylia's Temple\\Zelda's Blessing",
+    "trackerName": "Sealed Grounds - Zelda's Blessing",
+    "mapping": "manual"
+  },
+  {
+    "hdName": "Faron Woods - Item behind Lower Bombable Rock",
+    "trackerCheckId": "\\Faron\\Faron Woods\\Item behind Lower Bombable Rock",
+    "trackerName": "Faron Woods - Item behind Lower Bombable Rock",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Faron Woods - Kikwi Elder's Reward",
+    "trackerCheckId": "\\Faron\\Faron Woods\\Kikwi Elder's Reward",
+    "trackerName": "Faron Woods - Kikwi Elder's Reward",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Faron Woods - Rupee on Hollow Tree Root",
+    "trackerCheckId": "\\Faron\\Faron Woods\\Rupee on Hollow Tree Root",
+    "trackerName": "Faron Woods - Rupee on Hollow Tree Root",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Faron Woods - Rupee on Hollow Tree Branch",
+    "trackerCheckId": "\\Faron\\Faron Woods\\Rupee on Hollow Tree Branch",
+    "trackerName": "Faron Woods - Rupee on Hollow Tree Branch",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Faron Woods - Rupee on Platform near Floria Door",
+    "trackerCheckId": "\\Faron\\Faron Woods\\Door to Lake Floria\\Rupee on Platform near Floria Door",
+    "trackerName": "Faron Woods - Rupee on Platform near Floria Door",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Faron Woods - Chest behind Upper Bombable Rock",
+    "trackerCheckId": "\\Faron\\Faron Woods\\Chest behind Upper Bombable Rock",
+    "trackerName": "Faron Woods - Chest behind Upper Bombable Rock",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Faron Woods - Rupee on Great Tree North Branch",
+    "trackerCheckId": "\\Faron\\Faron Woods\\Great Tree\\Top\\Rupee on Great Tree North Branch",
+    "trackerName": "Faron Woods - Rupee on Great Tree North Branch",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Faron Woods - Rupee on Great Tree West Branch",
+    "trackerCheckId": "\\Faron\\Faron Woods\\Great Tree\\Top\\Rupee on Great Tree West Branch",
+    "trackerName": "Faron Woods - Rupee on Great Tree West Branch",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Lake Floria - Rupee under Central Boulder",
+    "trackerCheckId": "\\Faron\\Lake Floria\\Above Rock\\Rupee under Central Boulder",
+    "trackerName": "Lake Floria - Rupee under Central Boulder",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Lake Floria - Rupee behind Southwest Boulder",
+    "trackerCheckId": "\\Faron\\Lake Floria\\Above Rock\\Rupee behind Southwest Boulder",
+    "trackerName": "Lake Floria - Rupee behind Southwest Boulder",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Lake Floria - Left Rupee behind Northwest Boulder",
+    "trackerCheckId": "\\Faron\\Lake Floria\\Above Rock\\Left Rupee behind Northwest Boulder",
+    "trackerName": "Lake Floria - Left Rupee behind Northwest Boulder",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Lake Floria - Right Rupee behind Northwest Boulder",
+    "trackerCheckId": "\\Faron\\Lake Floria\\Above Rock\\Right Rupee behind Northwest Boulder",
+    "trackerName": "Lake Floria - Right Rupee behind Northwest Boulder",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Lake Floria - Dragon Lair South Chest",
+    "trackerCheckId": "\\Faron\\Lake Floria\\Farore's Lair\\Dragon Lair South Chest",
+    "trackerName": "Lake Floria - Dragon Lair South Chest",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Lake Floria - Dragon Lair East Chest",
+    "trackerCheckId": "\\Faron\\Lake Floria\\Farore's Lair\\Dragon Lair East Chest",
+    "trackerName": "Lake Floria - Dragon Lair East Chest",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Flooded Faron Woods - Yellow Tadtone under Lilypad",
+    "trackerCheckId": "\\Faron\\Flooded Faron Woods\\Yellow Tadtone under Lilypad",
+    "trackerName": "Flooded Faron Woods - Yellow Tadtone under Lilypad",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Flooded Faron Woods - 8 Light Blue Tadtones near Viewing Platform",
+    "trackerCheckId": "\\Faron\\Flooded Faron Woods\\8 Light Blue Tadtones near Viewing Platform",
+    "trackerName": "Flooded Faron Woods - 8 Light Blue Tadtones near Viewing Platform",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Flooded Faron Woods - 4 Purple Tadtones under Viewing Platform",
+    "trackerCheckId": "\\Faron\\Flooded Faron Woods\\4 Purple Tadtones under Viewing Platform",
+    "trackerName": "Flooded Faron Woods - 4 Purple Tadtones under Viewing Platform",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Flooded Faron Woods - Red Moving Tadtone near Viewing Platform",
+    "trackerCheckId": "\\Faron\\Flooded Faron Woods\\Red Moving Tadtone near Viewing Platform",
+    "trackerName": "Flooded Faron Woods - Red Moving Tadtone near Viewing Platform",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Flooded Faron Woods - Light Blue Tadtone under Great Tree Root",
+    "trackerCheckId": "\\Faron\\Flooded Faron Woods\\Light Blue Tadtone under Great Tree Root",
+    "trackerName": "Flooded Faron Woods - Light Blue Tadtone under Great Tree Root",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Flooded Faron Woods - 8 Yellow Tadtones near Kikwi Elder",
+    "trackerCheckId": "\\Faron\\Flooded Faron Woods\\8 Yellow Tadtones near Kikwi Elder",
+    "trackerName": "Flooded Faron Woods - 8 Yellow Tadtones near Kikwi Elder",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Flooded Faron Woods - 4 Light Blue Moving Tadtones under Kikwi Elder",
+    "trackerCheckId": "\\Faron\\Flooded Faron Woods\\4 Light Blue Moving Tadtones under Kikwi Elder",
+    "trackerName": "Flooded Faron Woods - 4 Light Blue Moving Tadtones under Kikwi Elder",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Flooded Faron Woods - 4 Red Moving Tadtones North West of Great Tree",
+    "trackerCheckId": "\\Faron\\Flooded Faron Woods\\4 Red Moving Tadtones North West of Great Tree",
+    "trackerName": "Flooded Faron Woods - 4 Red Moving Tadtones North West of Great Tree",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Flooded Faron Woods - Green Tadtone behind Upper Bombable Rock",
+    "trackerCheckId": "\\Faron\\Flooded Faron Woods\\Green Tadtone behind Upper Bombable Rock",
+    "trackerName": "Flooded Faron Woods - Green Tadtone behind Upper Bombable Rock",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Flooded Faron Woods - 2 Dark Blue Tadtones in Grass West of Great Tree",
+    "trackerCheckId": "\\Faron\\Flooded Faron Woods\\2 Dark Blue Tadtones in Grass West of Great Tree",
+    "trackerName": "Flooded Faron Woods - 2 Dark Blue Tadtones in Grass West of Great Tree",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Flooded Faron Woods - 8 Green Tadtones in West Tunnel",
+    "trackerCheckId": "\\Faron\\Flooded Faron Woods\\8 Green Tadtones in West Tunnel",
+    "trackerName": "Flooded Faron Woods - 8 Green Tadtones in West Tunnel",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Flooded Faron Woods - 2 Red Tadtones in Grass near Lower Bombable Rock",
+    "trackerCheckId": "\\Faron\\Flooded Faron Woods\\2 Red Tadtones in Grass near Lower Bombable Rock",
+    "trackerName": "Flooded Faron Woods - 2 Red Tadtones in Grass near Lower Bombable Rock",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Flooded Faron Woods - 16 Dark Blue Tadtones in the South West",
+    "trackerCheckId": "\\Faron\\Flooded Faron Woods\\16 Dark Blue Tadtones in the South West",
+    "trackerName": "Flooded Faron Woods - 16 Dark Blue Tadtones in the South West",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Flooded Faron Woods - 4 Purple Moving Tadtones near Floria Gate",
+    "trackerCheckId": "\\Faron\\Flooded Faron Woods\\4 Purple Moving Tadtones near Floria Gate",
+    "trackerName": "Flooded Faron Woods - 4 Purple Moving Tadtones near Floria Gate",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Flooded Faron Woods - Dark Blue Moving Tadtone inside Small Hollow Tree",
+    "trackerCheckId": "\\Faron\\Flooded Faron Woods\\Dark Blue Moving Tadtone inside Small Hollow Tree",
+    "trackerName": "Flooded Faron Woods - Dark Blue Moving Tadtone inside Small Hollow Tree",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Flooded Faron Woods - 4 Yellow Tadtones under Small Hollow Tree",
+    "trackerCheckId": "\\Faron\\Flooded Faron Woods\\4 Yellow Tadtones under Small Hollow Tree",
+    "trackerName": "Flooded Faron Woods - 4 Yellow Tadtones under Small Hollow Tree",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Flooded Faron Woods - 8 Purple Tadtones in Clearing after Small Hollow Tree",
+    "trackerCheckId": "\\Faron\\Flooded Faron Woods\\8 Purple Tadtones in Clearing after Small Hollow Tree",
+    "trackerName": "Flooded Faron Woods - 8 Purple Tadtones in Clearing after Small Hollow Tree",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Flooded Faron Woods - Water Dragon's Reward",
+    "trackerCheckId": "\\Faron\\Flooded Faron Woods\\Flooded Great Tree\\Water Dragon's Reward",
+    "trackerName": "Flooded Faron Woods - Water Dragon's Reward",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Bokoblin Base - Plats' Gift",
+    "trackerCheckId": "\\Eldin\\Bokoblin Base\\Prison\\Plats' Gift",
+    "trackerName": "Bokoblin Base - Plats' Gift",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Bokoblin Base - Chest near Bone Bridge",
+    "trackerCheckId": "\\Eldin\\Bokoblin Base\\Volcano East\\Chest near Bone Bridge",
+    "trackerName": "Bokoblin Base - Chest near Bone Bridge",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Bokoblin Base - Chest on Cliff",
+    "trackerCheckId": "\\Eldin\\Bokoblin Base\\Volcano East\\Chest on Cliff",
+    "trackerName": "Bokoblin Base - Chest on Cliff",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Bokoblin Base - Chest near Drawbridge",
+    "trackerCheckId": "\\Eldin\\Bokoblin Base\\Before Drawbridge\\Chest near Drawbridge",
+    "trackerName": "Bokoblin Base - Chest near Drawbridge",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Bokoblin Base - First Chest in Volcano Summit",
+    "trackerCheckId": "\\Eldin\\Bokoblin Base\\Bokoblin Base Summit\\First Chest in Volcano Summit",
+    "trackerName": "Bokoblin Base - First Chest in Volcano Summit",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Bokoblin Base - Chest in Volcano Summit Alcove",
+    "trackerCheckId": "\\Eldin\\Bokoblin Base\\Bokoblin Base Summit\\Chest in Volcano Summit Alcove",
+    "trackerName": "Bokoblin Base - Chest in Volcano Summit Alcove",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Bokoblin Base - Fire Dragon's Reward",
+    "trackerCheckId": "\\Eldin\\Bokoblin Base\\Fire Dragon's Lair\\Fire Dragon's Reward",
+    "trackerName": "Bokoblin Base - Fire Dragon's Reward",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Eldin Volcano - Rupee on Ledge before First Room",
+    "trackerCheckId": "\\Eldin\\Volcano\\Entry\\Rupee on Ledge before First Room",
+    "trackerName": "Eldin Volcano - Rupee on Ledge before First Room",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Eldin Volcano - Chest behind Bombable Wall in First Room",
+    "trackerCheckId": "\\Eldin\\Volcano\\First Room\\Chest behind Bombable Wall in First Room",
+    "trackerName": "Eldin Volcano - Chest behind Bombable Wall in First Room",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Eldin Volcano - Rupee behind Bombable Wall in First Room",
+    "trackerCheckId": "\\Eldin\\Volcano\\First Room\\Rupee behind Bombable Wall in First Room",
+    "trackerName": "Eldin Volcano - Rupee behind Bombable Wall in First Room",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Eldin Volcano - Rupee in Crawlspace in First Room",
+    "trackerCheckId": "\\Eldin\\Volcano\\First Room\\Rupee in Crawlspace in First Room",
+    "trackerName": "Eldin Volcano - Rupee in Crawlspace in First Room",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Eldin Volcano - Chest after Blocked Crawlspace",
+    "trackerCheckId": "\\Eldin\\Volcano\\East\\Chest after Crawlspace",
+    "trackerName": "Eldin Volcano - Chest after Crawlspace",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Eldin Volcano - Southeast Rupee above Mogma Turf Entrance",
+    "trackerCheckId": "\\Eldin\\Volcano\\East\\Southeast Rupee above Mogma Turf Entrance",
+    "trackerName": "Eldin Volcano - Southeast Rupee above Mogma Turf Entrance",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Eldin Volcano - North Rupee above Mogma Turf Entrance",
+    "trackerCheckId": "\\Eldin\\Volcano\\East\\North Rupee above Mogma Turf Entrance",
+    "trackerName": "Eldin Volcano - North Rupee above Mogma Turf Entrance",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Eldin Volcano - Chest behind Bombable Wall near Cliff",
+    "trackerCheckId": "\\Eldin\\Volcano\\East\\Chest behind Bombable Wall near Cliff",
+    "trackerName": "Eldin Volcano - Chest behind Bombable Wall near Cliff",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Eldin Volcano - Item on Cliff",
+    "trackerCheckId": "\\Eldin\\Volcano\\East\\Item on Cliff",
+    "trackerName": "Eldin Volcano - Item on Cliff",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Eldin Volcano - Chest behind Bombable Wall near Volcano Ascent",
+    "trackerCheckId": "\\Eldin\\Volcano\\Ascent\\Chest behind Bombable Wall near Volcano Ascent",
+    "trackerName": "Eldin Volcano - Chest behind Bombable Wall near Volcano Ascent",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Eldin Volcano - Digging Spot below Tower West of Temple",
+    "trackerCheckId": "\\Eldin\\Volcano\\Near Temple Entrance\\Digging Spot below Tower",
+    "trackerName": "Eldin Volcano - Digging Spot below Tower",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Eldin Volcano - Digging Spot after Sand Slide Vents",
+    "trackerCheckId": "\\Eldin\\Volcano\\Sand Slide\\Digging Spot after Vents",
+    "trackerName": "Eldin Volcano - Digging Spot after Vents",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Eldin Volcano - Digging Spot after Draining Lava",
+    "trackerCheckId": "\\Eldin\\Volcano\\Past Slide\\Digging Spot after Draining Lava",
+    "trackerName": "Eldin Volcano - Digging Spot after Draining Lava",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Mogma Turf - Free Fall Chest",
+    "trackerCheckId": "\\Eldin\\Mogma Turf\\Pre Vent\\Free Fall Chest",
+    "trackerName": "Mogma Turf - Free Fall Chest",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Mogma Turf - Chest behind Bombable Wall at Entrance",
+    "trackerCheckId": "\\Eldin\\Mogma Turf\\Pre Vent\\Chest behind Bombable Wall at Entrance",
+    "trackerName": "Mogma Turf - Chest behind Bombable Wall at Entrance",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Mogma Turf - Defeat Bokoblins",
+    "trackerCheckId": "\\Eldin\\Mogma Turf\\Pre Vent\\Defeat Bokoblins",
+    "trackerName": "Mogma Turf - Defeat Bokoblins",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Mogma Turf - Chest after Sand Slide",
+    "trackerCheckId": "\\Eldin\\Mogma Turf\\Sand Slide Platform\\Sand Slide Chest",
+    "trackerName": "Mogma Turf - Sand Slide Chest",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Mogma Turf - Chest behind Bombable Wall in Fire Maze",
+    "trackerCheckId": "\\Eldin\\Mogma Turf\\Past Vent\\Chest behind Bombable Wall in Fire Maze",
+    "trackerName": "Mogma Turf - Chest behind Bombable Wall in Fire Maze",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Lanayru Mine - Chest behind First Landing Robot",
+    "trackerCheckId": "\\Lanayru\\Mine\\Entry\\Higher Area\\Chest behind First Landing",
+    "trackerName": "Lanayru Mine - Chest behind First Landing",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Lanayru Mine - Chest behind Northeast Statue",
+    "trackerCheckId": "\\Lanayru\\Mine\\Statues Area\\Chest behind Statue",
+    "trackerName": "Lanayru Mine - Chest behind Statue",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Lanayru Mine - Chest at the End of Mine",
+    "trackerCheckId": "\\Lanayru\\Mine\\End\\Chest at the End of Mine",
+    "trackerName": "Lanayru Mine - Chest at the End of Mine",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Lanayru Desert - Chest near Party Wheel",
+    "trackerCheckId": "\\Lanayru\\Desert\\Entry\\High Ledge after Vines\\Chest near Party Wheel",
+    "trackerName": "Lanayru Desert - Chest near Party Wheel",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Lanayru Desert - Chest near Caged Robot",
+    "trackerCheckId": "\\Lanayru\\Desert\\Near Caged Robot\\Chest near Caged Robot",
+    "trackerName": "Lanayru Desert - Chest near Caged Robot",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Lanayru Desert - Rescue Caged Robot",
+    "trackerCheckId": "\\Lanayru\\Desert\\Near Caged Robot\\Rescue Caged Robot",
+    "trackerName": "Lanayru Desert - Rescue Caged Robot",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Lanayru Desert - Chest on Sand Oasis Wall",
+    "trackerCheckId": "\\Lanayru\\Desert\\Top of West Wall\\Chest near Sand Oasis",
+    "trackerName": "Lanayru Desert - Chest near Sand Oasis",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Lanayru Desert - Chest on Platform near Lightning Node",
+    "trackerCheckId": "\\Lanayru\\Desert\\North Part\\Chest on Platform near Lightning Node",
+    "trackerName": "Lanayru Desert - Chest on Platform near Lightning Node",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Lanayru Desert - Chest in Northeast Secret Passageway",
+    "trackerCheckId": "\\Lanayru\\Desert\\North Part\\Secret Passageway\\Secret Passageway Chest",
+    "trackerName": "Lanayru Desert - Secret Passageway Chest",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Lanayru Desert - Chest on Platform near Fire Node",
+    "trackerCheckId": "\\Lanayru\\Desert\\East\\Chest on Platform near Fire Node",
+    "trackerName": "Lanayru Desert - Chest on Platform near Fire Node",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Lanayru Desert - Chest on top of Lanayru Mining Facility",
+    "trackerCheckId": "\\Lanayru\\Desert\\Top of LMF\\Chest on top of Lanayru Mining Facility",
+    "trackerName": "Lanayru Desert - Chest on top of Lanayru Mining Facility",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Fire Node - Left Ending Chest",
+    "trackerCheckId": "\\Lanayru\\Desert\\East\\Fire Node\\Past after Grate\\Left Ending Chest",
+    "trackerName": "Lanayru Desert - Fire Node - Left Ending Chest",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Lightning Node - Raised Chest near Generator",
+    "trackerCheckId": "\\Lanayru\\Desert\\North Part\\Lightning Node\\Present from afar\\Raised Chest near Generator",
+    "trackerName": "Lanayru Desert - Lightning Node - Raised Chest near Generator",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Lanayru Caves - Chest near Golo",
+    "trackerCheckId": "\\Lanayru\\Caves\\Chest",
+    "trackerName": "Lanayru Caves - Chest",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Lanayru Caves - Golo's Gift",
+    "trackerCheckId": "\\Lanayru\\Caves\\Golo's Gift",
+    "trackerName": "Lanayru Caves - Golo's Gift",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Lanayru Gorge - Thunder Dragon's Reward",
+    "trackerCheckId": "\\Lanayru\\Lanayru Sand Sea\\Gorge\\Thunder Dragon's Reward",
+    "trackerName": "Lanayru Gorge - Thunder Dragon's Reward",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Skyview Temple - Chest after Stalfos Fight",
+    "trackerCheckId": "\\Skyview\\Main\\Second Hub\\Miniboss Room\\Chest after Stalfos Fight",
+    "trackerName": "Skyview - Chest after Stalfos Fight",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Skyview Temple - Item behind Bars",
+    "trackerCheckId": "\\Skyview\\Main\\Second Hub\\Item behind Bars",
+    "trackerName": "Skyview - Item behind Bars",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Skyview Spring - Rupee on Spring Pillar",
+    "trackerCheckId": "\\Skyview\\Spring\\Rupee on Spring Pillar",
+    "trackerName": "Skyview - Rupee on Spring Pillar",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Skyview Spring - Strike Crest",
+    "trackerCheckId": "\\Skyview\\Spring\\Strike Crest",
+    "trackerName": "Skyview - Strike Crest",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Earth Temple - Rupee above First Drawbridge",
+    "trackerCheckId": "\\Earth Temple\\Main\\First Room\\Rupee above Drawbridge",
+    "trackerName": "Earth Temple - Rupee above Drawbridge",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Earth Temple - Chest behind Southwest Bombable Rock",
+    "trackerCheckId": "\\Earth Temple\\Main\\Hub Room\\Chest behind Bombable Rock",
+    "trackerName": "Earth Temple - Chest behind Bombable Rock",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Earth Temple - Chest in West Room",
+    "trackerCheckId": "\\Earth Temple\\Main\\West Room\\Chest in West Room",
+    "trackerName": "Earth Temple - Chest in West Room",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Earth Temple - Chest after Double Lizalfos Fight",
+    "trackerCheckId": "\\Earth Temple\\Main\\East Room\\Chest after Double Lizalfos Fight",
+    "trackerName": "Earth Temple - Chest after Double Lizalfos Fight",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Earth Temple - Ledd's Gift",
+    "trackerCheckId": "\\Earth Temple\\Main\\Hub Room\\Ledd's Gift",
+    "trackerName": "Earth Temple - Ledd's Gift",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Earth Temple - Northeast Chest Guarded by Lizalfos",
+    "trackerCheckId": "\\Earth Temple\\Main\\Hub Room\\Past Lava Section\\Chest Guarded by Lizalfos",
+    "trackerName": "Earth Temple - Chest Guarded by Lizalfos",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Lanayru Mining Facility - Chest behind Bars",
+    "trackerCheckId": "\\Lanayru Mining Facility\\Main\\First Room\\Chest behind Bars",
+    "trackerName": "Lanayru Mining Facility - Chest behind Bars",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Lanayru Mining Facility - Chest in First West Room",
+    "trackerCheckId": "\\Lanayru Mining Facility\\Main\\First West Room\\Chest in First West Room",
+    "trackerName": "Lanayru Mining Facility - Chest in First West Room",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Lanayru Mining Facility - Chest after Armos Fight",
+    "trackerCheckId": "\\Lanayru Mining Facility\\Main\\Armos Fight Room\\Chest after Armos Fight",
+    "trackerName": "Lanayru Mining Facility - Chest after Armos Fight",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Lanayru Mining Facility - Chest in Key Locked Room",
+    "trackerCheckId": "\\Lanayru Mining Facility\\Main\\Key Locked Room\\Chest in Key Locked Room",
+    "trackerName": "Lanayru Mining Facility - Chest in Key Locked Room",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Lanayru Mining Facility - Hop across Boxes Raised Chest",
+    "trackerCheckId": "\\Lanayru Mining Facility\\Main\\Hop Across Boxes Room\\Raised Chest in Hop across Boxes Room",
+    "trackerName": "Lanayru Mining Facility - Raised Chest in Hop across Boxes Room",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Lanayru Mining Facility - Hop across Boxes Lower Chest",
+    "trackerCheckId": "\\Lanayru Mining Facility\\Main\\Hop Across Boxes Room\\Lower Chest in Hop across Boxes Room",
+    "trackerName": "Lanayru Mining Facility - Lower Chest in Hop across Boxes Room",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Lanayru Mining Facility - Chest behind First Crawlspace",
+    "trackerCheckId": "\\Lanayru Mining Facility\\Main\\Big Hub\\Past West Gate\\Chest behind First Crawlspace",
+    "trackerName": "Lanayru Mining Facility - Chest behind First Crawlspace",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Lanayru Mining Facility - Chest in Spike Maze",
+    "trackerCheckId": "\\Lanayru Mining Facility\\Main\\Big Hub\\Sand Spike Maze\\Chest in Spike Maze",
+    "trackerName": "Lanayru Mining Facility - Chest in Spike Maze",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Lanayru Mining Facility - Chest after Double Armos Fight",
+    "trackerCheckId": "\\Lanayru Mining Facility\\Main\\Armos Fight Room\\Chest after Armos Fight",
+    "trackerName": "Lanayru Mining Facility - Chest after Armos Fight",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Lanayru Mining Facility - Exit Hall of Ancient Robots",
+    "trackerCheckId": "\\Lanayru Mining Facility\\Hall of Ancient Robots\\End\\Exit Hall of Ancient Robots",
+    "trackerName": "Lanayru Mining Facility - Exit Hall of Ancient Robots",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Ancient Cistern - Rupee in West Hand",
+    "trackerCheckId": "\\Ancient Cistern\\Main\\Main Room\\Rupee in West Hand",
+    "trackerName": "Ancient Cistern - Rupee in West Hand",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Ancient Cistern - Rupee in East Hand",
+    "trackerCheckId": "\\Ancient Cistern\\Main\\Main Room\\Rupee in East Hand",
+    "trackerName": "Ancient Cistern - Rupee in East Hand",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Ancient Cistern - Chest after Whip Hooks",
+    "trackerCheckId": "\\Ancient Cistern\\Main\\Main Room\\After Whip Hooks\\Chest after Whip Hooks",
+    "trackerName": "Ancient Cistern - Chest after Whip Hooks",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Ancient Cistern - Chest near Vines",
+    "trackerCheckId": "\\Ancient Cistern\\Main\\Main Room\\Vines Area\\Chest near Vines",
+    "trackerName": "Ancient Cistern - Chest near Vines",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Ancient Cistern - Chest behind Waterfall",
+    "trackerCheckId": "\\Ancient Cistern\\Main\\Main Room\\Behind the Waterfall\\Chest behind the Waterfall",
+    "trackerName": "Ancient Cistern - Chest behind the Waterfall",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Ancient Cistern - Chest in Key Locked Room",
+    "trackerCheckId": "\\Ancient Cistern\\Main\\Inside Statue\\Key Locked Room with Chest\\Chest in Key Locked Room",
+    "trackerName": "Ancient Cistern - Chest in Key Locked Room",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Ancient Cistern - Farore's Flame",
+    "trackerCheckId": "\\Ancient Cistern\\Flame Room\\Farore's Flame",
+    "trackerName": "Ancient Cistern - Farore's Flame",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Sandship - Chest at Ship's Stern",
+    "trackerCheckId": "\\Sandship\\Main\\Deck\\Stern\\Chest at the Stern",
+    "trackerName": "Sandship - Chest at the Stern",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Sandship - Chest before 4-Door Corridor",
+    "trackerCheckId": "\\Sandship\\Main\\Before Ship's Bow\\Chest before 4-Door Corridor",
+    "trackerName": "Sandship - Chest before 4-Door Corridor",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Sandship - Chest behind Combination Lock",
+    "trackerCheckId": "\\Sandship\\Main\\Before Boss Door\\Chest behind Combination Lock",
+    "trackerName": "Sandship - Chest behind Combination Lock",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Sandship - Treasure Room First Chest",
+    "trackerCheckId": "\\Sandship\\Main\\Treasure Room\\Treasure Room First Chest",
+    "trackerName": "Sandship - Treasure Room First Chest",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Sandship - Treasure Room Second Chest",
+    "trackerCheckId": "\\Sandship\\Main\\Treasure Room\\Treasure Room Second Chest",
+    "trackerName": "Sandship - Treasure Room Second Chest",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Sandship - Treasure Room Third Chest",
+    "trackerCheckId": "\\Sandship\\Main\\Treasure Room\\Treasure Room Third Chest",
+    "trackerName": "Sandship - Treasure Room Third Chest",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Sandship - Treasure Room Fourth Chest",
+    "trackerCheckId": "\\Sandship\\Main\\Treasure Room\\Treasure Room Fourth Chest",
+    "trackerName": "Sandship - Treasure Room Fourth Chest",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Sandship - Treasure Room Fifth Chest",
+    "trackerCheckId": "\\Sandship\\Main\\Treasure Room\\Treasure Room Fifth Chest",
+    "trackerName": "Sandship - Treasure Room Fifth Chest",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Sandship - Robot in Brig's Reward",
+    "trackerCheckId": "\\Sandship\\Main\\Brig Prison\\Robot in Brig's Reward",
+    "trackerName": "Sandship - Robot in Brig's Reward",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Sandship - Chest after Scervo Fight",
+    "trackerCheckId": "\\Sandship\\Main\\Ship's Bow\\Chest after Scervo Fight",
+    "trackerName": "Sandship - Chest after Scervo Fight",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Sandship - Nayru's Flame",
+    "trackerCheckId": "\\Sandship\\Boss Room\\Nayru's Flame",
+    "trackerName": "Sandship - Nayru's Flame",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Fire Sanctuary - Chest in First Room",
+    "trackerCheckId": "\\Fire Sanctuary\\Main\\First Room\\Past Water Plant\\Chest in First Room",
+    "trackerName": "Fire Sanctuary - Chest in First Room",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Fire Sanctuary - Chest in Second Room",
+    "trackerCheckId": "\\Fire Sanctuary\\Main\\Second Room\\Chest in Second Room",
+    "trackerName": "Fire Sanctuary - Chest in Second Room",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Fire Sanctuary - Chest near First Trapped Mogma",
+    "trackerCheckId": "\\Fire Sanctuary\\Main\\First Trapped Mogma Room\\Chest near First Trapped Mogma",
+    "trackerName": "Fire Sanctuary - Chest near First Trapped Mogma",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Fire Sanctuary - Chest from First Trapped Mogma",
+    "trackerCheckId": "\\Fire Sanctuary\\Main\\First Trapped Mogma Room\\Chest near First Trapped Mogma",
+    "trackerName": "Fire Sanctuary - Chest near First Trapped Mogma",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Fire Sanctuary - Chest from Second Trapped Mogma",
+    "trackerCheckId": "\\Fire Sanctuary\\Main\\Second Trapped Mogma Room\\Rescue Second Trapped Mogma",
+    "trackerName": "Fire Sanctuary - Rescue Second Trapped Mogma",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Fire Sanctuary - Chest after Bombable Wall",
+    "trackerCheckId": "\\Fire Sanctuary\\Main\\Second Trapped Mogma Room\\Past Bombable Wall\\Chest after Bombable Wall",
+    "trackerName": "Fire Sanctuary - Chest after Bombable Wall",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Fire Sanctuary - Plats' Chest",
+    "trackerCheckId": "\\Fire Sanctuary\\Main\\West of Boss Door\\Plats' Chest",
+    "trackerName": "Fire Sanctuary - Plats' Chest",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Fire Sanctuary - Chest in Staircase Room",
+    "trackerCheckId": "\\Fire Sanctuary\\Main\\Staircase Room\\Chest in Staircase Room",
+    "trackerName": "Fire Sanctuary - Chest in Staircase Room",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Fire Sanctuary - Din's Flame",
+    "trackerCheckId": "\\Fire Sanctuary\\Flame Room\\Din's Flame",
+    "trackerName": "Fire Sanctuary - Din's Flame",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Sky Keep - Chest in First Room",
+    "trackerCheckId": "\\Sky Keep\\Main\\First Room\\First Chest",
+    "trackerName": "Sky Keep - First Chest",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Sky Keep - Rupee in Fire Sanctuary Room in Alcove",
+    "trackerCheckId": "\\Sky Keep\\Main\\Fire Sanctuary Room\\First Platform\\Rupee in Fire Sanctuary Room in Alcove",
+    "trackerName": "Sky Keep - Rupee in Fire Sanctuary Room in Alcove",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Sky Keep - Chest after Dreadfuse Fight",
+    "trackerCheckId": "\\Sky Keep\\Main\\Mini Boss Room\\Near Chest\\Chest after Dreadfuse",
+    "trackerName": "Sky Keep - Chest after Dreadfuse",
+    "mapping": "auto-high"
+  },
+  {
+    "hdName": "Sky Keep - Sacred Power of Din",
+    "trackerCheckId": "\\Sky Keep\\Main\\Fire Sanctuary Room\\Triforce Room\\Sacred Power of Din",
+    "trackerName": "Sky Keep - Sacred Power of Din",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Sky Keep - Sacred Power of Nayru",
+    "trackerCheckId": "\\Sky Keep\\Main\\Sandship Room\\Triforce Area\\Sacred Power of Nayru",
+    "trackerName": "Sky Keep - Sacred Power of Nayru",
+    "mapping": "exact"
+  },
+  {
+    "hdName": "Sky Keep - Sacred Power of Farore",
+    "trackerCheckId": "\\Sky Keep\\Main\\Ancient Cistern Room\\Triforce Room\\Sacred Power of Farore",
+    "trackerName": "Sky Keep - Sacred Power of Farore",
+    "mapping": "exact"
+  }
+]

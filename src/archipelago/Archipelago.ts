@@ -87,6 +87,7 @@ export class APClientManager {
     idToItem?: Record<number, string>;
     connectedData?: ConnectedPacket;
     inventory: TrackerState['inventory'] = {};
+    checkedLocationIds: number[] = [];
     checkedLocations: string[] = [];
     checkedCubes: number = 0;
     messages: ClientMessage[] = [];
@@ -100,6 +101,45 @@ export class APClientManager {
 
     status: ClientConnectionState = { state: 'loggedOut' };
     statusSubscriptions: Set<() => void> = new Set();
+
+    private syncCheckedLocations() {
+        if (this.idToLocation === undefined) {
+            return;
+        }
+
+        const unresolvedLocationIds: number[] = [];
+        this.checkedLocations = this.checkedLocationIds.flatMap(
+            (locationId) => {
+                const location = this.idToLocation![locationId];
+                if (location === undefined) {
+                    unresolvedLocationIds.push(locationId);
+                    return [];
+                }
+                return [location];
+            },
+        );
+
+        if (unresolvedLocationIds.length > 0) {
+            console.warn(
+                'AP checked location IDs missing from DataPackage:',
+                unresolvedLocationIds,
+            );
+        }
+
+        this.resolveLocations?.(this.checkedLocations);
+    }
+
+    private setCheckedLocationIds(locationIds: number[]) {
+        this.checkedLocationIds = [...new Set(locationIds)];
+        this.syncCheckedLocations();
+    }
+
+    private addCheckedLocationIds(locationIds: number[]) {
+        this.setCheckedLocationIds([
+            ...this.checkedLocationIds,
+            ...locationIds,
+        ]);
+    }
 
     add(item: InventoryItem, count: number = 1) {
         this.inventory[item] ??= 0;
@@ -151,6 +191,7 @@ export class APClientManager {
             this.loadedSettings = undefined;
             this.connectedData = undefined;
             this.inventory = {};
+            this.checkedLocationIds = [];
             this.checkedLocations = [];
             this.checkedCubes = 0;
             this.messages = [];
@@ -218,15 +259,10 @@ export class APClientManager {
                 string,
                 number | string[]
             >;
-            this.checkedLocations = [
-                ...this.connectedData.checked_locations.map(
-                    (location_id) => this.idToLocation![location_id],
-                ),
-            ];
             this.loadedSettings = optionIndicesToOptions(optionDefs, slotData);
-            this.resolveLocations?.(this.checkedLocations);
             this.requiredDungeons =
                 (slotData['required_dungeons'] as string[]) ?? [];
+            this.setCheckedLocationIds(this.connectedData.checked_locations);
             client.socket.send({
                 cmd: 'GetDataPackage',
                 games: [GAME_NAME],
@@ -264,6 +300,7 @@ export class APClientManager {
                     ssData.location_name_to_id,
                 );
                 this.idToItem = invert<string, number>(ssData.item_name_to_id);
+                this.syncCheckedLocations();
             }
         });
 
@@ -368,13 +405,8 @@ export class APClientManager {
 
         client.socket.on('roomUpdate', (content) => {
             if (content.checked_locations) {
-                this.checkedLocations.push(
-                    ...content.checked_locations.map(
-                        (location_id) => this.idToLocation![location_id],
-                    ),
-                );
+                this.addCheckedLocationIds(content.checked_locations);
             }
-            this.resolveLocations?.(this.checkedLocations);
         });
 
         client.socket.on('bounced', (content) => {

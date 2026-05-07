@@ -1,10 +1,11 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, Navigate } from 'react-router-dom';
 import {
     ClientManagerContext,
     useApConnectionStatusString,
 } from './archipelago/ClientHooks';
+import sshdTrustedLocationMapping from './archipelago/sshdTrustedLocationMapping.json';
 import CustomizationModal from './customization/CustomizationModal';
 import {
     autoRegionLoadingSelector,
@@ -32,6 +33,15 @@ import {
 import { useTrackerInterfaceReducer } from './tracker/TrackerInterfaceReducer';
 // import { requiredDungeonsSelector } from './tracker/Selectors';
 // import type { RegularDungeon } from './logic/Locations';
+
+type SshdLocationMappingEntry = {
+    hdName: string;
+    trackerCheckId: string | null;
+    trackerName: string | null;
+};
+
+const sshdLocationMappingEntries =
+    sshdTrustedLocationMapping as SshdLocationMappingEntry[];
 
 export default function TrackerContainer() {
     const logicLoaded = useSelector(isLogicLoadedSelector);
@@ -104,18 +114,65 @@ function TrackerContents() {
     const dispatch = useDispatch();
     const clientManager = useContext(ClientManagerContext);
     const autoRegionLoading = useSelector(autoRegionLoadingSelector);
+    const seenUnmappedApLocations = useRef<Set<string>>(new Set());
     // const reqDungeons = useSelector(requiredDungeonsSelector);
 
     // Configure the AP client for auto-tracking
     useEffect(() => {
-        const shortToFull: Record<string, string> = {};
+        const apLocationToTrackerCheck: Record<string, string> = {};
         for (const [fullName, checkInfo] of Object.entries(logic.checks)) {
-            shortToFull[checkInfo.name] = fullName;
+            apLocationToTrackerCheck[checkInfo.name] = fullName;
         }
+
+        const invalidMappedLocations: string[] = [];
+        for (const entry of sshdLocationMappingEntries) {
+            if (entry.trackerCheckId === null) {
+                continue;
+            }
+            if (logic.checks[entry.trackerCheckId]) {
+                apLocationToTrackerCheck[entry.hdName] = entry.trackerCheckId;
+            } else {
+                invalidMappedLocations.push(
+                    `${entry.hdName} -> ${entry.trackerCheckId}`,
+                );
+            }
+        }
+
+        if (invalidMappedLocations.length > 0) {
+            console.warn(
+                'Invalid SSHD location mappings:',
+                invalidMappedLocations,
+            );
+        }
+
         const clientLocationCallback = (locs: string[]) => {
+            const mappedChecks: string[] = [];
+            const newlyUnmappedLocations: string[] = [];
+
+            for (const loc of locs) {
+                const trackerCheck = apLocationToTrackerCheck[loc];
+                if (trackerCheck !== undefined) {
+                    mappedChecks.push(trackerCheck);
+                } else if (!seenUnmappedApLocations.current.has(loc)) {
+                    seenUnmappedApLocations.current.add(loc);
+                    newlyUnmappedLocations.push(loc);
+                }
+            }
+
+            if (newlyUnmappedLocations.length > 0) {
+                console.warn(
+                    'Unmapped SSHD AP locations:',
+                    newlyUnmappedLocations,
+                );
+            }
+
+            if (mappedChecks.length === 0) {
+                return;
+            }
+
             dispatch(
                 bulkEditChecks({
-                    checks: locs.map((loc) => shortToFull[loc]),
+                    checks: [...new Set(mappedChecks)],
                     markChecked: true,
                 }),
             );
