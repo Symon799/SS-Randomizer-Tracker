@@ -299,7 +299,9 @@ function TrackerToolsView({
                 <div className={styles.toolsOverviewCard}>
                     <div className={styles.toolsSection}>
                         <div className={styles.toolsTitle}>Session</div>
-                        <BasicCounters embedded fullLabels />
+                        <div className={styles.toolsCountersCentered}>
+                            <BasicCounters embedded fullLabels />
+                        </div>
                     </div>
                 </div>
                 <div className={styles.toolsCard}>

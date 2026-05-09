@@ -185,7 +185,7 @@ export function TrackerLayout({
                 >
                     <div
                         style={{
-                            padding: '10px 0.85rem 0.75rem 0.75rem',
+                            padding: '6px 0.85rem 0.75rem 0.75rem',
                             display: 'flex',
                             flexFlow: 'column',
                             height: '100%',

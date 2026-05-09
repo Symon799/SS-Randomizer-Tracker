@@ -7,6 +7,7 @@ declare const classNames: {
     readonly toolsCard: 'toolsCard';
     readonly toolsTitle: 'toolsTitle';
     readonly toolsSection: 'toolsSection';
+    readonly toolsCountersCentered: 'toolsCountersCentered';
     readonly toolsButtons: 'toolsButtons';
     readonly 'tracker-button': 'tracker-button';
     readonly toolsLogPane: 'toolsLogPane';
