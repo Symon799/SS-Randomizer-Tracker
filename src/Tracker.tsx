@@ -8,7 +8,6 @@ import {
     useApRequiredDungeonDiagnostic,
 } from './archipelago/ClientHooks';
 import { buildSshdApLocationResolver } from './archipelago/locationMapping';
-import BasicCounters from './BasicCounters';
 import CustomizationModal from './customization/CustomizationModal';
 import {
     autoRegionLoadingSelector,
@@ -20,7 +19,7 @@ import stageToRegion from './data/stageToRegion.json';
 import { DragAndDropContext } from './dragAndDrop/DragAndDrop';
 import EntranceTracker from './entranceTracker/EntranceTracker';
 import { TextClient } from './hints/TextClient';
-import { ExportButton, ExportUtSnapshotButton } from './ImportExport';
+import { ExportUtSnapshotButton } from './ImportExport';
 import { TrackerLayoutCustom } from './layouts/TrackerLayoutCustom';
 import { TrackerLayout } from './layouts/TrackerLayouts';
 import { useSyncTrackerStateToLocalStorage } from './LocalStorage';
@@ -30,7 +29,7 @@ import { isLogicLoadedSelector, logicSelector } from './logic/Selectors';
 import { getInitialItems } from './logic/TrackerModifications';
 import { MakeTooltipsAvailable } from './tooltips/TooltipHooks';
 import styles from './Tracker.module.css';
-import { settingsSelector } from './tracker/Selectors';
+import { settingsSelector, totalCountersSelector } from './tracker/Selectors';
 import {
     replaceCheckedChecks,
     replaceItemCounts,
@@ -270,11 +269,21 @@ function TrackerToolsView({
 }) {
     const dispatch = useDispatch();
     const debugMode = useSelector(debugModeSelector);
+    const counters = useSelector(totalCountersSelector);
+    const apLocationTotal = useSelector(
+        (state: { tracker: TrackerState }) => state.tracker.apLocationTotal,
+    );
     const settings = useSelector(settingsSelector) as Record<
         string,
         string | number | boolean | string[] | undefined
     >;
     const requiredDungeonDiagnostic = useApRequiredDungeonDiagnostic();
+    const locationTotal =
+        apLocationTotal ?? counters.numChecked + counters.numRemaining;
+    const completionPercent =
+        locationTotal > 0
+            ? ((counters.numChecked / locationTotal) * 100).toFixed(1)
+            : '0.0';
 
     const canUseEntrances = [
         settings['randomize-entrances'],
@@ -299,8 +308,27 @@ function TrackerToolsView({
                 <div className={styles.toolsOverviewCard}>
                     <div className={styles.toolsSection}>
                         <div className={styles.toolsTitle}>Session</div>
-                        <div className={styles.toolsCountersCentered}>
-                            <BasicCounters embedded fullLabels />
+                        <div className={styles.debugStack}>
+                            <div className={styles.debugLine}>
+                                <strong>Checked Locations:</strong>{' '}
+                                {counters.numChecked}
+                            </div>
+                            <div className={styles.debugLine}>
+                                <strong>Accessible Locations:</strong>{' '}
+                                {counters.numAccessible}
+                            </div>
+                            <div className={styles.debugLine}>
+                                <strong>Remaining Locations:</strong>{' '}
+                                {counters.numRemaining}
+                            </div>
+                            <div className={styles.debugLine}>
+                                <strong>Total Locations:</strong>{' '}
+                                {locationTotal}
+                            </div>
+                            <div className={styles.debugLine}>
+                                <strong>Completion:</strong> {completionPercent}
+                                %
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -308,7 +336,6 @@ function TrackerToolsView({
                     <div className={styles.toolsSection}>
                         <div className={styles.toolsTitle}>Tools</div>
                         <div className={styles.toolsButtons}>
-                            <ExportButton />
                             <ExportUtSnapshotButton />
                             {canUseEntrances && (
                                 <button
