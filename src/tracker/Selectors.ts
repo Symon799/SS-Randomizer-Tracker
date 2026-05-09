@@ -175,6 +175,9 @@ const checkedChecksSelector = createSelector(
     (checkedChecks) => new Set(checkedChecks),
 );
 
+const isUndergroundRupeeCheck = (check: LogicalCheck) =>
+    check.type === 'rupee' && check.name.includes('Underground Rupee');
+
 const checkItemsSelector = createSelector(
     [logicSelector, inventorySelector, checkedChecksSelector],
     getAdditionalItems,
@@ -431,6 +434,8 @@ export const isCheckBannedSelector = createSelector(
     ) => {
         const allSettings = settings as Record<string, OptionValue | undefined>;
         const hdRupeeShuffle = allSettings['rupee-shuffle'];
+        const hdUndergroundRupeeShuffle =
+            allSettings['underground-rupee-shuffle'];
         const hdTrialTreasureAmount = Number(
             allSettings['trial-treasure-shuffle'],
         );
@@ -444,10 +449,14 @@ export const isCheckBannedSelector = createSelector(
             allSettings['gossip-stone-treasure-shuffle'];
 
         const bannedChecks = new Set(bannedLocations);
-        const rupeesExcluded =
+        const freestandingRupeesExcluded =
             hdRupeeShuffle !== undefined
                 ? hdRupeeShuffle === 'vanilla'
                 : rupeeSanity === 'Vanilla' || rupeeSanity === false;
+        const undergroundRupeesExcluded =
+            hdUndergroundRupeeShuffle !== undefined
+                ? hdUndergroundRupeeShuffle === 'off'
+                : freestandingRupeesExcluded;
         const maxRelics = silentRealmTreasuresanity
             ? silentRealmTreasureAmount
             : Number.isNaN(hdTrialTreasureAmount)
@@ -503,13 +512,18 @@ export const isCheckBannedSelector = createSelector(
 
         return (checkId: string) => {
             const check = logic.checks[checkId];
+            const rupeeExcluded =
+                check.type === 'rupee' &&
+                (isUndergroundRupeeCheck(check)
+                    ? undergroundRupeesExcluded
+                    : freestandingRupeesExcluded);
             return (
                 bannedChecks.has(check.name) ||
                 areaNonprogress(logic.checks[checkId].area!) ||
                 isExcessRelic(check) ||
                 isBannedChestViaCube(checkId) ||
                 isBannedCubeCheckViaChest(checkId, check) ||
-                (rupeesExcluded && check.type === 'rupee') ||
+                rupeeExcluded ||
                 (banBeedle && check.type === 'beedle_shop') ||
                 (banGearShop && check.type === 'gear_shop') ||
                 (banPotionShop && check.type === 'potion_shop') ||
@@ -556,6 +570,8 @@ const isCheckCountedByApSelector = createSelector(
     ) => {
         const allSettings = settings as Record<string, OptionValue | undefined>;
         const hdRupeeShuffle = allSettings['rupee-shuffle'];
+        const hdUndergroundRupeeShuffle =
+            allSettings['underground-rupee-shuffle'];
         const hdTrialTreasureAmount = Number(
             allSettings['trial-treasure-shuffle'],
         );
@@ -569,10 +585,14 @@ const isCheckCountedByApSelector = createSelector(
             allSettings['gossip-stone-treasure-shuffle'];
 
         const bannedChecks = new Set(bannedLocations);
-        const rupeesExcluded =
+        const freestandingRupeesExcluded =
             hdRupeeShuffle !== undefined
                 ? hdRupeeShuffle === 'vanilla'
                 : rupeeSanity === 'Vanilla' || rupeeSanity === false;
+        const undergroundRupeesExcluded =
+            hdUndergroundRupeeShuffle !== undefined
+                ? hdUndergroundRupeeShuffle === 'off'
+                : freestandingRupeesExcluded;
         const maxRelics = silentRealmTreasuresanity
             ? silentRealmTreasureAmount
             : Number.isNaN(hdTrialTreasureAmount)
@@ -615,10 +635,15 @@ const isCheckCountedByApSelector = createSelector(
             ) {
                 return false;
             }
+            const rupeeExcluded =
+                check.type === 'rupee' &&
+                (isUndergroundRupeeCheck(check)
+                    ? undergroundRupeesExcluded
+                    : freestandingRupeesExcluded);
             return !(
                 bannedChecks.has(check.name) ||
                 isExcessRelic(check) ||
-                (rupeesExcluded && check.type === 'rupee') ||
+                rupeeExcluded ||
                 (banBeedle && check.type === 'beedle_shop') ||
                 (banGearShop && check.type === 'gear_shop') ||
                 (banPotionShop && check.type === 'potion_shop') ||

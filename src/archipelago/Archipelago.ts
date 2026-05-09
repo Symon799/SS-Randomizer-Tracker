@@ -128,6 +128,18 @@ export type RequiredDungeonDiagnostic = {
 
 type SlotData = Record<string, unknown>;
 
+function getSlotDataLocationCount(slotData: SlotData): number | undefined {
+    const locationToItemMap = slotData['location_to_item_map'];
+    if (
+        locationToItemMap &&
+        typeof locationToItemMap === 'object' &&
+        !Array.isArray(locationToItemMap)
+    ) {
+        return Object.keys(locationToItemMap as Record<string, unknown>).length;
+    }
+    return undefined;
+}
+
 const MAX_MESSAGES = 1000;
 const GAME_NAME = 'Skyward Sword HD';
 
@@ -565,6 +577,7 @@ export class APClientManager {
                     'AP required dungeon diagnostic:',
                     this.requiredDungeonDiagnostic,
                 );
+                this.totalLocationCount = getSlotDataLocationCount(slotData);
                 this.resolveRequiredDungeons?.(this.requiredDungeons);
                 this.setCheckedLocationIds(
                     this.connectedData.checked_locations,
@@ -615,7 +628,7 @@ export class APClientManager {
                     ssData.location_name_to_id,
                 );
                 this.idToItem = invert<string, number>(ssData.item_name_to_id);
-                this.totalLocationCount = Object.keys(
+                this.totalLocationCount ??= Object.keys(
                     ssData.location_name_to_id ?? {},
                 ).length;
                 this.resolveLocationStats?.({
