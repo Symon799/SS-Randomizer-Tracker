@@ -7,6 +7,10 @@
     &.wide {
         column-count: 2;
     }
+
+    &.compact {
+        column-gap: 4px;
+    }
 }
 
 .locationCell {
@@ -19,4 +23,9 @@
     break-inside: avoid;
     display: grid;
     overflow: hidden;
+}
+
+.compactCell {
+    min-height: 30px;
+    margin-bottom: 4px;
 }

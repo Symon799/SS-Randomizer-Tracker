@@ -3,6 +3,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link, Navigate } from 'react-router-dom';
 import {
     ClientManagerContext,
+    useApConnectionStatus,
+    useApConnectionStatusString,
     useApRequiredDungeonDiagnostic,
 } from './archipelago/ClientHooks';
 import { buildSshdApLocationResolver } from './archipelago/locationMapping';
@@ -77,35 +79,14 @@ function Tracker() {
     return (
         <>
             <div className={styles.shell}>
-                <div className={styles.topBar}>
-                    <div className={styles.topTabs}>
-                        <button
-                            type="button"
-                            className={`${styles.tabButton} ${
-                                activeView === 'tracker' ? styles.activeTab : ''
-                            }`}
-                            aria-pressed={activeView === 'tracker'}
-                            onClick={() => setActiveView('tracker')}
-                        >
-                            Tracker
-                        </button>
-                        <button
-                            type="button"
-                            className={`${styles.tabButton} ${
-                                activeView === 'server' ? styles.activeTab : ''
-                            }`}
-                            aria-pressed={activeView === 'server'}
-                            onClick={() => setActiveView('server')}
-                        >
-                            Server & Tools
-                        </button>
-                    </div>
-                </div>
                 <div className={styles.mainArea}>
                     {activeView === 'tracker' ? (
-                        <TrackerContents />
+                        <TrackerContents
+                            openTools={() => setActiveView('server')}
+                        />
                     ) : (
                         <TrackerToolsView
+                            closeTools={() => setActiveView('tracker')}
                             openCustomization={() =>
                                 setShowCustomizationDialog(true)
                             }
@@ -126,7 +107,7 @@ function Tracker() {
     );
 }
 
-function TrackerContents() {
+function TrackerContents({ openTools }: { openTools: () => void }) {
     const logic = useSelector(logicSelector);
     const [trackerInterfaceState, trackerInterfaceDispatch] =
         useTrackerInterfaceReducer();
@@ -263,11 +244,13 @@ function TrackerContents() {
             />
             {hasCustomLayout ? (
                 <TrackerLayoutCustom
+                    footerContent={<TrackerFooterNav openTools={openTools} />}
                     interfaceDispatch={trackerInterfaceDispatch}
                     interfaceState={trackerInterfaceState}
                 />
             ) : (
                 <TrackerLayout
+                    footerContent={<TrackerFooterNav openTools={openTools} />}
                     interfaceDispatch={trackerInterfaceDispatch}
                     interfaceState={trackerInterfaceState}
                 />
@@ -277,9 +260,11 @@ function TrackerContents() {
 }
 
 function TrackerToolsView({
+    closeTools,
     openCustomization,
     openEntrances,
 }: {
+    closeTools: () => void;
     openCustomization: () => void;
     openEntrances: () => void;
 }) {
@@ -311,75 +296,187 @@ function TrackerToolsView({
     return (
         <div className={styles.toolsLayout}>
             <div className={styles.toolsSidebar}>
-                <BasicCounters />
+                <div className={styles.toolsOverviewCard}>
+                    <div className={styles.toolsSection}>
+                        <div className={styles.toolsTitle}>Session</div>
+                        <BasicCounters embedded fullLabels />
+                    </div>
+                </div>
                 <div className={styles.toolsCard}>
-                    <div className={styles.toolsTitle}>Tools</div>
-                    <div className={styles.toolsButtons}>
-                        <Link to="/">
-                            <div className="tracker-button">← Options</div>
-                        </Link>
-                        <ExportButton />
-                        <ExportUtSnapshotButton />
-                        {canUseEntrances && (
+                    <div className={styles.toolsSection}>
+                        <div className={styles.toolsTitle}>Tools</div>
+                        <div className={styles.toolsButtons}>
+                            <ExportButton />
+                            <ExportUtSnapshotButton />
+                            {canUseEntrances && (
+                                <button
+                                    type="button"
+                                    className="tracker-button"
+                                    onClick={openEntrances}
+                                >
+                                    Entrances
+                                </button>
+                            )}
                             <button
                                 type="button"
                                 className="tracker-button"
-                                onClick={openEntrances}
+                                onClick={openCustomization}
                             >
-                                Entrances
+                                Customization
                             </button>
-                        )}
-                        <button
-                            type="button"
-                            className="tracker-button"
-                            onClick={openCustomization}
-                        >
-                            Customization
-                        </button>
-                        <button
-                            type="button"
-                            className="tracker-button"
-                            onClick={() => dispatch(setDebugMode(!debugMode))}
-                        >
-                            {debugMode ? 'Debug On' : 'Debug Off'}
-                        </button>
+                            <button
+                                type="button"
+                                className="tracker-button"
+                                onClick={() =>
+                                    dispatch(setDebugMode(!debugMode))
+                                }
+                            >
+                                {debugMode ? 'Debug On' : 'Debug Off'}
+                            </button>
+                        </div>
                     </div>
                 </div>
                 {debugMode && requiredDungeonDiagnostic && (
                     <div className={styles.toolsCard}>
-                        <div className={styles.toolsTitle}>Debug</div>
-                        <div className={styles.debugLine}>
-                            <strong>Required dungeons diagnostic:</strong>{' '}
-                            {requiredDungeonDiagnostic.verdict}
-                        </div>
-                        <div className={styles.debugLine}>
-                            <strong>`required_dungeons` raw value:</strong>{' '}
-                            <code>
-                                {JSON.stringify(
-                                    requiredDungeonDiagnostic.requiredDungeonsRaw,
-                                )}
-                            </code>
-                        </div>
-                        <div className={styles.debugLine}>
-                            <strong>Matching keys in `slot_data`:</strong>{' '}
-                            <code>
-                                {requiredDungeonDiagnostic
-                                    .keysContainingRequired.length > 0
-                                    ? requiredDungeonDiagnostic.keysContainingRequired.join(
-                                          ', ',
-                                      )
-                                    : '(none)'}
-                            </code>
+                        <div className={styles.toolsSection}>
+                            <div className={styles.toolsTitle}>Debug</div>
+                            <div className={styles.debugStack}>
+                                <div className={styles.debugLine}>
+                                    <strong>
+                                        Required dungeons diagnostic:
+                                    </strong>{' '}
+                                    {requiredDungeonDiagnostic.verdict}
+                                </div>
+                                <div className={styles.debugLine}>
+                                    <strong>
+                                        `required_dungeons` raw value:
+                                    </strong>{' '}
+                                    <code>
+                                        {JSON.stringify(
+                                            requiredDungeonDiagnostic.requiredDungeonsRaw,
+                                        )}
+                                    </code>
+                                </div>
+                                <div className={styles.debugLine}>
+                                    <strong>
+                                        Matching keys in `slot_data`:
+                                    </strong>{' '}
+                                    <code>
+                                        {requiredDungeonDiagnostic
+                                            .keysContainingRequired.length > 0
+                                            ? requiredDungeonDiagnostic.keysContainingRequired.join(
+                                                  ', ',
+                                              )
+                                            : '(none)'}
+                                    </code>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 )}
+                <ToolsFooterNav closeTools={closeTools} />
             </div>
             <div className={styles.toolsLogPane}>
-                <div className={styles.toolsTitle}>Server Log</div>
+                <div className={styles.toolsLogHeader}>
+                    <div className={styles.toolsTitle}>Server Log</div>
+                    <div className={styles.logHeaderNote}>
+                        Archipelago messages and commands
+                    </div>
+                </div>
                 <div className={styles.logClientWrap}>
                     <TextClient />
                 </div>
             </div>
         </div>
     );
+}
+
+function FooterStatusBlock({
+    primaryAction,
+    secondaryAction,
+}: {
+    primaryAction: React.ReactNode;
+    secondaryAction: React.ReactNode;
+}) {
+    return (
+        <div className={styles.footerNav}>
+            <div className={styles.footerNavRow}>
+                <div className={styles.footerNavButtons}>
+                    {primaryAction}
+                    {secondaryAction}
+                </div>
+                <TrackerStatusLine />
+            </div>
+        </div>
+    );
+}
+
+function TrackerFooterNav({ openTools }: { openTools: () => void }) {
+    return (
+        <FooterStatusBlock
+            primaryAction={
+                <button
+                    type="button"
+                    className={`${styles.iconButton} tracker-button`}
+                    onClick={openTools}
+                    aria-label="Open Server and Tools"
+                    title="Server & Tools"
+                >
+                    ⚙
+                </button>
+            }
+            secondaryAction={
+                <Link
+                    to="/"
+                    className={`${styles.footerLinkReset} ${styles.footerIconLink}`}
+                    aria-label="Connect"
+                    title="Connect"
+                >
+                    <div className={`${styles.iconButton} tracker-button`}>
+                        🔌
+                    </div>
+                </Link>
+            }
+        />
+    );
+}
+
+function ToolsFooterNav({ closeTools }: { closeTools: () => void }) {
+    return (
+        <FooterStatusBlock
+            primaryAction={
+                <button
+                    type="button"
+                    className={`${styles.iconButton} tracker-button`}
+                    onClick={closeTools}
+                    aria-label="Tracker"
+                    title="Tracker"
+                >
+                    ▣
+                </button>
+            }
+            secondaryAction={
+                <Link
+                    to="/"
+                    className={`${styles.footerLinkReset} ${styles.footerIconLink}`}
+                    aria-label="Connect"
+                    title="Connect"
+                >
+                    <div className={`${styles.iconButton} tracker-button`}>
+                        🔌
+                    </div>
+                </Link>
+            }
+        />
+    );
+}
+
+function TrackerStatusLine() {
+    const status = useApConnectionStatus();
+    const statusString = useApConnectionStatusString();
+    const shortStatus =
+        status.state === 'loggedIn'
+            ? `${status.serverName} as ${status.slotName}`
+            : statusString;
+    return <div className={styles.footerStatus}>{shortStatus}</div>;
 }

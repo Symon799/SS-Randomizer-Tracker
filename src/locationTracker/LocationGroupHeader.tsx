@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { useCallback } from 'react';
+import { useCallback, type ReactNode } from 'react';
 import type { TriggerEvent } from 'react-contexify';
 import { useSelector } from 'react-redux';
 import Tooltip from '../additionalComponents/Tooltip';
@@ -11,7 +11,6 @@ import { decodeHint } from '../hints/Hints';
 import type { HintRegion } from '../logic/Locations';
 import { areaHintSelector } from '../tracker/Selectors';
 import keyDownWrapper from '../utils/KeyDownWrapper';
-import AreaCounters from './AreaCounters';
 import { useContextMenu } from './context-menu';
 import type { LocationGroupContextMenuProps } from './LocationGroupContextMenu';
 import styles from './LocationGroupHeader.module.css';
@@ -19,13 +18,15 @@ import styles from './LocationGroupHeader.module.css';
 export default function LocationGroupHeader({
     area,
     setActiveArea,
-    alignCounters,
+    alignCounters: _alignCounters,
     isActive,
+    trailingContent,
 }: {
     area: HintRegion;
     setActiveArea: (area: string) => void;
     alignCounters?: boolean;
     isActive?: boolean;
+    trailingContent?: ReactNode;
 }) {
     const onClick = useCallback(
         () => setActiveArea(area.name),
@@ -75,7 +76,12 @@ export default function LocationGroupHeader({
             })}
             ref={setNodeRef}
         >
-            <div className={styles.name}>{area.name}</div>
+            <div className={styles.name}>
+                <span className={styles.nameText}>{area.name}</span>
+                <span className={styles.nameCounter}>
+                    ({area.checks.numAccessible}/{area.checks.numRemaining})
+                </span>
+            </div>
             {hints.map((hint, idx) => (
                 <div
                     key={idx}
@@ -96,16 +102,9 @@ export default function LocationGroupHeader({
                     </Tooltip>
                 </div>
             ))}
-            <div
-                className={clsx(styles.counter, {
-                    [styles.align]: alignCounters,
-                })}
-            >
-                <AreaCounters
-                    totalChecksLeftInArea={area.checks.numRemaining}
-                    totalChecksAccessible={area.checks.numAccessible}
-                />
-            </div>
+            {Boolean(trailingContent) && (
+                <div className={styles.trailingContent}>{trailingContent}</div>
+            )}
         </div>
     );
 }

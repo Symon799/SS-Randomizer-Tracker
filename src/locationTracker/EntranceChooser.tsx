@@ -93,7 +93,7 @@ export default function EntranceChooser({
                 onChange={(e) => setFilterText(e.target.value)}
             />
             <div className={styles.entrances}>
-                <LocationGrid wide={wide}>
+                <LocationGrid compact={false} wide={wide}>
                     {entranceOptions?.map(({ value, label }) => (
                         <div
                             key={value}

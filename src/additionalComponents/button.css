@@ -4,8 +4,12 @@
     .tracker-button {
         cursor: pointer;
         display: inline-block;
-        color: var(--scheme-interact-text);
-        background-color: var(--scheme-interact);
+        color: var(--scheme-text);
+        background-color: color-mix(
+            in srgb,
+            var(--scheme-background) 90%,
+            white
+        );
         text-align: center;
         transition:
             background-color 150ms ease-out,
@@ -13,9 +17,10 @@
             box-shadow 150ms ease-out,
             transform 150ms ease-out;
         padding: 0.5rem 0.85rem;
-        border: 1px solid color-mix(in srgb, var(--scheme-interact) 70%, white);
+        border: 1px solid
+            color-mix(in srgb, var(--scheme-text) 14%, transparent);
         border-radius: 8px;
-        box-shadow: 0 1px 2px
+        box-shadow: 0 6px 18px
             color-mix(in srgb, var(--scheme-text) 14%, transparent);
         font-size: 0.95rem;
         font-weight: 600;
@@ -23,8 +28,16 @@
 
         &:hover,
         &:active {
-            background-color: var(--scheme-interact-hover);
-            border-color: var(--scheme-interact-hover);
+            background-color: color-mix(
+                in srgb,
+                var(--scheme-background) 82%,
+                white
+            );
+            border-color: color-mix(
+                in srgb,
+                var(--scheme-text) 18%,
+                transparent
+            );
             transform: translateY(-1px);
         }
 
@@ -35,8 +48,16 @@
 
             &:hover,
             &:active {
-                background-color: var(--scheme-interact);
-                border-color: var(--scheme-interact);
+                background-color: color-mix(
+                    in srgb,
+                    var(--scheme-background) 90%,
+                    white
+                );
+                border-color: color-mix(
+                    in srgb,
+                    var(--scheme-text) 14%,
+                    transparent
+                );
                 transform: none;
             }
         }

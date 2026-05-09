@@ -1,7 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { useApConnectionStatusString } from '../archipelago/ClientHooks';
 import BasicCounters from '../BasicCounters';
+import {
+    getStoredTrackerMapHeight,
+    getStoredTrackerSidebarWidth,
+    setStoredTrackerMapHeight,
+    setStoredTrackerSidebarWidth,
+} from '../LocalStorage';
 import {
     itemLayoutSelector,
     locationLayoutSelector,
@@ -28,13 +33,17 @@ import { useElementSize } from '../utils/React';
 export function TrackerLayout({
     interfaceState,
     interfaceDispatch,
+    footerContent,
 }: {
     interfaceState: InterfaceState;
     interfaceDispatch: React.Dispatch<InterfaceAction>;
+    footerContent?: React.ReactNode;
 }) {
     const itemLayout = useSelector(itemLayoutSelector);
     const locationLayout = useSelector(locationLayoutSelector);
-    const [sidebarWidth, setSidebarWidth] = useState(390);
+    const [sidebarWidth, setSidebarWidth] = useState(
+        () => getStoredTrackerSidebarWidth() ?? 390,
+    );
     const [isResizing, setIsResizing] = useState(false);
     const containerRef = useRef<HTMLDivElement | null>(null);
     const { measuredWidth } = useElementSize(containerRef);
@@ -67,6 +76,10 @@ export function TrackerLayout({
             window.removeEventListener('mouseup', onUp);
         };
     }, [isResizing]);
+
+    useEffect(() => {
+        setStoredTrackerSidebarWidth(clampedSidebarWidth);
+    }, [clampedSidebarWidth]);
 
     // Warning: Layout horrors below.
     // This main tracker area used to be implemented with react-bootstrap's
@@ -108,7 +121,7 @@ export function TrackerLayout({
                             width: '100%',
                             display: 'flex',
                             flexFlow: 'column nowrap',
-                            gap: '10px',
+                            gap: '12px',
                         }}
                     >
                         <BasicCounters compact />
@@ -117,7 +130,7 @@ export function TrackerLayout({
                             compact
                         />
                         {itemTracker}
-                        <TrackerConnectionStatus />
+                        {footerContent}
                     </div>
                 </div>
                 <div style={{ flex: '0 0 auto', width: '70%' }}>
@@ -177,7 +190,7 @@ export function TrackerLayout({
                             flexFlow: 'column',
                             height: '100%',
                             width: '100%',
-                            gap: '8px',
+                            gap: '12px',
                         }}
                     >
                         <BasicCounters compact />
@@ -186,7 +199,7 @@ export function TrackerLayout({
                             compact
                         />
                         {itemTracker}
-                        <TrackerConnectionStatus />
+                        {footerContent}
                     </div>
                 </div>
                 <button
@@ -248,13 +261,50 @@ function MapLayoutCenterColumnContainer({
     interfaceDispatch: React.Dispatch<InterfaceAction>;
 }) {
     const ref = useRef<HTMLDivElement | null>(null);
+    const [mapPanelHeight, setMapPanelHeight] = useState<number | undefined>(
+        () => getStoredTrackerMapHeight(),
+    );
+    const [isResizingMap, setIsResizingMap] = useState(false);
     const { measuredWidth, measuredHeight } = useElementSize(ref);
+    const minMapPanelHeight = 220;
+    const maxMapPanelHeight = Math.max(minMapPanelHeight, measuredHeight - 240);
+    const defaultMapPanelHeight = Math.min(
+        Math.max(minMapPanelHeight, measuredHeight * 0.42),
+        maxMapPanelHeight,
+    );
+    const clampedMapPanelHeight = Math.min(
+        Math.max(mapPanelHeight ?? defaultMapPanelHeight, minMapPanelHeight),
+        maxMapPanelHeight,
+    );
+
+    useEffect(() => {
+        if (!isResizingMap) {
+            return;
+        }
+        const onMove = (event: MouseEvent) => {
+            const bounds = ref.current?.getBoundingClientRect();
+            if (!bounds) {
+                return;
+            }
+            setMapPanelHeight(event.clientY - bounds.top);
+        };
+        const onUp = () => setIsResizingMap(false);
+        window.addEventListener('mousemove', onMove);
+        window.addEventListener('mouseup', onUp);
+        return () => {
+            window.removeEventListener('mousemove', onMove);
+            window.removeEventListener('mouseup', onUp);
+        };
+    }, [isResizingMap]);
+
+    useEffect(() => {
+        setStoredTrackerMapHeight(clampedMapPanelHeight);
+    }, [clampedMapPanelHeight]);
 
     const mapWidth = Math.min(
         measuredWidth,
-        measuredHeight * 0.42 * WORLD_MAP_ASPECT_RATIO,
+        clampedMapPanelHeight * WORLD_MAP_ASPECT_RATIO,
     );
-    const mapHeight = mapWidth / WORLD_MAP_ASPECT_RATIO;
     return (
         <div style={{ width: '100%', height: '100%' }} ref={ref}>
             <div
@@ -263,14 +313,17 @@ function MapLayoutCenterColumnContainer({
                     height: '100%',
                     display: 'flex',
                     flexFlow: 'column nowrap',
-                    gap: '8px',
+                    gap: '0',
                 }}
             >
                 <div
                     style={{
-                        flex: `0 0 ${mapHeight}px`,
+                        flex: `0 0 ${clampedMapPanelHeight}px`,
                         display: 'flex',
                         justifyContent: 'center',
+                        alignItems: 'center',
+                        minHeight: 0,
+                        paddingBottom: 2,
                     }}
                 >
                     <WorldMap
@@ -279,6 +332,33 @@ function MapLayoutCenterColumnContainer({
                         interfaceDispatch={interfaceDispatch}
                     />
                 </div>
+                <button
+                    type="button"
+                    style={{
+                        flex: '0 0 10px',
+                        cursor: 'row-resize',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'stretch',
+                        padding: '0 6px',
+                        border: 0,
+                        background: 'transparent',
+                    }}
+                    onMouseDown={() => setIsResizingMap(true)}
+                    role="separator"
+                    aria-orientation="horizontal"
+                    aria-label="Resize map and location list"
+                >
+                    <div
+                        style={{
+                            height: 4,
+                            width: '100%',
+                            borderRadius: 999,
+                            background:
+                                'color-mix(in srgb, var(--scheme-text) 16%, transparent)',
+                        }}
+                    />
+                </button>
                 <div style={{ position: 'relative', flex: '1', minHeight: 0 }}>
                     <LocationsEntrancesList
                         wide
@@ -288,23 +368,6 @@ function MapLayoutCenterColumnContainer({
                     />
                 </div>
             </div>
-        </div>
-    );
-}
-
-function TrackerConnectionStatus() {
-    const statusString = useApConnectionStatusString();
-    return (
-        <div
-            style={{
-                marginTop: 'auto',
-                padding: '6px 2px 0',
-                fontSize: '0.82rem',
-                color: 'color-mix(in srgb, var(--scheme-text) 72%, transparent)',
-                lineHeight: 1.35,
-            }}
-        >
-            {statusString}
         </div>
     );
 }

@@ -6,6 +6,14 @@
     gap: 10px;
 }
 
+.textClient form {
+    width: 100%;
+}
+
+.textClient form input {
+    width: 100%;
+}
+
 .apMessages {
     overflow-y: auto;
     min-height: 0;

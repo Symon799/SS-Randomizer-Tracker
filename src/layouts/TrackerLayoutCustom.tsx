@@ -194,9 +194,11 @@ function parseLayout(layout: string): TrackerComponent[] {
 export function TrackerLayoutCustom({
     interfaceState,
     interfaceDispatch,
+    footerContent,
 }: {
     interfaceState: InterfaceState;
     interfaceDispatch: React.Dispatch<InterfaceAction>;
+    footerContent?: React.ReactNode;
 }) {
     const dispatch = useDispatch();
     const customLayout = useSelector(customLayoutSelector);
@@ -226,10 +228,22 @@ export function TrackerLayoutCustom({
     }
 
     return (
-        <>
+        <div style={{ position: 'relative', width: '100%', height: '100%' }}>
             {parseResult.map((component) =>
                 component({ interfaceDispatch, interfaceState }),
             )}
-        </>
+            {Boolean(footerContent) && (
+                <div
+                    style={{
+                        position: 'absolute',
+                        left: 12,
+                        bottom: 12,
+                        zIndex: 10,
+                    }}
+                >
+                    {footerContent}
+                </div>
+            )}
+        </div>
     );
 }

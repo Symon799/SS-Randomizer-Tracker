@@ -1,10 +1,11 @@
 declare const classNames: {
     readonly location: 'location';
     readonly checked: 'checked';
+    readonly compact: 'compact';
     readonly text: 'text';
+    readonly hintItem: 'hintItem';
     readonly droppable: 'droppable';
     readonly droppableHover: 'droppableHover';
-    readonly hintItem: 'hintItem';
     readonly preview: 'preview';
     readonly tooltipNote: 'tooltipNote';
     readonly debugBlock: 'debugBlock';

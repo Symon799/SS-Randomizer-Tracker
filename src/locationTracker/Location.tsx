@@ -36,21 +36,29 @@ export interface LocationContextMenuProps {
 }
 
 export default function Location({
+    compact,
     id,
     onChooseEntrance,
 }: {
+    compact: boolean;
     id: string;
     onChooseEntrance: (exitId: string) => void;
 }) {
     const check = useSelector(checkSelector(id));
     if (check.type === 'exit') {
-        return <Exit onChooseEntrance={onChooseEntrance} id={id} />;
+        return (
+            <Exit
+                compact={compact}
+                onChooseEntrance={onChooseEntrance}
+                id={id}
+            />
+        );
     } else {
-        return <CheckLocation id={id} />;
+        return <CheckLocation compact={compact} id={id} />;
     }
 }
 
-function CheckLocation({ id }: { id: string }) {
+function CheckLocation({ id, compact }: { id: string; compact: boolean }) {
     const dispatch = useAppDispatch();
     const isBanned = useSelector((state: RootState) =>
         isCheckBannedSelector(state)(id),
@@ -182,6 +190,7 @@ function CheckLocation({ id }: { id: string }) {
         >
             <div
                 className={clsx(styles.location, {
+                    [styles.compact]: compact,
                     [styles.checked]: check.checked,
                     [styles.droppable]: Boolean(draggedItem),
                     [styles.droppableHover]: draggedItem && isOver,
@@ -197,6 +206,7 @@ function CheckLocation({ id }: { id: string }) {
                 <CheckIcon
                     check={check}
                     overrideHint={isOver ? draggedItem : undefined}
+                    compact={compact}
                 />
             </div>
         </Tooltip>
@@ -206,9 +216,11 @@ function CheckLocation({ id }: { id: string }) {
 function CheckIcon({
     check,
     overrideHint,
+    compact,
 }: {
     check: Check;
     overrideHint?: InventoryItem;
+    compact?: boolean;
 }) {
     let hintItem = useSelector(checkHintSelector(check.checkId));
     let preview = false;
@@ -247,17 +259,24 @@ function CheckIcon({
             <div
                 className={clsx(styles.hintItem, { [styles.preview]: preview })}
             >
-                <img src={src} height={36} title={name} alt={name} />
+                <img
+                    src={src}
+                    height={compact ? 28 : 36}
+                    title={name}
+                    alt={name}
+                />
             </div>
         );
     }
 }
 
 function Exit({
+    compact,
     id,
     onChooseEntrance,
     // setActiveArea,
 }: {
+    compact: boolean;
     id: string;
     onChooseEntrance: (exitId: string) => void;
     // TODO
@@ -316,7 +335,7 @@ function Exit({
                             ↳{exit.entrance?.name ?? 'Select entrance...'}
                         </span>
                     </div>
-                    <CheckIcon check={check} />
+                    <CheckIcon check={check} compact={compact} />
                 </div>
             </Tooltip>
         </>

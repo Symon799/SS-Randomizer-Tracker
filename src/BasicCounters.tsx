@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 import { useSelector } from 'react-redux';
 import Tooltip from './additionalComponents/Tooltip';
 import styles from './BasicCounters.module.css';
@@ -10,7 +11,15 @@ import {
     totalCountersSelector,
 } from './tracker/Selectors';
 
-export default function BasicCounters({ compact }: { compact?: boolean }) {
+export default function BasicCounters({
+    compact,
+    embedded,
+    fullLabels,
+}: {
+    compact?: boolean;
+    embedded?: boolean;
+    fullLabels?: boolean;
+}) {
     const state = useSelector(totalCountersSelector);
 
     const exits = useSelector(exitsSelector);
@@ -63,7 +72,7 @@ export default function BasicCounters({ compact }: { compact?: boolean }) {
             shortLabel: 'Remaining',
             fullLabel: 'Locations Remaining',
         },
-        ...(showEntrancesCounter
+        ...(showEntrancesCounter && state.numExitsAccessible > 0
             ? [
                   {
                       value: state.numExitsAccessible,
@@ -77,8 +86,60 @@ export default function BasicCounters({ compact }: { compact?: boolean }) {
             : []),
     ];
 
+    if (compact) {
+        return (
+            <div
+                className={clsx(
+                    styles.countersCompact,
+                    embedded && styles.countersEmbedded,
+                )}
+            >
+                {counterRows.map((row) => (
+                    <div key={row.shortLabel} className={styles.compactPair}>
+                        <span
+                            className={clsx(
+                                styles.counter,
+                                styles.counterCompact,
+                            )}
+                        >
+                            {row.value}
+                        </span>
+                        {fullLabels ? (
+                            <span className={styles.labelCompact}>
+                                {row.fullLabel}
+                            </span>
+                        ) : (
+                            <Tooltip
+                                content={
+                                    row.tooltip ? (
+                                        <>
+                                            <div>{row.fullLabel}</div>
+                                            <hr />
+                                            {row.tooltip}
+                                        </>
+                                    ) : (
+                                        row.fullLabel
+                                    )
+                                }
+                            >
+                                <span className={styles.labelCompact}>
+                                    {row.shortLabel}
+                                </span>
+                            </Tooltip>
+                        )}
+                    </div>
+                ))}
+            </div>
+        );
+    }
+
     return (
-        <div className={compact ? styles.countersCompact : styles.counters}>
+        <div
+            className={clsx(
+                styles.counters,
+                embedded && styles.countersEmbedded,
+            )}
+        >
             {counterRows.flatMap((row) => [
                 <span
                     key={`${row.shortLabel}-value`}
@@ -86,22 +147,37 @@ export default function BasicCounters({ compact }: { compact?: boolean }) {
                 >
                     {row.value}
                 </span>,
-                <Tooltip
-                    key={`${row.shortLabel}-label`}
-                    content={
-                        row.tooltip ? (
-                            <>
-                                <div>{row.fullLabel}</div>
-                                <hr />
-                                {row.tooltip}
-                            </>
-                        ) : (
-                            row.fullLabel
-                        )
-                    }
-                >
-                    <span>{row.shortLabel}</span>
-                </Tooltip>,
+                fullLabels ? (
+                    <span
+                        key={`${row.shortLabel}-label`}
+                        className={compact ? styles.labelCompact : undefined}
+                    >
+                        {row.fullLabel}
+                    </span>
+                ) : (
+                    <Tooltip
+                        key={`${row.shortLabel}-label`}
+                        content={
+                            row.tooltip ? (
+                                <>
+                                    <div>{row.fullLabel}</div>
+                                    <hr />
+                                    {row.tooltip}
+                                </>
+                            ) : (
+                                row.fullLabel
+                            )
+                        }
+                    >
+                        <span
+                            className={
+                                compact ? styles.labelCompact : undefined
+                            }
+                        >
+                            {row.shortLabel}
+                        </span>
+                    </Tooltip>
+                ),
             ])}
         </div>
     );

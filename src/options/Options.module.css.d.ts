@@ -1,14 +1,11 @@
 declare const classNames: {
     readonly permalinkInput: 'permalinkInput';
     readonly optionsPage: 'optionsPage';
-    readonly logicAndPermalink: 'logicAndPermalink';
-    readonly logicChooser: 'logicChooser';
     readonly plaintextLogicInput: 'plaintextLogicInput';
     readonly permalinkChooser: 'permalinkChooser';
     readonly launchButtons: 'launchButtons';
     readonly continueButton: 'continueButton';
     readonly counters: 'counters';
-    readonly presetButton: 'presetButton';
     readonly optionsTooltip: 'optionsTooltip';
     readonly bold: 'bold';
     readonly optionsCategory: 'optionsCategory';
@@ -17,7 +14,10 @@ declare const classNames: {
     readonly optionsBadRemote: 'optionsBadRemote';
     readonly connectionStatus: 'connectionStatus';
     readonly connectionActions: 'connectionActions';
+    readonly connectionToolbar: 'connectionToolbar';
+    readonly 'tracker-button': 'tracker-button';
     readonly connectionNote: 'connectionNote';
     readonly loadingState: 'loadingState';
+    readonly infoCard: 'infoCard';
 };
 export = classNames;

@@ -5,7 +5,7 @@
     align-items: center;
     gap: 8px;
     font-size: 1.15rem;
-    padding: 7px 10px;
+    padding: 5px 10px;
     border-radius: 10px;
     background: color-mix(in srgb, var(--scheme-background) 88%, white);
     box-shadow: 0 1px 2px color-mix(in srgb, var(--scheme-text) 7%, transparent);
@@ -28,8 +28,21 @@
 
     .name {
         flex: 1 1 auto;
+        display: inline-flex;
+        align-items: baseline;
+        gap: 8px;
         position: relative;
         min-width: 0;
+    }
+
+    .nameText {
+        min-width: 0;
+    }
+
+    .nameCounter {
+        flex: 0 0 auto;
+        font-size: 0.92rem;
+        color: color-mix(in srgb, var(--scheme-text) 68%, transparent);
     }
 
     &.selected {
@@ -61,12 +74,11 @@
         }
     }
 
-    .counter {
+    .trailingContent {
         flex: 0 0 auto;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
         margin-left: auto;
-        font-size: 0.92rem;
-        &.align {
-            text-align: right;
-        }
     }
 }

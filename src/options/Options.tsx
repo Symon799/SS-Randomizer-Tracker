@@ -6,18 +6,13 @@ import {
     useEffect,
     useState,
 } from 'react';
-import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import {
     ClientManagerContext,
     useApConnectionStatus,
     useApConnectionStatusString,
-    useApRequiredDungeonDiagnostic,
     useIsApConnected,
 } from '../archipelago/ClientHooks';
-import { debugModeSelector } from '../customization/Selectors';
-import { setDebugMode } from '../customization/Slice';
-import { LOCAL_SSHD_STRING } from '../loader/LogicLoader';
 import {
     getStoredArchipelagoServer,
     getStoredArchipelagoSlot,
@@ -73,57 +68,30 @@ export default function Options() {
 
     return (
         <div className={styles.optionsPage}>
-            <h1>Skyward Sword HD AP Tracker</h1>
-            <div className={styles.logicAndPermalink}>
-                <LogicStatusCard loadingState={loadingState} />
-                <ConnectionCard options={loaded?.options} dispatch={dispatch} />
-            </div>
-            <LaunchButtons
+            <h1>
+                Skyward Sword HD
+                <br />
+                Archipelago Tracker
+            </h1>
+            <ConnectionCard
+                options={loaded?.options}
+                dispatch={dispatch}
+                loadingState={loadingState}
                 counters={counters}
-                loaded={Boolean(loaded)}
                 launch={launch}
                 clientConnected={isClientConnected}
+                loaded={Boolean(loaded)}
             />
-            <div
-                className={clsx(
-                    styles.optionsCategory,
-                    styles.permalinkChooser,
-                )}
-            >
-                <legend>Run Behavior</legend>
+            <div className={clsx(styles.optionsCategory, styles.infoCard)}>
+                <legend>About This Tracker</legend>
                 <div className={styles.connectionNote}>
-                    This SSHD-only build loads logic and settings from
-                    Archipelago. Manual release selection and manual run
-                    settings are intentionally disabled.
-                </div>
-                <div className={styles.connectionNote}>
-                    The only setting that may still need manual input is the
-                    required dungeon selection, because the SSHD AP world does
-                    not currently expose the selected dungeon list in
-                    <code> slot_data</code>.
+                    This is a map tracker for Skyward Sword HD Archipelago only.
+                    Required dungeons still need to be selected manually for
+                    now.
                 </div>
             </div>
             <hr />
             <Acknowledgement />
-        </div>
-    );
-}
-
-function LogicStatusCard({
-    loadingState,
-}: {
-    loadingState: LoadingState | undefined;
-}) {
-    return (
-        <div className={clsx(styles.optionsCategory, styles.logicChooser)}>
-            <legend>Randomizer Version</legend>
-            <div className={styles.connectionStatus}>
-                {`Fixed to ${LOCAL_SSHD_STRING}`}
-            </div>
-            <div className={styles.connectionNote}>
-                This tracker now targets Skyward Sword HD only.
-            </div>
-            <LoadingStateIndicator loadingState={loadingState} />
         </div>
     );
 }
@@ -168,13 +136,14 @@ function LaunchButtons({
                 disabled={!canResume || !clientConnected}
                 onClick={() => confirmLaunch()}
             >
-                <div className={styles.continueButton}>
-                    <span>Continue Tracker</span>
-                    <span className={styles.counters}>
-                        {counters &&
-                            `${counters.numChecked}/${counters.numRemaining}`}
-                    </span>
-                </div>
+                <span className={styles.continueButton}>
+                    Continue Tracker
+                    {counters && (
+                        <span className={styles.counters}>
+                            {`${counters.numChecked}/${counters.numRemaining}`}
+                        </span>
+                    )}
+                </span>
             </button>
             <button
                 type="button"
@@ -191,14 +160,25 @@ function LaunchButtons({
 function ConnectionCard({
     options,
     dispatch,
+    loadingState,
+    loaded,
+    counters,
+    launch,
+    clientConnected,
 }: {
     options: OptionDefs | undefined;
     dispatch: Dispatch<OptionsAction>;
+    loadingState: LoadingState | undefined;
+    loaded: boolean;
+    counters:
+        | { numChecked: number; numAccessible: number; numRemaining: number }
+        | undefined;
+    launch: (shouldReset?: boolean) => void;
+    clientConnected: boolean;
 }) {
     const storedServer = getStoredArchipelagoServer();
     const storedSlot = getStoredArchipelagoSlot();
     const clientManager = useContext(ClientManagerContext);
-    const appDispatch = useAppDispatch();
     const [server, setServer] = useState(
         storedServer ?? 'archipelago.gg:XXXXX',
     );
@@ -206,8 +186,6 @@ function ConnectionCard({
     const [inputPassword, setInputPassword] = useState('');
     const apStatus = useApConnectionStatus();
     const apStatusString = useApConnectionStatusString();
-    const requiredDungeonDiagnostic = useApRequiredDungeonDiagnostic();
-    const debugMode = useSelector(debugModeSelector);
     const isConnected = apStatus.state === 'loggedIn';
     const canConnect = options !== undefined && apStatus.state !== 'loggingIn';
 
@@ -233,7 +211,7 @@ function ConnectionCard({
 
     return (
         <div className={clsx(styles.optionsCategory, styles.permalinkChooser)}>
-            <legend>Archipelago Connection</legend>
+            <legend>Connect</legend>
             <div className={styles.permalinkInput}>
                 <input
                     type="text"
@@ -269,62 +247,37 @@ function ConnectionCard({
                     ? 'Connect to Archipelago to load the SSHD seed settings.'
                     : apStatusString}
             </div>
-            <div className={styles.connectionActions}>
-                <button
-                    type="button"
-                    className="tracker-button"
-                    disabled={!canConnect}
-                    onClick={connectToArchipelago}
-                >
-                    Connect
-                </button>
-                <button
-                    type="button"
-                    className="tracker-button"
-                    disabled={!isConnected && apStatus.state !== 'loggingIn'}
-                    onClick={disconnectFromArchipelago}
-                >
-                    Disconnect
-                </button>
-                <button
-                    type="button"
-                    className="tracker-button"
-                    onClick={() => appDispatch(setDebugMode(!debugMode))}
-                >
-                    {debugMode ? 'Debug On' : 'Debug Off'}
-                </button>
-            </div>
-            {debugMode && isConnected && requiredDungeonDiagnostic && (
-                <div className={styles.connectionNote}>
-                    <div>
-                        <strong>Required dungeons diagnostic:</strong>{' '}
-                        {requiredDungeonDiagnostic.verdict}
-                    </div>
-                    <div>
-                        <strong>`required_dungeons` raw value:</strong>{' '}
-                        <code>
-                            {JSON.stringify(
-                                requiredDungeonDiagnostic.requiredDungeonsRaw,
-                            )}
-                        </code>
-                    </div>
-                    <div>
-                        <strong>Matching keys in `slot_data`:</strong>{' '}
-                        <code>
-                            {requiredDungeonDiagnostic.keysContainingRequired
-                                .length > 0
-                                ? requiredDungeonDiagnostic.keysContainingRequired.join(
-                                      ', ',
-                                  )
-                                : '(none)'}
-                        </code>
-                    </div>
+            <div className={styles.connectionToolbar}>
+                <div className={styles.connectionActions}>
+                    <button
+                        type="button"
+                        className="tracker-button"
+                        disabled={!canConnect}
+                        onClick={connectToArchipelago}
+                    >
+                        Connect
+                    </button>
+                    <button
+                        type="button"
+                        className="tracker-button"
+                        disabled={
+                            !isConnected && apStatus.state !== 'loggingIn'
+                        }
+                        onClick={disconnectFromArchipelago}
+                    >
+                        Disconnect
+                    </button>
                 </div>
-            )}
-            <div className={styles.connectionNote}>
-                Settings are loaded automatically from Archipelago. Manual run
-                settings are disabled in this build.
+                <LaunchButtons
+                    counters={counters}
+                    loaded={loaded}
+                    launch={launch}
+                    clientConnected={clientConnected}
+                />
             </div>
+            {loadingState?.type === 'loading' && (
+                <LoadingStateIndicator loadingState={loadingState} />
+            )}
         </div>
     );
 }

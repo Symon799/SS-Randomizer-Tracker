@@ -10,17 +10,5 @@
 .secondaryLine {
     color: color-mix(in srgb, var(--scheme-text) 72%, transparent);
     max-width: 900px;
-    margin: 0 auto 12px;
-}
-
-.linksRow {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 16px;
-    padding-bottom: 12px;
-}
-
-.navRow {
-    color: color-mix(in srgb, var(--scheme-text) 72%, transparent);
+    margin: 0 auto;
 }

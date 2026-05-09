@@ -22,6 +22,9 @@ const remoteLogicLocalStorageKey = 'ssrTrackerRemoteLogic';
 const savesLocalStorageKey = 'ssrTrackerSaves';
 const archipelagoServerLocalStorageKey = 'archipelagoServer';
 const archipelagoSlotLocalStorageKey = 'archipelagoSlot';
+const trackerSidebarWidthLocalStorageKey = 'sshdTrackerSidebarWidth';
+const trackerMapHeightLocalStorageKey = 'sshdTrackerMapHeight';
+const trackerLocationFilterLocalStorageKey = 'sshdTrackerLocationFilter';
 
 // Legacy
 const itemLayoutLocalStorageKey = 'ssrTrackerLayout';
@@ -150,6 +153,39 @@ export function getStoredArchipelagoSlot(): string | null {
 
 export function setStoredArchipelagoSlot(slot: string) {
     localStorage.setItem(archipelagoSlotLocalStorageKey, slot);
+}
+
+export function getStoredTrackerSidebarWidth(): number | undefined {
+    const value = localStorage.getItem(trackerSidebarWidthLocalStorageKey);
+    return value ? Number(value) : undefined;
+}
+
+export function setStoredTrackerSidebarWidth(width: number) {
+    localStorage.setItem(trackerSidebarWidthLocalStorageKey, String(width));
+}
+
+export function getStoredTrackerMapHeight(): number | undefined {
+    const value = localStorage.getItem(trackerMapHeightLocalStorageKey);
+    return value ? Number(value) : undefined;
+}
+
+export function setStoredTrackerMapHeight(height: number) {
+    localStorage.setItem(trackerMapHeightLocalStorageKey, String(height));
+}
+
+export type TrackerLocationFilter = 'all' | 'accessible' | 'checked';
+
+export function getStoredTrackerLocationFilter():
+    | TrackerLocationFilter
+    | undefined {
+    const value = localStorage.getItem(trackerLocationFilterLocalStorageKey);
+    return value === 'all' || value === 'accessible' || value === 'checked'
+        ? value
+        : undefined;
+}
+
+export function setStoredTrackerLocationFilter(filter: TrackerLocationFilter) {
+    localStorage.setItem(trackerLocationFilterLocalStorageKey, filter);
 }
 
 // Legacy

@@ -10,9 +10,11 @@ import styles from './LocationGrid.module.css';
  * so handle with care.
  */
 export default function LocationGrid({
+    compact,
     wide,
     children,
 }: {
+    compact: boolean;
     wide: boolean;
     children: JSX.Element[];
 }) {
@@ -20,10 +22,16 @@ export default function LocationGrid({
         <div
             className={clsx(styles.locationGroup, {
                 [styles.wide]: wide,
+                [styles.compact]: compact,
             })}
         >
             {children.map((child) => (
-                <div key={child.key} className={styles.locationCell}>
+                <div
+                    key={child.key}
+                    className={clsx(styles.locationCell, {
+                        [styles.compactCell]: compact,
+                    })}
+                >
                     {child}
                 </div>
             ))}

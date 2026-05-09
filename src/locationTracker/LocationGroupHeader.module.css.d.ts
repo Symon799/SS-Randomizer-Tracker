@@ -3,10 +3,11 @@ declare const classNames: {
     readonly droppable: 'droppable';
     readonly droppableHover: 'droppableHover';
     readonly name: 'name';
+    readonly nameText: 'nameText';
+    readonly nameCounter: 'nameCounter';
     readonly selected: 'selected';
     readonly hint: 'hint';
     readonly preview: 'preview';
-    readonly counter: 'counter';
-    readonly align: 'align';
+    readonly trailingContent: 'trailingContent';
 };
 export = classNames;
