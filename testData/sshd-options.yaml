@@ -1,0 +1,3116 @@
+- name: Dry Run
+  command: dry-run
+  type: boolean
+  default: false
+  permalink: false
+  help: Only generate a spoiler log, doesn't attempt to patch any game files.
+  ui: option_dry_run
+- name: Output Path
+  command: output-folder
+  type: dirpath
+  default: .
+  permalink: false
+  help: Path to folder, where to write the patched ISO and the spoiler log.
+- name: JSON spoiler log
+  command: json
+  type: boolean
+  default: false
+  permalink: false
+  help: If enabled, outputs the spoiler log in json format.
+- name: No GUI
+  command: noui
+  type: boolean
+  default: false
+  permalink: false
+  help: Don't launch the randomizer UI, just read command line parameters.
+- name: GUI Theme Mode
+  command: gui-theme
+  type: singlechoice
+  permalink: false
+  choices:
+    - Light
+    - Dark
+    - Auto
+  default: Auto
+  help: >-
+    Determines the theme mode of the randomizer program. Choose between: *Light Mode*, *Dark Mode*,
+    and *Auto* (based on the theme of your operating system).
+  ui: option_theme_mode
+- name: GUI Theme Preset
+  command: gui-theme-preset
+  type: singlechoice
+  permalink: false
+  choices:
+    - Default
+    - High Contrast
+    - Readability
+  default: Default
+  help: >-
+    Determines the theme preset to style the randomizer program with. **Default**: applies the
+    standard theme. **High Contrast**: applies a theme that maximizes contrast between text and the
+    rest of the interface. **Readability**: applies a theme that reduces contrast in select areas to
+    improve readability.
+  ui: option_theme_presets
+- name: Custom GUI Theme
+  command: use-custom-theme
+  type: boolean
+  default: false
+  permalink: false
+  help: If enabled, the custom theme will be used for the randomizer program interface.
+  ui: option_use_custom_theme
+- name: Font Family
+  command: font-family
+  type: string
+  default: Lato
+  permalink: false
+  help: >-
+    Determines the font family that will be used for the text displayed in the randomizer program.
+    Defaults to *Lato* if the given font family cannot be found.
+  ui: option_font_family
+- name: Font Size
+  command: font-size
+  type: int
+  min: 6
+  max: 14
+  default: 10
+  permalink: false
+  help: >-
+    Determines the size of the font (in points) used in the randomizer program. **WARNING**: Setting
+    the font size to high may cause text to be cut off.
+  ui: option_font_size
+- name: Sharp GUI Corners
+  command: use-sharp-corners
+  type: boolean
+  default: false
+  permalink: false
+  help: If enabled, the curved edges of buttons and boxes will become sharp and pointy.
+  ui: option_use_sharp_corners
+- name: Starting Tablet Count
+  command: starting-tablet-count
+  type: int
+  default: 1
+  min: 0
+  max: 3
+  bits: 2
+  help: >-
+    The number of tablets to start with. Tablets are selected randomly and the remainder are
+    randomized as progress items.
+  ui: option_starting_tablet_count
+- name: Open Thunderhead
+  command: open-thunderhead
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will need the Ballad of the Goddess and Goddess's Harp before the Thunderhead can be
+    opened. on: The Thunderhead will be opened from the start of the game.
+- name: Starting Sword
+  command: starting-sword
+  type: singlechoice
+  choices:
+    - no_sword
+    - practice_sword
+    - goddess_sword
+    - goddess_longsword
+    - goddess_white_sword
+    - master_sword
+    - true_master_sword
+  default: goddess_sword
+  bits: 3
+  help: >-
+    no_sword: You will start without a sword. practice_sword: You will start with 1 sword upgrade.
+    You will not be able to use the Skyward Strike ability until you find another sword.
+    goddess_sword: You will start with 2 sword upgrades. You can use the Skyward Strike ability from
+    the start of the game. goddess_longsword: You will start with 3 sword upgrades. Your sword will
+    do more damage from the start of the game. goddess_white_sword: You will start with 4 sword
+    upgrades. You will have the completed dowsing wheel from the start of the game. master_sword:
+    You will start with 5 sword upgrades. You will deal maximum sword damage from the start of the
+    game. true_master_sword: You will start with all 6 sword upgrades. You will stun regular enemies
+    with the sword from the start of the game.
+- name: Required Dungeon Count
+  command: required-dungeon-count
+  type: int
+  default: 2
+  min: 0
+  max: 6
+  bits: 3
+  help: >-
+    Determines the number of dungeons required to beat the seed. Beating Sky Keep is **NOT**
+    required. Lanayru Mining Facility is beaten when exiting to the Temple of Time at the end of the
+    dungeon. The other dungeons are only beaten when the Goddess Crest at the end is struck with a
+    Skyward Strike.
+  ui: option_required_dungeon_count
+- name: Imp 2
+  command: imp2-skip
+  type: boolean
+  default: true
+  help: If enabled, the requirement to defeat Imprisoned 2 at the end of the game is skipped.
+  ui: option_imp_2
+- name: Barren Unrequired Dungeons
+  command: empty-unrequired-dungeons
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'on'
+  bits: 1
+  help: >-
+    off: Unrequired dungeons may contain items needed to beat the game. on: Unrequired dungeons will
+    be barren.
+- name: Triforce Required
+  command: triforce-required
+  type: boolean
+  default: true
+  help: >-
+    If enabled, the three Triforces will be required to open the door to Hylia's Realm at the end of
+    the game.
+  ui: option_triforce_required
+- name: Triforce Shuffle
+  command: triforce-shuffle
+  type: singlechoice
+  bits: 2
+  choices:
+    - Vanilla
+    - Sky Keep
+    - Anywhere
+  default: Anywhere
+  help: >-
+    Choose where Triforces will appear in the game. **Vanilla**: Triforces are placed in their
+    vanilla locations in Sky Keep. **Sky Keep**: Triforces are shuffled only within Sky Keep.
+    **Anywhere**: Triforces are shuffled with all other valid locations in the game.
+  ui: option_triforce_shuffle
+- name: Seed
+  command: seed
+  type: int
+  default: -1
+  permalink: false
+  help: Specify a seed to use for randomization. If set to -1, a random seed is used.
+  ui: seed
+- name: Randomize Entrances
+  command: randomize-entrances
+  type: singlechoice
+  bits: 2
+  choices:
+    - None
+    - Required Dungeons Separately
+    - All Surface Dungeons
+    - All Surface Dungeons + Sky Keep
+  default: None
+  help: >-
+    Shuffles entrances with one another. **None**: entrances are vanilla. **Required Dungeons
+    Separately**: required dungeons entrances are only shuffled with each other. **All Surface
+    Dungeons**: all surface dungeons entrances are shuffled with each other. **All Surface Dungeons
+    + Sky Keep** - all surface dungeon entrances AND the Sky Keep entrance are shuffled with each
+    other.
+  ui: option_randomize_entrances
+- name: Randomize Silent Realms
+  command: randomize-trials
+  type: boolean
+  default: false
+  help: If enabled, the Silent Realm that a Trial Gate entrance leads to is shuffled.
+  ui: option_randomize_trials
+- name: No Spoiler Log
+  command: no-spoiler-log
+  type: boolean
+  default: false
+  help: >-
+    If enabled, no spoiler log will be generated. This is highly discouraged to enable as it means
+    issues are much harder solve if you get stuck or encounter a problem with the game.
+  ui: option_no_spoiler_log
+- name: Shopsanity
+  command: shopsanity
+  type: boolean
+  default: true
+  help: >-
+    Determines if shops are randomized. When enabled, shop items and locations will be shuffled like
+    normal items, and the shop locations will get a randomized item. When disabled, shops will
+    always contain their vanilla items, however those items may still be required for progression.
+    **Currently shuffled shops**: Beedle's Airshop
+  ui: option_shopsanity
+- name: Rupoor Mode
+  command: rupoor-mode
+  type: singlechoice
+  default: 'Off'
+  choices:
+    - 'Off'
+    - Added
+    - Rupoor Mayhem
+    - Rupoor Insanity
+  bits: 2
+  help: >-
+    Adds or replaces junk items with Rupoors. **Off**: no Rupoors are added as junk items.
+    **Added**: adds 15 rupoors as junk items. **Rupoor Mayhem**: replaces half of the junk items
+    with Rupoors. **Rupoor Insanity**: replaces all junk items with Rupoors. Note, Rupoors may also
+    be added if there are not enough junk items for the game to randomize.
+  ui: option_rupoor_mode
+- name: Rupeesanity
+  command: rupeesanity
+  type: boolean
+  default: false
+  bits: 2
+  help: >-
+    Shuffles freestanding rupees. When unshuffled, all freestanding rupees will remain vanilla.
+    Note, it is not possible to shuffle some freestanding rupees yet (e.g. the rupees on the Lumpy
+    Pumpkin chandelier).
+  ui: option_rupeesanity
+- name: Place Scrap Shop Upgrades
+  command: gondo-upgrades
+  type: boolean
+  default: true
+  help: >-
+    If enabled, the extra progressive items upgradeable in the Scrap Shop in vanilla will be
+    shuffled. Includes: Quick Beetle, Tough Beetle, Iron Bow, Sacred Bow, Big Bug Net and
+    Scattershot. Note, there are no random items obtainable by talking to Gondo at the Scrap Shop.
+  ui: option_gondo_upgrades
+- name: Gate of Time Starting State
+  command: got-start
+  type: singlechoice
+  bits: 1
+  choices:
+    - Lowered
+    - Raised
+  default: Lowered
+  help: >-
+    Determines whether the Gate of Time starts raised or lowered. **Lowered**: the Goddess's Harp is
+    needed to raise the Gate of Time. **Raised**: the Gate of Time is raised from the start of the
+    game.
+  ui: option_got_starting_state
+- name: Gate of Time Sword Requirement
+  command: got-sword-requirement
+  type: singlechoice
+  choices:
+    - goddess_sword
+    - goddess_longsword
+    - goddess_white_sword
+    - master_sword
+    - true_master_sword
+  default: true_master_sword
+  bits: 3
+  help: >-
+    goddess_sword: You will need at least Goddess Sword in order to open the Gate of Time.
+    goddess_longsword: You will need at least Goddess Longsword in order to open the Gate of Time.
+    goddess_white_sword: You will need at least Goddess White Sword in order to open the Gate of
+    Time. master_sword: You will need at least Master Sword in order to open the Gate of Time.
+    true_master_sword: You will need at least True Master Sword in order to open the Gate of Time.
+- name: Gate of Time Dungeon Requirements
+  command: got-dungeon-requirement
+  type: singlechoice
+  bits: 1
+  choices:
+    - Required
+    - Unrequired
+  default: Required
+  help: >-
+    Enables dungeon requirements for opening the Gate of Time. **Required**: beating the required
+    dungeons is necessary to open the Gate of Time. **Unrequired**: the Gate of Time can be opened
+    without beating the required dungeons.
+  ui: option_got_dungeon_requirement
+- name: Open Lanayru Mining Facility
+  command: open-lmf
+  type: singlechoice
+  choices:
+    - nodes
+    - main_node
+    - open
+  default: open
+  bits: 2
+  help: >-
+    nodes: You will need to activate each of the 3 nodes and the main node in order to raise the
+    Lanayru Mining Facility. main_node: You will need to activate the main node in order to raise
+    the Lanayru Mining Facility. open: The Lanayru Mining Facility will be raised from the start of
+    the game.
+- name: Skip The Horde Fight
+  command: skip-horde
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will need to fight The Horde after exiting the double doors in Temple of Hylia at the
+    end of the game. on: The Horde fight after exiting the double doors in Temple of Hylia will be
+    skipped.
+- name: Skip Ghirahim 3 Fight
+  command: skip-g3
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will need to fight Ghirahim 3 after defeating The Horde at the end of the game. on: The
+    Ghirahim 3 fight after exiting the double doors in Temple of Hylia and after The Horde fight
+    will be skipped.
+- name: Skip Demise Fight
+  command: skip-demise
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will need to fight Demise after exiting the portal at the bottom of the spiral in
+    Hylia's Realm. on: The Demise fight after exiting the portal at the bottom of the spiral in
+    Hylia's Realm will be skipped.
+- name: Dungeon Maps
+  command: map-mode
+  type: singlechoice
+  choices:
+    - vanilla
+    - own_dungeon_restricted
+    - own_dungeon_unrestricted
+    - any_dungeon
+    - own_region
+    - overworld
+    - anywhere
+  default: own_dungeon_restricted
+  bits: 3
+  help: >-
+    vanilla: Maps will appear in their vanilla locations. own_dungeon_restricted: Maps will appear
+    inside their respective dungeon, but won't appear on the heart container or dungeon end check.
+    own_dungeon_unrestricted: Maps can appear anywhere inside their respective dungeon. any_dungeon:
+    Maps can appear inside any dungeon. own_region: Maps will appear in their dungeon's region.
+    overworld: Maps will only appear in the overworld. anywhere: Maps can appear anywhere.
+- name: Small Key Mode
+  command: small-key-mode
+  type: singlechoice
+  bits: 3
+  choices:
+    - Vanilla
+    - Own Dungeon - Restricted
+    - Lanayru Caves Key Only
+    - Anywhere
+  default: Own Dungeon - Restricted
+  help: >-
+    Determines the placement of small keys. **Vanilla**: keys will be in their vanilla locations
+    (The Skyview Digging Spot will not contain a key). **Restricted**: keys will be within their own
+    dungeons. **Lanayru Caves Key only**: shuffles the Lanayru Caves Small Key (all other keys are
+    shuffled within their own dungeon). **Anywhere**: keys can appear outside of dungeons.
+  ui: option_small_key_mode
+- name: Boss Key Mode
+  command: boss-key-mode
+  type: singlechoice
+  bits: 3
+  choices:
+    - Vanilla
+    - Own Dungeon
+    - Anywhere
+  default: Own Dungeon
+  help: >-
+    Determines the placement of boss keys. **Vanilla**: boss keys appear in their vanilla locations.
+    **Own Dungeon**: boss keys appear within their own dungeon. **Anywhere**: boss keys can appear
+    outside of dungeons.
+  ui: option_boss_key_mode
+- name: Logic Mode
+  command: logic-mode
+  type: singlechoice
+  bits: 3
+  choices:
+    - BiTless
+    - No Logic
+  default: BiTless
+  help: >-
+    Determines the logic mode to use when placing items. **BiTless**: requires no tricks to beat the
+    game but allows non-BiT tricks to be enabled. **No Logic**: items are placed without logic and
+    will likely result in an unbeatable game.
+  ui: option_logic_mode
+- name: Enabled Tricks BiTless
+  command: enabled-tricks-bitless
+  type: multichoice
+  choices:
+    - Bomb Throws
+    - Long Range Skyward Strike Jumpslash
+    - Advanced Lizalfos Combat
+    - Waterfall Cave Jump
+    - Beedle's Shop With Bombs
+    - Baby Rattle from Beedle's Shop
+    - Sky Keep Entrance Jump
+    - Gravestone Jump
+    - Sky - Volcanic Island Dive
+    - Sky - Beedle's Island Cage Chest Dive
+    - Thunderhead - East Island Dive
+    - Gym's Rope Jump
+    - Early Lake Floria - Fence Hop
+    - Early Lake Floria - Swordless Rope Floria
+    - Faron - Bokoblin Luring
+    - Stuttersprint
+    - Itemless First Timeshift Stone
+    - Lanayru Mine - Quick Bomb
+    - Brakeslide
+    - Lanayru Desert - Ampilus Bomb Toss
+    - Temple of Time - Slingshot Shot
+    - Temple of Time Skip - Brakeslide
+    - Secret Passageway Hook Beetle Opening
+    - Lightning Node End with Bombs
+    - Cactus Bomb Whip
+    - Skipper's Retreat Fast Clawshots
+    - Pirate Stronghold - Beetle Pillar Checks
+    - Skyview - Spider Roll
+    - Skyview Slingshot Shot
+    - Earth Temple - Keese Yeet
+    - Earth Temple - Slope Stuttersprint
+    - Earth Temple - Bomb Flower Scaldera
+    - LMF - Whip First Room Switch
+    - LMF - Keylocked Slingshot Trickshot
+    - LMF - Whip Armos Room Timeshift Stone
+    - LMF - Minecart Jump
+    - LMF - Moldarach without Gust Bellows
+    - Ancient Cistern - Cistern Clip
+    - Ancient Cistern - Cistern Whip Room Clip
+    - Ancient Cistern - Map Chest Jump
+    - Ancient Cistern - Lever Jump
+    - Ancient Cistern - Basement Highflip
+    - Sandship - No Combination Hint
+    - Sandship - Itemless Spume Skip
+    - Sandship - Mast Jump
+    - Fire Sanctuary - Pillar Jump
+    - Fire Sanctuary - Swordless Pillar Jump
+    - Fire Sanctuary - No Bombable Wall Hint
+    - Sky Keep - Shooting LMF Bow Switches in Present
+    - Sky Keep - FS Room Clawshots Vine Clip
+  default: []
+  help: >-
+    Enables specific tricks to change the logical requirements to get some checks. Does not include
+    Back in Time (BiT) tricks.
+- name: Enabled Tricks Glitched
+  command: enabled-tricks-glitched
+  type: multichoice
+  choices:
+    - Bed Trick
+    - Owlan Crystals without Bombs
+    - Ancient Cistern - Lilypad Skip
+    - Ancient Cistern - Swordless Cistern Clip
+    - Fire Sanctuary - Hook Beetle Skip
+  default: []
+  help: >-
+    Enables specific tricks to change the logical requirements to get some checks. Includes all Back
+    in Time (BiT) tricks.
+- name: Song Hints
+  command: song-hints
+  type: singlechoice
+  choices:
+    - 'off'
+    - basic
+    - advanced
+    - direct
+  default: direct
+  bits: 2
+  help: >-
+    off: Silent Realm rewards will potentially be hinted at other hint sources. basic: The song text
+    indicates if any progress items are within the associated silent realm. advanced: The song text
+    indicates if any SotS, or potentially required items are in the associated silent realm. direct:
+    The song text directly states which important items, if any, can be found in the silent realm.
+- name: BiT Changes
+  command: bit-patches
+  type: singlechoice
+  bits: 2
+  choices:
+    - Disable BiT
+    - Vanilla
+    - Fix BiT Crashes
+  default: Vanilla
+  help: >-
+    Changes how the Back in Time (BiT) glitch works. **Disable BiT**: Makes it impossible to
+    activate BiT. **Vanilla**: Keeps the vanilla game behaviour where BiT is possible but Eldin BiT
+    (and others) will still crash. **Fix BiT Crashes**: Does not load some arcs to make all areas
+    accessible in BiT. **WARNING**: All 3 files must be filled BEFORE activating BiT otherwise this
+    will not work.
+  ui: option_bit_patches
+- name: Output placement file
+  command: out-placement-file
+  type: boolean
+  default: false
+  permalink: false
+  help: If enabled, writes a placement json file that can be modified for plandomizer purposes.
+  ui: option_out_placement_file
+- name: Past Impa Stone of Trials Hint
+  command: impa-sot-hint
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'on'
+  bits: 1
+  help: >-
+    off: Impa in Temple of Hylia will not give a hint to the location of the Stone of Trials. on:
+    Impa in Temple of Hylia will give a hint to the location of the Stone of Trials. Does not appear
+    if the Stone of Trials is a starting item.
+- name: Tunic Swap
+  command: tunic-swap
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: Link will be dressed in his green knight's uniform. on: Link will be dressed in his Skyloft
+    outfit seen at the start of the vanilla game.
+- name: Lightning Skyward Strike
+  command: lightning-skyward-strike
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: Skyward strikes will only have the lightning effect when in the Demise fight. on: Skyward
+    strikes will have the lighting particle effects at all times.
+- name: Starry Skies
+  command: starry-skies
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: Stars will only appear in the sky at night. on: Stars will appear in the sky during the day
+    and night.
+- name: Star Count
+  command: star-count
+  type: int
+  min: 0
+  max: 32767
+  default: 700
+  permalink: false
+  cosmetic: true
+  help: >-
+    Determines the number of stars in the sky. **WARNING**: Values bigger than 700 (default) WILL
+    lag when played on the Wii Console. **DOUBLE WARNING**: Emulator isn't immune from the lag
+    either. Seriously, use at your own risk.
+  ui: option_star_count
+- name: Force Sword Dungeon Reward
+  command: sword-dungeon-reward
+  type: singlechoice
+  bits: 2
+  choices:
+    - None
+    - Heart Container
+    - Final Check
+  default: None
+  help: >-
+    Determines if swords should be rewarded for beating required dungeons. **None**: swords are
+    shuffled anywhere. **Heart Container**: end of required dungeon heart containers are swords.
+    **Final Check**: the final check of required dungeons are swords. Note, if there aren't enough
+    swords to place, some required dungeons will not force a sword at the end.
+  ui: option_sword_dungeon_reward
+- name: Open Earth Temple
+  command: open-et
+  type: boolean
+  default: false
+  help: >-
+    If enabled, the Earth Temple door (requiring 5 key pieces to unlock) is opened at the start of
+    the game.
+  ui: option_open_et
+- name: Demise Count
+  command: demise-count
+  type: int
+  default: 1
+  min: 1
+  max: 10
+  bits: 4
+  help: >-
+    Determines how many demises appear in the final fight of the game. **WARNING**: Enabling more
+    than one makes the fight very difficult. **DOUBLE WARNING**: Enabling more than 3 demises
+    produces a lot of lag and can make the game unplayable.
+  ui: option_demise_count
+- name: Randomize Music
+  command: music-rando
+  type: singlechoice
+  bits: 2
+  choices:
+    - None
+    - Shuffled
+    - Shuffled (Limit Vanilla)
+  default: None
+  permalink: false
+  cosmetic: true
+  help: >-
+    If enabled, music will be randomized. **None**: music is vanilla. **Shuffled**: music is
+    shuffled anywhere. **Limit Vanilla**: music is shuffled to minimize vanilla music (does not
+    guarantee all music is non-vanilla).
+  ui: option_music_rando
+- name: Cutoff Game Over Music
+  command: cutoff-gameover-music
+  type: boolean
+  default: false
+  permalink: false
+  cosmetic: true
+  help: >-
+    If enabled, the game over music will cutoff when it normally would. If disabled, the music will
+    continue to play until the end of the song, even after pressing continue.
+  ui: option_cutoff_gameover_music
+- name: Allow Custom Music
+  command: allow-custom-music
+  type: boolean
+  default: false
+  permalink: false
+  cosmetic: true
+  help: >-
+    If enabled, the WZSound.brsar file will be patched to allow custom music. Custom music must be
+    installed manually.
+  ui: option_allow_custom_music
+- name: Separate Cube SotS
+  command: cube-sots
+  type: boolean
+  default: false
+  help: >-
+    If enabled, when a SotS hint points to a Goddess Chest, the hint will change to indicate this
+    and display which of the cube progress regions is SotS.
+  ui: option_cube_sots
+- name: Precise Item Hints
+  command: precise-item
+  type: boolean
+  default: false
+  help: >-
+    If enabled, item hints will indicate the exact location within a region that is being hinted. If
+    disabled, only the region will be hinted.
+  ui: option_precise_item
+- name: Shuffle Trial Objects
+  command: shuffle-trial-objects
+  type: singlechoice
+  bits: 2
+  choices:
+    - None
+    - Simple
+    - Advanced
+    - Full
+  default: None
+  help: >-
+    Shuffles obtainable items in Silent Realms (within the same Silent Realm). **None**: trial
+    objects appear in their vanilla locations. **Simple**:only shuffles tears and light fruits.
+    **Advanced**: also shuffles dusk relics. **Full**: also shuffles stamina fruits.
+  ui: option_shuffle_trial_objects
+- name: Fill Dowsing on White Sword
+  command: dowsing-after-whitesword
+  type: boolean
+  default: true
+  help: >-
+    If enabled, obtaining the Goddess White Sword will unlock rupee, crystal, treasure and goddess
+    cube dowsing.
+  ui: option_fill_dowsing_on_white_sword
+- name: Chest Dowsing
+  command: chest-dowsing
+  type: singlechoice
+  bits: 2
+  choices:
+    - Vanilla
+    - All Chests
+    - Progress Items
+  default: Vanilla
+  help: >-
+    Determines the main quest (top) dowsing option. **Vanilla**: dowsing points to Trial Gates and
+    the Sandship (after obtaining the necessary song or Sea Chart first). **All Chests**: dowsing
+    points to all chests (regardless of their contents). **Progress Items**: dowsing only points to
+    chests containing progress items (doesn't work with Goddess Chests).
+  ui: option_chest_dowsing
+- name: Allow Dowsing in Dungeons
+  command: dungeon-dowsing
+  type: boolean
+  default: false
+  help: >-
+    If enabled, dowsing will be re-enabled in dungeons and other dungeon-like areas like the Great
+    Tree and Waterfall Cave.
+  ui: option_dungeon_dowsing
+- name: Excluded Locations
+  command: excluded-locations
+  type: multichoice
+  default:
+    - Central Skyloft - Bazaar Goddess Chest
+    - Central Skyloft - Shed Goddess Chest
+    - Central Skyloft - West Cliff Goddess Chest
+    - Central Skyloft - Floating Island Goddess Chest
+    - Central Skyloft - Waterfall Goddess Chest
+    - Sky - Lumpy Pumpkin - Outside Goddess Chest
+    - Sky - Lumpy Pumpkin - Goddess Chest on the Roof
+    - Sky - Bamboo Island Goddess Chest
+    - Sky - Goddess Chest on Island next to Bamboo Island
+    - Sky - Goddess Chest in Cave on Island next to Bamboo Island
+    - Sky - Beedle's Island Goddess Chest
+    - Sky - Beedle's Island Cage Goddess Chest
+    - Sky - Northeast Island Goddess Chest behind Bombable Rocks
+    - Sky - Northeast Island Cage Goddess Chest
+    - Sky - Goddess Chest on Island Closest to Faron Pillar
+    - Sky - Goddess Chest outside Volcanic Island
+    - Sky - Goddess Chest inside Volcanic Island
+    - Sky - Goddess Chest under Fun Fun Island
+    - Sky - Southwest Triple Island Upper Goddess Chest
+    - Sky - Southwest Triple Island Lower Goddess Chest
+    - Sky - Southwest Triple Island Cage Goddess Chest
+    - Thunderhead - Goddess Chest outside Isle of Songs
+    - Thunderhead - Goddess Chest on top of Isle of Songs
+    - Thunderhead - East Island Goddess Chest
+    - Thunderhead - Bug Heaven Goddess Chest
+    - Thunderhead - First Goddess Chest on Mogma Mitts Island
+    - Thunderhead - Second Goddess Chest on Mogma Mitts Island
+    - Upper Skyloft - Pumpkin Archery -- 600 Points
+    - Sky - Lumpy Pumpkin - Harp Minigame
+    - Sky - Fun Fun Island Minigame -- 500 Rupees
+    - Thunderhead - Bug Heaven -- 10 Bugs in 3 Minutes
+    - Lanayru Sand Sea - Rickety Coaster -- Heart Stopping Track in 1'05
+    - Central Skyloft - Peater/Peatrice's Crystals
+  help: >-
+    Determines the locations to be excluded from the progress pool. The item found in these
+    locations will still be shuffled but will never be an item required to beat the game.
+- name: Remove Enemy Music
+  command: no-enemy-music
+  type: boolean
+  default: false
+  help: >-
+    If enabled, the enemy battle music will not play when an enemy is nearby. Instead, the regular
+    field music in that area will keep playing.
+  ui: option_no_enemy_music
+  permalink: false
+  cosmetic: true
+- name: Open Lake Floria
+  command: open-lake-floria
+  type: singlechoice
+  choices:
+    - vanilla
+    - yerbal
+    - open
+  default: open
+  bits: 2
+  help: >-
+    vanilla: You are expected to climb the Great Tree, talk to Yerbal, and open the Lake Floria
+    Gates with the Goddess Sword in order to enter Lake Floria. yerbal: You are expected to climb
+    the Great Tree and talk to Yerbal in order to enter Lake Floria. open: The Lake Floria Gates
+    will be opened from the start of the game.
+- name: Upgraded Skyward Strike
+  command: upgraded-skyward-strike
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'on'
+  bits: 1
+  help: >-
+    off: Only the True Master Sword will have the fully upgraded Skyward Strike. on: The Goddess
+    Sword (and better swords) will have the fully upgraded Skyward Strike (charges quicker and
+    travels farther). This has logical changes.
+- name: Faster Air Meter Drain
+  command: fast-air-meter
+  type: boolean
+  default: false
+  permalink: true
+  help: If enabled, the air meter depletes twice as fast when under water.
+  ui: option_fast_air_meter
+- name: Heart Drops
+  command: enable-heart-drops
+  type: boolean
+  default: true
+  permalinnk: true
+  help: >-
+    If enabled, heart flowers will spawn and hearts may drop from defeated enemies, broken pots,
+    broken barrels, cut grass, and digging spots.
+  ui: option_enable_heart_drops
+- name: Damage Multiplier
+  command: damage-multiplier
+  type: int
+  min: 0
+  max: 80
+  default: 1
+  bits: 7
+  help: >-
+    0-80: Determines the overall damage multiplier. <b>Normal Mode</b> (default) damage is x1.
+    <b>Hero Mode</b> (new game +) damage is x2. At x0, the player will be invincible and not take
+    any damage. At x12 or higher, the hot cave in Eldin Volcano logically requires Fireshield
+    Earrings to traverse.
+- name: Hint Distribution
+  command: hint-distribution
+  type: singlechoice
+  bits: 4
+  choices:
+    - Weak
+    - Balanced
+    - Junk
+    - CDMC
+    - Dowsing & Fi Hints
+    - 2D Dowsing & Fi Hints
+    - Boss Keysanity Fi Hints
+    - Strong Dowsing All Dungeons
+    - Remlits Tournament
+    - Fi & Gossip Stones
+    - Custom
+  default: Balanced
+  help: >-
+    Determines the distribution of hints that appear on Gossip Stones. Determines the number, order
+    and locations hints are generated in.
+  ui: option_hint_distribution
+- name: Starting Items
+  command: starting-items
+  type: multichoice
+  choices:
+    - Baby Rattle
+    - Ballad of the Goddess
+    - Bomb Bag
+    - Cawlin's Letter
+    - Clawshots
+    - Din's Power
+    - Eldin Song of the Hero Part
+    - Extra Wallet
+    - Extra Wallet
+    - Extra Wallet
+    - Faron Song of the Hero Part
+    - Farore's Courage
+    - Fireshield Earrings
+    - Goddess's Harp
+    - Gust Bellows
+    - Horned Colossus Beetle
+    - Key Piece
+    - Key Piece
+    - Key Piece
+    - Key Piece
+    - Key Piece
+    - Lanayru Song of the Hero Part
+    - Life Tree Fruit
+    - Nayru's Wisdom
+    - Progressive Beetle
+    - Progressive Beetle
+    - Progressive Beetle
+    - Progressive Beetle
+    - Progressive Bow
+    - Progressive Bow
+    - Progressive Bow
+    - Progressive Bug Net
+    - Progressive Bug Net
+    - Progressive Mitts
+    - Progressive Mitts
+    - Progressive Pouch
+    - Progressive Pouch
+    - Progressive Pouch
+    - Progressive Pouch
+    - Progressive Pouch
+    - Progressive Slingshot
+    - Progressive Slingshot
+    - Progressive Wallet
+    - Progressive Wallet
+    - Progressive Wallet
+    - Progressive Wallet
+    - Scrapper
+    - Sea Chart
+    - Spiral Charge
+    - Stone of Trials
+    - Triforce of Courage
+    - Triforce of Power
+    - Triforce of Wisdom
+    - Water Dragon's Scale
+    - Whip
+    - Skyview Small Key
+    - Skyview Small Key
+    - Lanayru Mining Facility Small Key
+    - Ancient Cistern Small Key
+    - Ancient Cistern Small Key
+    - Sandship Small Key
+    - Sandship Small Key
+    - Fire Sanctuary Small Key
+    - Fire Sanctuary Small Key
+    - Fire Sanctuary Small Key
+    - Sky Keep Small Key
+    - Lanayru Caves Small Key
+    - Skyview Map
+    - Earth Temple Map
+    - Lanayru Mining Facility Map
+    - Ancient Cistern Map
+    - Sandship Map
+    - Fire Sanctuary Map
+    - Sky Keep Map
+    - Skyview Boss Key
+    - Earth Temple Boss Key
+    - Lanayru Mining Facility Boss Key
+    - Ancient Cistern Boss Key
+    - Sandship Boss Key
+    - Fire Sanctuary Boss Key
+  default:
+    - Progressive Pouch
+    - Skyview Map
+    - Earth Temple Map
+    - Lanayru Mining Facility Map
+    - Ancient Cistern Map
+    - Sandship Map
+    - Fire Sanctuary Map
+    - Sky Keep Map
+  help: Determines the items that will be in your inventory at the start of the game.
+- name: Starting Gratitude Crystal Packs
+  command: starting-crystal-packs
+  type: int
+  default: 0
+  min: 0
+  max: 13
+  bits: 4
+  help: How many gratitude crystal packs to start with.
+  ui: option_starting_crystal_packs
+- name: Random Starting Item
+  command: random-starting-item
+  type: boolean
+  default: false
+  help: >-
+    Gives you a random progression item at the start of the game in addition to any starting items.
+    This includes: Bow, Beetle, Slingshot, Digging Mitts, Pouch, Bomb Bag, Clawshots, Whip, Gust
+    Bellows, Water Dragon's Scale, Fireshield Earrings, Goddess's Harp and Spiral Charge.
+  ui: option_random_starting_item
+- name: Starting Empty Bottles
+  command: starting-bottles
+  type: int
+  default: 0
+  min: 0
+  max: 5
+  bits: 3
+  help: >-
+    Determines how many empty bottles start in your pouch. **WARNING**: If you start with more pouch
+    items than pouch slots, the extra items will become usable after finding additional pouches.
+  ui: option_starting_bottles
+- name: Start with Hylian Shield
+  command: start-with-hylian-shield
+  type: boolean
+  default: true
+  help: >-
+    If enabled, you will start with the Hylian Shield in your pouch. **WARNING**: If you start with
+    more pouch items than pouch slots, the extra items will become usable after finding additional
+    pouches. Hylian Shield will always be placed in the first pouch slot.
+  ui: option_start_with_hylian_shield
+- name: Starting Heart Containers
+  command: starting-heart-containers
+  type: int
+  default: 0
+  min: 0
+  max: 6
+  bits: 3
+  help: Determines how many heart containers to start with.
+  ui: option_starting_heart_containers
+- name: Starting Heart Pieces
+  command: starting-heart-pieces
+  type: int
+  default: 0
+  min: 0
+  max: 24
+  bits: 5
+  help: Determines how many heart pieces to start with.
+  ui: option_starting_heart_pieces
+- name: Start with Full Wallet
+  command: full-starting-wallet
+  type: boolean
+  default: false
+  help: >-
+    If enabled, you will start with a full wallet. This changes based on the number of starting
+    wallets and extra wallets.
+  ui: option_full_starting_wallet
+- name: Full Wallet Upgrades
+  command: full-wallet-upgrades
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: Newly obtained wallets do not give any Rupees. on: Newly obtained wallets will come
+    pre-filled with Rupees.
+- name: Start with Max Bugs
+  command: max-starting-bugs
+  type: boolean
+  default: false
+  help: If enabled, you will start with 99 of each type of bug.
+  ui: option_max_starting_bugs
+- name: Start with Max Treasures
+  command: max-starting-treasures
+  type: boolean
+  default: false
+  help: If enabled, you will start with 99 of each type of treasure.
+  ui: option_max_starting_treasures
+- name: Interface
+  command: interface
+  type: singlechoice
+  bits: 2
+  choices:
+    - Standard
+    - Light
+    - Pro
+  default: Standard
+  permalink: false
+  cosmetic: true
+  help: >-
+    Determines how the game interface will look. Has the same effect as using the interface button
+    from the inventory screen in-game. **Standard**: All interface (HUD) elements are shown.
+    **Light**: Some interface elements will be invisible (e.g. the Wii Remote on the right of the
+    screen). **Pro**: Most interface elements will be invisible.
+  ui: option_interface
+- name: Randomize Boss Key Puzzles
+  command: randomize-boss-key-puzzles
+  type: boolean
+  default: false
+  help: If enabled, the starting position of the boss keys will be randomized.
+  ui: option_randomize_boss_key_puzzles
+- name: Tadtonesanity
+  command: tadtonesanity
+  type: boolean
+  default: false
+  help: >-
+    If enabled, 17 "Group of Tadtones" items will be shuffled throughout the world and each of the
+    tadtone groups in Flooded Faron Woods will give an item when collected. Get all 17 "Group of
+    Tadtones" items to complete the music scroll and receive an item from the Water Dragon in
+    Flooded Faron Woods.
+  ui: option_tadtonesanity
+- name: Starting Tadtone Count
+  command: starting-tadtones
+  type: int
+  default: 0
+  min: 0
+  max: 17
+  bits: 5
+  help: How many groups of Tadtones to start with.
+  ui: option_starting_tadtones
+- name: FS Last Room Lava Flow
+  command: fs-lava-flow
+  type: boolean
+  default: false
+  help: >-
+    If enabled, the lava in the last room of Fire Sanctuary will be flowing by default (without
+    needing to blow up the underground boulder).
+  ui: option_fs_lava_flow
+- name: Peatrice Conversations
+  command: peatrice-conversations
+  type: int
+  min: 0
+  max: 6
+  default: 0
+  bits: 3
+  help: >-
+    0-6: How many times you need to talk to Peatrice before she calls you darling and you can start
+    Peater's quest.
+- name: Selected Player Model Pack
+  command: selected-player-model-pack
+  type: string
+  default: Default
+  permalink: false
+  cosmetic: true
+  help: Determines the player model pack that will be used in game.
+- name: Selected Loftwing Model Pack
+  command: selected-loftwing-model-pack
+  type: string
+  default: Default
+  permalink: false
+  cosmetic: true
+  help: Determines the loftwing model pack that will be used in game.
+- name: Random Starting Spawn
+  command: random-start-entrance
+  type: singlechoice
+  bits: 2
+  choices:
+    - Vanilla
+    - Bird Statues
+    - Any Surface Region
+    - Any
+  default: Vanilla
+  help: >-
+    Determines where you will spawn you start the game. **Vanilla**: You will spawn in Link's
+    bedroom. **Bird Statues**: You will spawn at a random Bird Statue or Link's bedroom. **Any
+    Surface Region**: You will spawn at any valid surface entrance or Link's bedroom. **Any**: You
+    will spawn at any valid entrance. **TIP**: You can ask Fi to warp you back to the starting
+    point.
+  ui: option_random_start_entrance
+- name: Limit Starting Location
+  command: limit-start-entrance
+  type: boolean
+  default: false
+  help: >-
+    If enabled, you will only start at a location in a region unlocked by the tablets you start
+    with. E.g. Starting with Ruby Tablet and Amber Tablet will mean you cannot start in Faron.
+  ui: option_limit_start_entrance
+- name: Treasuresanity in Silent Realms
+  command: treasuresanity-in-silent-realms
+  type: boolean
+  default: false
+  help: >-
+    Randomizes treasures in Silent Realms to items. Items other than relics will glow in Silent
+    Realms (Yellow in Faron, Blue in Eldin, Green in Lanayru, and Red on Skyloft).
+  ui: option_treasuresanity_in_silent_realms
+- name: Trial Treasure Amount
+  command: trial-treasure-amount
+  type: int
+  default: 5
+  min: 1
+  max: 10
+  bits: 4
+  help: How many treasures per Silent Realm you want to randomize.
+  ui: option_trial_treasure_amount
+- name: Cryptic Location Hints
+  command: cryptic-location-hints
+  type: boolean
+  default: false
+  permalink: false
+  cosmetic: true
+  help: >-
+    If enabled, location hints (always, sometimes, & random hints) will display special flavor text
+    if they have it (such as "drawing on a magical wall" instead of Gorko's Goddess Wall Reward).
+  ui: option_cryptic_location_hints
+- name: Random Starting Statues
+  command: random-start-statues
+  type: boolean
+  default: false
+  help: >-
+    If enabled, the starting statue for each surface region will be randomized. All overworld
+    statues except Inside the Volcano and Inside Fire Sanctuary may be chosen.
+  ui: option_random_start_statues
+- name: Random Puzzles
+  command: random-puzzles
+  type: boolean
+  default: false
+  permalink: true
+  help: >-
+    Randomizes the Isle of Songs puzzle, the Ancient Cistern/Sandship directional door puzzles, and
+    the Lanayru Mining Facility switches puzzle.
+  ui: option_random_puzzles
+- name: Ammo Availability
+  command: ammo-availability
+  type: singlechoice
+  choices:
+    - scarce
+    - vanilla
+    - useful
+    - plentiful
+  default: plentiful
+  bits: 2
+  help: >-
+    scarce: Ammo will only be available from chance-based drops and Rupin's Gear shop. vanilla: Ammo
+    will appear when breaking pots and barrels in the same way as the vanilla game. useful: Ammo
+    pots will be added in key places near checks requiring a specific ammo to reduce back-tracking.
+    plentiful: Ammo pots will be added next to all Bird Statues.
+- name: Logic Rules
+  command: logic-rules
+  type: singlechoice
+  choices:
+    - all_locations_reachable
+    - beatable_only
+    - no_logic
+  default: all_locations_reachable
+  bits: 2
+  help: >-
+    all_locations_reachable: Logic is considered when placing items. Tricks and Glitches can be
+    enabled for consideration below. beatable_only: Logic is considered when placing items only
+    until the world is beatable. Remaining items are placed without logic consideration. Tricks and
+    Glitches can be enabled for consideration below. no_logic: Maximize randomization, logic is not
+    considered when placing items. MAY BE IMPOSSIBLE TO BEAT.
+- name: Item Pool
+  command: item-pool
+  type: singlechoice
+  choices:
+    - minimal
+    - standard
+    - extra
+    - plentiful
+  default: standard
+  bits: 2
+  help: >-
+    minimal: No item upgrades will be shuffled into the item pool. There will only be 2 Beetles, 1
+    Bow, 1 Slingshot, and 1 Bug Net in the item pool. standard: All of Gondo's item upgrades will be
+    shuffled into the item pool. There will be: 4 Beetles, 3 Bows, 2 Slingshots, and 2 Bug Nets.
+    extra: The standard item pool will be used plus 1 extra of the major items (Item-Wheel item,
+    Tablets, Mitts, Water Dragon's Scale, and Fireshield Earrings). plentiful: The standard item
+    pool will be used plus 100% extra of the major items. E.g. There will be 8 Beetles, 6 Bows, 4
+    Mitts, etc...
+- name: Enable Back in Time (BiT)
+  command: enable-back-in-time
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will not be able to perform the Back in Time (BiT) glitch from the Wii version of the
+    game. on: You will be able to activate the Back in Time (BiT) glitch by soft-resetting the game
+    (hold R+A+LeftStick) while also holding the L button.
+- name: Gratitude Crystal Shuffle
+  command: gratitude-crystal-shuffle
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'on'
+  bits: 1
+  help: >-
+    off: Single Gratitude Crystal locations will only contain single gratitude crystals. You will
+    not be able to start with single gratitude crystals in your inventory with this option selected.
+    on: Single Gratitude Crystal locations can contain any item.
+- name: Stamina Fruit Shuffle
+  command: stamina-fruit-shuffle
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: Stamina Fruit will not be randomized. on: Stamina Fruit locations can contain any item.
+    Locations will revert back to Stamina Fruit after the item has been collected. Any Stamina Fruit
+    locations that are manually excluded will also be vanilla. In silent realms, items other than
+    dusk relics will glow (Yellow in Faron, Blue in Eldin, Green in Lanayru, and Red on Skyloft).
+- name: NPC Closet Shuffle
+  command: npc-closet-shuffle
+  type: singlechoice
+  choices:
+    - vanilla
+    - randomized
+  default: vanilla
+  bits: 1
+  help: >-
+    vanilla: Closets will contain their vanilla items. randomized: All NPC closets will contain
+    randomized items.
+- name: Hidden Item Shuffle
+  command: hidden-item-shuffle
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: Hidden Item checks will only ever give their vanilla items. on: Hidden Item checks will
+    give a randomized item the first time. After this, they will only give their vanilla item.
+- name: Rupee Shuffle
+  command: rupee-shuffle
+  type: singlechoice
+  choices:
+    - vanilla
+    - beginner
+    - intermediate
+    - advanced
+  default: vanilla
+  bits: 2
+  help: >-
+    vanilla: Freestanding Rupees will not be randomized. beginner: Some freestanding Rupees can
+    contain any item. These checks are easier to spot and collect, and there aren't lots of them.
+    Perfect for trying out Rupee shuffle! intermediate: Most freestanding Rupees can contain any
+    item. There's a lot of Rupee checks added and some may be more tricky to collect. Perfect for
+    seasoned Rupee shufflers! advanced: All freestanding Rupees can contain any item. Only a few
+    extra Rupee checks are added but these are the most obscure and difficult checks to collect. You
+    have been warned!
+- name: Underground Rupee Shuffle
+  command: underground-rupee-shuffle
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: Underground Rupee locations will not be randomized. on: Underground Rupee locations that
+    require burrowing into digspots with the Mogma Mitts can contain any item.
+- name: Beedle's Airshop Shuffle
+  command: beedle-shop-shuffle
+  type: singlechoice
+  choices:
+    - vanilla
+    - junk_only
+    - randomized
+  default: randomized
+  bits: 2
+  help: >-
+    vanilla: Beedle's Airshop will contain its vanilla items. junk_only: Beedle's Airshop will only
+    contain junk items. randomized: Beedle's Airshop can contain any items.
+- name: Goddess Chest Shuffle
+  command: goddess-chest-shuffle
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: Activating and opening Goddess Chests will not be required. on: Goddess Chests can contain
+    any item. Goddess Chests are activated by Skyward Striking their corresponding Goddess Cube.
+- name: Trial Treasure Shuffle
+  command: trial-treasure-shuffle
+  type: int
+  min: 0
+  max: 10
+  default: 0
+  bits: 4
+  help: >-
+    0-10: Randomizes treasures in Silent Realms to items. Items other than dusk relics will glow in
+    Silent Realms (Yellow in Faron, Blue in Eldin, Green in Lanayru, and Red on Skyloft). Choose the
+    amount you want to randomize.
+- name: Tadtone Shuffle
+  command: tadtone-shuffle
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: The tadtones in Flooded Faron Woods will not be shuffled. on: The tadtones in Flooded Faron
+    Woods will be shuffled and 17 "Group of Tadtones" items will be shuffled throughout the world.
+- name: Gossip Stone Treasure Shuffle
+  command: gossip-stone-treasure-shuffle
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: Gossip Stones will always be visible and will not give items. on: Gossip Stones will need
+    to be raised by playing Ballad of the Goddess with the Goddess' Harp. A random item will appear
+    with the Gossip Stone.
+- name: Skip Harp Playing
+  command: skip-harp-playing
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: Opening up Trial Gates and receiving the item from The Old One will require strumming the
+    harp. on: Trial Gates will automatically open up when you have obtained the harp and the
+    appropriate song. Additionally, The Old One will not require you to play the harp to receive
+    their item.
+- name: Random Trial Object Positions
+  command: random-trial-object-positions
+  type: singlechoice
+  choices:
+    - none
+    - simple
+    - advanced
+    - full
+  default: none
+  bits: 2
+  help: >-
+    none: Trial objects appear in their vanilla locations. simple: The positions of tears and light
+    fruits will be shuffled amongst each other. advanced: The positions of tears, light fruits, and
+    dusk relics will be shuffled amongst each other. full: The positions of tears, light fruits,
+    dusk relics, and stamina fruits will be shuffled amongst each other.
+- name: Sky Keep Layout
+  command: randomize-skykeep-layout
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: The Sky Keep rooms will start in their vanilla positions. on: The Sky Keep rooms will start
+    in a random order.
+- name: Small Keys
+  command: small-keys
+  type: singlechoice
+  choices:
+    - vanilla
+    - own_dungeon
+    - any_dungeon
+    - own_region
+    - overworld
+    - anywhere
+    - removed
+  default: own_dungeon
+  bits: 3
+  help: >-
+    vanilla: Small Keys will appear in their vanilla locations. own_dungeon: Small Keys will appear
+    inside their respective dungeon. any_dungeon: Small Keys can appear inside any dungeon.
+    own_region: Small Keys will appear in their dungeon's region. overworld: Small Keys will only
+    appear in the overworld. anywhere: Small Keys can appear anywhere. removed: Small Keys will not
+    appear anywhere in the world and their locks will start opened.
+- name: Lanayru Caves Small Keys
+  command: lanayru-caves-keys
+  type: singlechoice
+  choices:
+    - vanilla
+    - overworld
+    - anywhere
+    - removed
+  default: removed
+  bits: 2
+  help: >-
+    vanilla: The Lanayru Caves Keys will appear in their vanilla location. overworld: The Lanayru
+    Caves Keys will only appear in the overworld. anywhere: The Lanayru Caves Keys can appear
+    anywhere. removed: The Lanayru Caves Keys will not appear anywhere in the world and the locks
+    will start opened.
+- name: Boss Keys
+  command: boss-keys
+  type: singlechoice
+  choices:
+    - vanilla
+    - own_dungeon
+    - any_dungeon
+    - own_region
+    - overworld
+    - anywhere
+    - removed
+  default: own_dungeon
+  bits: 3
+  help: >-
+    vanilla: Boss Keys will appear in their vanilla locations. own_dungeon: Boss Keys will appear
+    inside their respective dungeon. any_dungeon: Boss Keys can appear inside any dungeon.
+    own_region: Boss Keys appear in their dungeon's region. overworld: Boss Keys will only appear in
+    the overworld. anywhere: Boss Keys can appear anywhere. removed: Boss Keys will not appear
+    anywhere in the world and boss doors will start opened.
+- name: Chest Type Matches Contents
+  command: chest-type-matches-contents
+  type: singlechoice
+  choices:
+    - 'off'
+    - only_dungeon_items
+    - all_contents
+  default: all_contents
+  bits: 2
+  help: >-
+    off: Each chest will have the same type as it would in the vanilla game. only_dungeon_items:
+    Each chest will have the same type as it would in the vanilla game, unless it contains a dungeon
+    item. If a chest contains a Boss Key, it will appear as a fancy chest. If it contains a Small
+    Key, it will appear as a big blue chest. If it contains a Map, it will appear as a brown, wooden
+    chest. all_contents: Each chest will have a different type based on the item inside. Important
+    items will appear in big blue chests. Boss Keys will appear in fancy chests. Other items will
+    appear in brown, wooden chests.
+- name: Small Keys in Fancy Chests
+  command: small-keys-in-fancy-chests
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: When Chest Type Matches Contents is not off, Small Keys will appear in big blue chests. on:
+    When Chest Type Matches Contents is not off, Small Keys will appear in fancy chests.
+- name: Path Hints
+  command: path-hints
+  type: int
+  min: 0
+  max: 7
+  default: 3
+  bits: 3
+  help: '0-7: Select the number of path hints you would like to generate.'
+- name: On Fi
+  command: path-hints-on-fi
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: Path hints will not be placed on Fi. on: Path hints will be placed on Fi and can be seen by
+    calling Fi and asking her for hints. If path hints are also on placed on gossip stones, then the
+    hints will be split evenly between the two options.
+- name: On Gossip Stones
+  command: path-hints-on-gossip-stones
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'on'
+  bits: 1
+  help: >-
+    off: Path hints will not be placed on gossip stones. on: Path hints will be placed on gossip
+    stones and can be seen by talking to them. If path hints are also on placed on Fi, then the
+    hints will be split evenly between the two options.
+- name: Barren Hints
+  command: barren-hints
+  type: int
+  min: 0
+  max: 7
+  default: 2
+  bits: 3
+  help: '0-7: Select the number of barren hints you would like to generate.'
+- name: On Fi
+  command: barren-hints-on-fi
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'on'
+  bits: 1
+  help: >-
+    off: Barren hints will not be placed on Fi. on: Barren hints will be placed on Fi and can be
+    seen by calling Fi and asking her for hints. If barren hints are also on placed on gossip
+    stones, then the hints will be split evenly between the two options.
+- name: On Gossip Stones
+  command: barren-hints-on-gossip-stones
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: Barren hints will not be placed on gossip stones. on: Barren hints will be placed on gossip
+    stones and can be seen by talking to them. If barren hints are also on placed on Fi, then the
+    hints will be split evenly between the two options.
+- name: Location Hints
+  command: location-hints
+  type: int
+  min: 0
+  max: 7
+  default: 7
+  bits: 3
+  help: '0-7: Select the number of location hints you would like to generate.'
+- name: On Fi
+  command: location-hints-on-fi
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: Location hints will not be placed on Fi. on: Location hints will be placed on Fi and can be
+    seen by calling Fi and asking her for hints. If location hints are also on placed on gossip
+    stones, then the hints will be split evenly between the two options.
+- name: On Gossip Stones
+  command: location-hints-on-gossip-stones
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'on'
+  bits: 1
+  help: >-
+    off: Location hints will not be placed on gossip stones. on: Location hints will be placed on
+    gossip stones and can be seen by talking to them. If location hints are also on placed on Fi,
+    then the hints will be split evenly between the two options.
+- name: Item Hints
+  command: item-hints
+  type: int
+  min: 0
+  max: 7
+  default: 3
+  bits: 3
+  help: '0-7: Select the number of item hints you would like to generate.'
+- name: On Fi
+  command: item-hints-on-fi
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: Item hints will not be placed on Fi. on: Item hints will be placed on Fi and can be seen by
+    calling Fi and asking her for hints. If item hints are also on placed on gossip stones, then the
+    hints will be split evenly between the two options.
+- name: On Gossip Stones
+  command: item-hints-on-gossip-stones
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'on'
+  bits: 1
+  help: >-
+    off: Item hints will not be placed on gossip stones. on: Item hints will be placed on gossip
+    stones and can be seen by talking to them. If item hints are also on placed on Fi, then the
+    hints will be split evenly between the two options.
+- name: Cryptic Hint Text
+  command: cryptic-hint-text
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: Item and location hints will use the normal, clear names for their items and locations. on:
+    Item and location hints will use cryptic text for their items and locations.
+- name: Prioritize Remote Location Hints
+  command: always-hints
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'on'
+  bits: 1
+  help: >-
+    off: All locations will be treated equally for location hints. on: Certain locations which are
+    time-consuming to check will be given priority for location hints.
+- name: Hint Importance
+  command: hint-importance
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: Location and item hints will not specify whether or not an item is required. on: Location
+    and item hints will specify if the item hinted at is required, not required, or possibly
+    required. Junk items will not have any specifier, as they are trivially unrequired.
+- name: Random Starting Bird Statues
+  command: random-starting-statues
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: The bird statue unlocked at the start for each surface region will be unchanged. on: The
+    bird statue unlocked at the start for each surface region will be randomized. All overworld
+    statues except Inside the Volcano and Inside the Fire Sanctuary may be chosen.
+- name: Randomize Starting Spawn
+  command: random-starting-spawn
+  type: singlechoice
+  choices:
+    - vanilla
+    - bird_statues
+    - any_surface_region
+    - anywhere
+  default: vanilla
+  bits: 2
+  help: >-
+    vanilla: You will start the game in Link's Bedroom. bird_statues: You will start the game at a
+    random Bird Statue or in Link's Bedroom. any_surface_region: You will start the game at any
+    surface region entrance or in Link's Bedroom. anywhere: You will start the game at any valid
+    entrance.
+- name: Limit Starting Spawn
+  command: limit-starting-spawn
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: If you spawn in a surface region, you may spawn in any surface province. on: If you spawn
+    in a surface region, you may only spawn in a province whose tablet you start with.
+- name: Randomize Dungeon Entrances
+  command: randomize-dungeon-entrances
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: Entering a dungeon will lead to the vanilla dungeon. on: Entering a dungeon will lead to a
+    random dungeon.
+- name: Randomize Trial Gate Entrances
+  command: randomize-trial-gate-entrances
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: Entering a Trial Gate will lead to the vanilla Silent Realm. on: Entering a Trial Gate will
+    lead to a random Silent Realm.
+- name: Randomize Door Entrances
+  command: randomize-door-entrances
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: Entering a door will lead to the vanilla exit on the other side. on: Entering a door will
+    lead to a random door exit on the other side.
+- name: Decouple Double Door Entrances
+  command: decouple-double-doors
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: Entering a left door will lead to the same location as the corresponding right door. on:
+    Entering a left door may lead somewhere different to the corresponding right door (only when
+    Randomize Door Entrance is also enabled).
+- name: Randomize Interior Entrances
+  command: randomize-interior-entrances
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: Entering a doorway, pushup door, or loadzone that leads to an interior location in the
+    vanilla game will lead to its vanilla location. on: Entering a doorway, pushup door, or loadzone
+    that leads to an interior location in the vanilla game will lead to a random interior location.
+- name: Randomize Overworld Entrances
+  command: randomize-overworld-entrances
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: Entering a doorway, pushup door, or loadzone that leads to an overworld location in the
+    vanilla game will lead to its vanilla location. on: Entering a doorway, pushup door, or loadzone
+    that leads to an overworld location in the vanilla game will lead to a random overworld
+    location.
+- name: Decouple Entrances
+  command: decouple-entrances
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: Entering a location and taking the entrance behind you will take you back to where you came
+    from. on: Entering a location and taking the entrance behind you will take you to a random
+    location.
+- name: Require Natural Night Connections
+  command: natural-night-connections
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'on'
+  bits: 1
+  help: >-
+    off: You may be required to sleep to night and travel anywhere in the world to access
+    nighttime-only checks, including flying at night. on: You will not be required to sleep to night
+    and travel to the overworld to access nighttime-only checks.
+- name: Allow Flying at Night
+  command: allow-flying-at-night
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will not be able to fly at night. If the Require Natural Night Connections setting is
+    disabled, night flying will be enabled to facilitate this. on: You will be able to call your
+    loftwing and fly in The Sky at night.
+- name: Required Dungeons
+  command: required-dungeons
+  type: int
+  min: 0
+  max: 7
+  default: 2
+  bits: 3
+  help: >-
+    0-7: Choose how many dungeons will have required items on their dungeon completion checks.
+    Triforces, then swords, then other progress items are chosen, in this order.
+- name: Include Sky Keep as a Dungeon
+  command: dungeons-include-sky-keep
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: Only the 6 main dungeons may be selected as required dungeons. on: Sky Keep may be selected
+    as a required dungeon needed to beat the seed. If selected, one of the "Sacred Power" locations
+    will be chosen as the "Goal Location" containing an important item (shown on a stone tablet in
+    the 1st room of Sky Keep).
+- name: Randomize Shop Prices
+  command: randomize-shop-prices
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: All shop prices will be unchanged from the vanilla game. on: All shop prices will be
+    randomized without changing how many wallets are needed to obtain each check.
+- name: Random Bottle Contents
+  command: random-bottle-contents
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: There will be 3 Empty Bottles, 1 Revitalizing Potion, and 1 Bottle of Mushroom Spores in
+    the item pool. on: There will be 5 Bottles in the item pool - each with random contents (e.g.
+    Heart Potion, Hot Pumpkin Soup, Sacred Water, etc...).
+- name: Trap Mode
+  command: trap-mode
+  type: singlechoice
+  choices:
+    - no_traps
+    - trapish
+    - trapsome
+    - traps_o_plenty
+    - traptacular
+  default: no_traps
+  bits: 3
+  help: >-
+    no_traps: All items in the game will be genuine. trapish: Approximately 10% of non-major items
+    will be replaced with 'traps' that don't give the item they appear to be. trapsome:
+    Approximately 25% of non-major items will be replaced with 'traps' that don't give the item they
+    appear to be. traps_o_plenty: Approximately 50% of non-major items will be replaced with 'traps'
+    that don't give the item they appear to be. traptacular: All of the non-major items will be
+    replaced with 'traps' that don't give the item they appear to be.
+- name: Trappable Items
+  command: trappable-items
+  type: singlechoice
+  choices:
+    - major_items
+    - non_major_items
+    - any_items
+  default: major_items
+  bits: 2
+  help: >-
+    major_items: Traps can mimic any major item that could be necessary to beat the game.
+    non_major_items: Traps can only mimic non-major items that cannot be necessary to beat the game.
+    any_items: Traps can mimic any item.
+- name: Burn Traps
+  command: burn-traps
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'on'
+  bits: 1
+  help: >-
+    off: Traps that set you on fire will not be added to the item pool. on: Traps that set you on
+    fire can be picked when replacing items with traps (controlled by the Trap Mode setting).
+- name: Curse Traps
+  command: curse-traps
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'on'
+  bits: 1
+  help: >-
+    off: Traps that curse you (prevents you from using your items) will not be added to the item
+    pool. on: Traps that curse you can be picked when replacing items with traps (controlled by the
+    Trap Mode setting).
+- name: Noise Traps
+  command: noise-traps
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'on'
+  bits: 1
+  help: >-
+    off: Traps that create a lot of noise will not be added to the item pool. on: Traps that create
+    a lot of noise can be picked when replacing items with traps (controlled by the Trap Mode
+    setting).
+- name: Groose Traps
+  command: groose-traps
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: Traps that spawn Groose will not be added to the item pool. on: Traps that spawn Groose can
+    be picked when replacing items with traps (controlled by the Trap Mode setting). To prevent
+    performance issues, Groose Traps will not spawn Groose in Silent Realms.
+- name: Health Traps
+  command: health-traps
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: Traps that reduce your health to 1 will not be added to the item pool. on: Traps that
+    reduce your health to 1 can be picked when replacing items with traps (controlled by the Trap
+    Mode setting).
+- name: Boss Key Puzzles
+  command: boss-key-puzzles
+  type: singlechoice
+  choices:
+    - correct_orientation
+    - vanilla_orientation
+    - random_orientation
+  default: vanilla_orientation
+  bits: 2
+  help: >-
+    correct_orientation: Boss Keys will be oriented so that they can be immediately inserted into
+    the boss doors. vanilla_orientation: Boss Keys will start in their original orientations when
+    you try to open boss doors. random_orientation: Boss Keys will start in a random orientation
+    when you try to open boss doors.
+- name: Faster Air Meter Depletion
+  command: faster-air-meter-depletion
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: The air meter will deplete at the normal rate when underwater. on: The air meter will
+    deplete at twice the normal rate when underwater like in Hero Mode.
+- name: Spawn Hearts and Heart Flowers
+  command: spawn-hearts
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'on'
+  bits: 1
+  help: >-
+    off: Heart flowers will not spawn and defeating enemies, breaking pots or barrels, cutting
+    grass, and digging spots will not produce hearts. on: Hearts will be obtainable by: defeating
+    enemies, breaking pots or barrels, cutting grass, and digging up digging spots. Heart flowers
+    will also spawn.
+- name: Unlock all Groosenator Destinations
+  command: unlock-all-groosenator-destinations
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will only be able to use the Groosenator to fling yourself somewhere after you have
+    been there once before. This DOES NOT apply to Flooded Faron Woods. on: You will be able and
+    expected to use the Groosenator to access new locations - even if you haven't been there before.
+- name: Minigame Difficulty
+  command: minigame-difficulty
+  type: singlechoice
+  choices:
+    - guaranteed_win
+    - easy
+    - vanilla
+    - hard
+  default: easy
+  bits: 2
+  help: >-
+    guaranteed_win: Completing the minigame will guarantee the best reward. easy: The threshold
+    needed to earn a reward from each minigame will be reduced. vanilla: The threshold needed to
+    earn a reward from each minigame will be unchanged. hard: The threshold needed to earn a reward
+    from each minigame will be increased.
+- name: Skip Miscellaneous Small Cutscenes
+  command: skip-misc-small-cutscenes
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: Small cutscenes will play as normal. on: Certain small cutscenes will be skipped. This
+    currently includes the Sandship switch and generator cutscenes.
+- name: In-Game Language
+  command: language
+  type: singlechoice
+  choices:
+    - dutch
+    - english_gb
+    - english_us
+    - french_fr
+    - french_us
+    - german
+    - italian
+    - spanish_es
+    - spanish_us
+  default: english_us
+  bits: 4
+  help: >-
+    dutch: Status: Incomplete. The randomized game will use the Dutch language files. english_gb:
+    Status: Complete. The randomized game will use the British English language files. english_us:
+    Status: Complete. The randomized game will use the American English language files. french_fr:
+    Status: Incomplete. The randomized game will use the French language files. french_us: Status:
+    Incomplete. The randomized game will use the French language files. german: Status: Mostly
+    complete (some text is missing or needs updating). The randomized game will use the German
+    language files. italian: Status: Incomplete. The randomized game will use the Italian language
+    files. spanish_es: Status: Incomplete. The randomized game will use the Spanish language files.
+    spanish_us: Status: Incomplete. The randomized game will use the Spanish language files.
+- name: Daytime Sky Color
+  command: daytime-sky-color
+  type: singlechoice
+  choices:
+    - default
+    - blue
+    - green
+    - yellow
+    - orange
+    - red
+    - purple
+    - pink
+    - white
+    - black
+    - grey
+    - rainbow
+  default: default
+  bits: 4
+  help: >-
+    default: The daytime sky color will be unchanged. blue: The daytime sky color will be a pastel
+    blue color. green: The daytime sky color will be a pastel green color. yellow: The daytime sky
+    color will be a pastel yellow color. orange: The daytime sky color will be a pastel orange
+    color. red: The daytime sky color will be a pastel red color. purple: The daytime sky color will
+    be a pastel purple color. pink: The daytime sky color will be a pastel pink color. white: The
+    daytime sky color will be a white color. black: The daytime sky color will be a black color.
+    grey: The daytime sky color will be a grey color. rainbow: The daytime sky color will fade
+    between different colors over time.
+- name: Nighttime Sky Color
+  command: nighttime-sky-color
+  type: singlechoice
+  choices:
+    - default
+    - blue
+    - green
+    - yellow
+    - orange
+    - red
+    - purple
+    - pink
+    - white
+    - black
+    - grey
+    - rainbow
+  default: default
+  bits: 4
+  help: >-
+    default: The nighttime sky color will be unchanged. blue: The nighttime sky color will be a
+    pastel blue color. green: The nighttime sky color will be a pastel green color. yellow: The
+    nighttime sky color will be a pastel yellow color. orange: The nighttime sky color will be a
+    pastel orange color. red: The nighttime sky color will be a pastel red color. purple: The
+    nighttime sky color will be a pastel purple color. pink: The nighttime sky color will be a
+    pastel pink color. white: The nighttime sky color will be a white color. black: The nighttime
+    sky color will be a black color. grey: The nighttime sky color will be a grey color. rainbow:
+    The nighttime sky color will fade between different colors over time.
+- name: Daytime Cloud Color
+  command: daytime-cloud-color
+  type: singlechoice
+  choices:
+    - default
+    - blue
+    - green
+    - yellow
+    - orange
+    - red
+    - purple
+    - pink
+    - white
+    - black
+    - grey
+    - rainbow
+  default: default
+  bits: 4
+  help: >-
+    default: The daytime cloud color will be unchanged. blue: The daytime cloud color will be a
+    pastel blue color. green: The daytime cloud color will be a pastel green color. yellow: The
+    daytime cloud color will be a pastel yellow color. orange: The daytime cloud color will be a
+    pastel orange color. red: The daytime cloud color will be a pastel red color. purple: The
+    daytime cloud color will be a pastel purple color. pink: The daytime cloud color will be a
+    pastel pink color. white: The daytime cloud color will be a white color. black: The daytime
+    cloud color will be a black color. grey: The daytime cloud color will be a grey color. rainbow:
+    The daytime cloud color will fade between different colors over time.
+- name: Nighttime Cloud Color
+  command: nighttime-cloud-color
+  type: singlechoice
+  choices:
+    - default
+    - blue
+    - green
+    - yellow
+    - orange
+    - red
+    - purple
+    - pink
+    - white
+    - black
+    - grey
+    - rainbow
+  default: default
+  bits: 4
+  help: >-
+    default: The nighttime cloud color will be unchanged. blue: The nighttime cloud color will be a
+    pastel blue color. green: The nighttime cloud color will be a pastel green color. yellow: The
+    nighttime cloud color will be a pastel yellow color. orange: The nighttime cloud color will be a
+    pastel orange color. red: The nighttime cloud color will be a pastel red color. purple: The
+    nighttime cloud color will be a pastel purple color. pink: The nighttime cloud color will be a
+    pastel pink color. white: The nighttime cloud color will be a white color. black: The nighttime
+    cloud color will be a black color. grey: The nighttime cloud color will be a grey color.
+    rainbow: The nighttime cloud color will fade between different colors over time.
+- name: Randomize Music
+  command: randomize-music
+  type: singlechoice
+  choices:
+    - vanilla
+    - shuffle_music
+    - shuffle_music_limit_vanilla
+  default: vanilla
+  bits: 2
+  help: >-
+    vanilla: The background music will not be shuffled. shuffle_music: The background music will be
+    randomly shuffled. shuffle_music_limit_vanilla: The background music will be shuffled to
+    minimize the number of unchanged tracks.
+- name: Cutoff Game Over Music
+  command: cutoff-game-over-music
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: The game over music will continue to play until the song has ended, even if the Randomize
+    Music setting places a very long song as the game over sound. on: The game over music will be
+    cutoff when selecting continue after dying.
+- name: Remove Enemy Music
+  command: remove-enemy-music
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: The background music will be interrupted by enemy drums when you get near to an enemy.
+    Additionally, the intense music when Scaldera and Tentalus are vulnerable will play as normal.
+    on: The background music will continue to play when you get near to enemies. Additionally, the
+    intense music when Scaldera and Tentalus are vulnerable will not play and the background music
+    will continue uninterrupted.
+- name: Low Health Beeping Speed
+  command: low-health-beeping-speed
+  type: singlechoice
+  choices:
+    - very_fast
+    - fast
+    - normal
+    - slow
+    - very_slow
+    - no_beeping
+    - no_beeping_or_flashing
+  default: normal
+  bits: 3
+  help: >-
+    very_fast: The game will play the low health beep sound every time Link flashes red. fast: The
+    game will play the low health beep sound every other time Link flashes red. normal: The game
+    will play the low health beep sound every 3rd time Link flashes red. slow: The game will play
+    the low health beep sound every 6th time Link flashes red. very_slow: The game will play the low
+    health beep sound every 12th time Link flashes red. no_beeping: The game will not play the low
+    health beep sound. Link will still flash red. no_beeping_or_flashing: The game will not play the
+    low health beep sound. Link will not flash red either.
+- name: Open Earth Temple
+  command: open-earth-temple
+  type: singlechoice
+  choices:
+    - open
+    - shuffle_eldin
+    - shuffle_anywhere
+  default: open
+  bits: 2
+  help: >-
+    open: The Earth Temple Door will be opened from the start of the game. shuffle_eldin: You will
+    need to collect all the Earth Temple Key Pieces, shuffled within the Eldin Volcano region
+    (including Mogma Turf if overworld entrances are not randomized), in order to open the Earth
+    Temple Door. shuffle_anywhere: You will need to collect all the Earth Temple Key Pieces,
+    shuffled anywhere, in order to open the Earth Temple Door.
+- name: Open Batreaux's Shed
+  command: open-batreaux-shed
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'on'
+  bits: 1
+  help: >-
+    off: You will need to bonk or sword-slash the back-leftmost gravestone at night to open the shed
+    to Batreaux's House. on: The shed to Batreaux's House will be open from the start of the game.
+- name: Isle of Songs Bridge Complete
+  command: shortcut-ios-bridge-complete
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will need to solve the bridge puzzle in order to enter inside of the Isle of Songs. on:
+    The bridge puzzle will be solved from the start of the game.
+- name: Sealed Spiral Log to Behind the Temple
+  command: shortcut-spiral-log-to-btt
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'on'
+  bits: 1
+  help: >-
+    off: You will not be able to go through the entrance from the Sealed Grounds Spiral to Behind
+    the Temple without entering from the other side where you can push down the log. on: The log
+    between the Sealed Grounds Spiral and Behind the Temple will be pushed down from the start of
+    the game.
+- name: Faron Woods Logs near Entry Bird Statue
+  command: shortcut-logs-near-machi
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will need a Sword or Clawshots to get to the main part of Faron Woods. on: The logs
+    from the Faron Woods entrance to the main part of Faron Woods will be pushed down from the start
+    of the game.
+- name: Faron Woods Log to after Lake Floria
+  command: shortcut-faron-log-to-floria
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will not be able to go through the entrance from Faron Woods to after Lake Floria
+    without entering from the other side where you can push down the log. on: The log from the Faron
+    Woods entrance to after Lake Floria will be pushed down from the start of the game.
+- name: Deep Woods Log before Tightrope
+  command: shortcut-deep-woods-log-before-tightrope
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will need to bypass the hornet's nest to get to the back part of Deep Woods. on: The
+    log from the Deep Woods entrance to after the Tightrope will be pushed down from the start of
+    the game.
+- name: Deep Woods Log before Temple
+  command: shortcut-deep-woods-log-before-temple
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'on'
+  bits: 1
+  help: >-
+    off: You will need to walk around to the Deep Woods bird statue to get to the Temple entrance.
+    on: The log from after the Deep Woods Tightrope before the Temple will be pushed down from the
+    start of the game.
+- name: Eldin Volcano Entrance Boulder
+  command: shortcut-eldin-entrance-boulder
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will need Bomb Bag to blow up the boulder down the left path from the Eldin Volcano
+    entrance. on: The boulder down the left path from the Eldin Volcano entrance will be blown up
+    from the start of the game.
+- name: Eldin Volcano Boulder near Ascent
+  command: shortcut-eldin-ascent-boulder
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will need Bomb Bag or Hook Beetle to blow up the boulder near the Volcano Ascent bird
+    statue before the wind vent to Hot Cave. on: The boulder near Volcano Ascent will be blown up
+    from the start of the game.
+- name: Volcano Summit Flames
+  command: shortcut-vs-flames
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will need an Empty Bottle, access to water, and Clawshots to get past the flames in
+    Volcano Summit. on: The two sets of flames in Volcano Summit will be removed from the start of
+    the game.
+- name: Lanayru Desert Bars near Stone Cache
+  command: shortcut-lanayru-bars
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will need to find access the east side of Lanayru Desert before you can pull the lever
+    and raise the bars. on: The bars separating Lanayru Desert from Stone Cache will be raised from
+    the start of the game.
+- name: Lanayru Desert Minecart on West Wall
+  command: shortcut-west-wall-minecart
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will need to travel across the Sand Oasis to get to the West Desert bird statue. on:
+    The minecart which allows access to the Western Wall of Lanayru Desert will be pushed down from
+    the start of the game.
+- name: Lanayru Desert Minecart in Sand Oasis
+  command: shortcut-sand-oasis-minecart
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will need to use Clawshots to get onto the Sand Oasis wall. on: The minecart which
+    allows access to the Sand Oasis wall will be pushed down from the start of the game.
+- name: Lanayru Desert Minecart before Lanayru Caves
+  command: shortcut-minecart-before-caves
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will need to use Clawshots or navigate across Sand Oasis to get to the end of Sand
+    Oasis. on: The minecart which allows access to the wall below the entrance to Lanayru Caves will
+    be pushed down from the start of the game.
+- name: Skyview Temple Boarded Shortcut
+  command: shortcut-skyview-boards
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will need to hit the crystal switch and use a Sword to deactivate the single eye to get
+    to the first hub room. on: The wooden boards blocking access to the first hub room will be
+    destroyed from the start of the game.
+- name: Skyview Temple Bars before Boss Door
+  command: shortcut-skyview-bars
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will need to use a 2nd Small Key and go through the 2nd Small Key locked room to get to
+    the boss door. on: The bars blocking access to the boss door will be raised from the start of
+    the game.
+- name: Earth Temple Pegs Bridge
+  command: shortcut-earth-temple-bridge
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will need to raise the bridge by rolling along the lava on the giant boulder. on: The
+    bridge in the main room of Earth Temple will be raised from the start of the game.
+- name: Lanayru Mining Facility Wind Gates in Hub Room
+  command: shortcut-lmf-wind-gates
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will need to reach the back of the hub room by going through the spike maze. on: The
+    wind gates blocking the central minecart path will be raised from the start of the game.
+- name: Lanayru Mining Facility Pushable Boxes
+  command: shortcut-lmf-boxes
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will need to push any boxes in the dungeon yourself. on: All of the metal pushable
+    boxes in the dungeon (that aren't covered in sand) will be pushed from the start of the game.
+- name: Lanayru Mining Facility Bars to West Side
+  command: shortcut-lmf-bars-to-west-side
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will need to travel through the west rooms and defeat the single armos in order to get
+    to the crawlspaces. on: The bars blocking access to the crawlspaces will be raised from the
+    start of the game.
+- name: Ancient Cistern Bridge to Basement
+  command: shortcut-ac-bridge
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will need to navigate the basement in order to freely move the giant statue. on: The
+    bridge to the long thread down to the basement will be extended from the start of the game. You
+    will be able to freely move the giant statue without navigating the basement.
+- name: Ancient Cistern Water Vents
+  command: shortcut-ac-water-vents
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will need to use the Whip to open the water vent shortcuts throughout the Ancient
+    Cistern. on: The water vents throughout the Ancient Cistern will be open from the start of the
+    game.
+- name: Sandship Windows below Life Boat
+  command: shortcut-sandship-windows
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will need to free the timeshift stone and open the windows below the life boat
+    manually. on: The windows below the life boat will be open from the start of the game.
+- name: Sandship Bars before Brig
+  command: shortcut-sandship-brig-bars
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will need to activate both generators to save the crew locked in the brig. on: The bars
+    blocking access to the brig will be raised from the start of the game.
+- name: Fire Sanctuary Bars between Outdoor Bridges
+  command: shortcut-fs-outside-bars
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will need to fight the double Magmanos and use the Mogma Mitts to bury underground in
+    order to get to the second trapped mogma. on: The bars between the two outside bridges will be
+    raised from the start of the game.
+- name: Fire Sanctuary Skip Lava Flow
+  command: shortcut-fs-lava-flow
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'on'
+  bits: 1
+  help: >-
+    off: You will need to blow up the rock and escape the lava chase in order for the lava river at
+    the end of Fire Sanctuary to be flowing. on: The lava river at the end of Fire Sanctuary will be
+    flowing from the start of the game.
+- name: Sky Keep Bars in Skyview Temple Room
+  command: shortcut-sky-keep-svt-room-bars
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'on'
+  bits: 1
+  help: >-
+    off: You will need to traverse the Skyview Temple room in Sky Keep using most items in the item
+    wheel to continue through Sky Keep. on: The bars in the Skyview Temple room in Sky Keep will
+    already be raised allowing you to skip traversing the room.
+- name: Sky Keep Lower Bars in Fire Sanctuary Room
+  command: shortcut-sky-keep-fs-room-lower-bars
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'on'
+  bits: 1
+  help: >-
+    off: You will need to fully traverse the Fire Sanctuary room in Sky Keep by riding magma
+    platforms and using the Beetle and Clawshots. on: The lower bars in the Fire Sanctuary room in
+    Sky Keep will already be raised. This does not change logic and merely speeds up this room.
+- name: Sky Keep Upper Bars in Fire Sanctuary Room
+  command: shortcut-sky-keep-fs-room-upper-bars
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will need to fully traverse the Fire Sanctuary room in Sky Keep by riding magma
+    platforms and using the Beetle and Clawshots. on: The upper bars in the Fire Sanctuary room in
+    Sky Keep will already be raised. This completely skips riding the magma platforms as well as
+    using the Beetle and Clawshots.
+- name: Early Lake Floria Jumpslash
+  command: logic-early-lake-floria
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will not be expected to enter Lake Floria using this trick. on: You may need to enter
+    Lake Floria by jumpslashing onto the fence and running out of bounds.
+- name: Beedle's Island Cage Chest Dive
+  command: logic-beedles-island-cage-chest-dive
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will not be expected to get the Beedle's Island - Goddess Chest in Cage using this
+    trick. on: You may need to dive off your loftwing and skydive into the cage on Beedle's Island
+    to get the chest.
+- name: Volcanic Island Dive
+  command: logic-volcanic-island-dive
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will not be expected to get the Volcanic Island - Inside Goddess Chest using this
+    trick. on: You may need to skydive onto the raised ledge in the volcanic island to get the
+    chest.
+- name: Inside the Thunderhead East Island Dive
+  command: logic-east-island-dive
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will not be expected to get the Inside the Thunderhead - Chest on East Island using
+    this trick. on: You may need to skydive onto the archway to get the chest.
+- name: Advanced Lizalfos Combat
+  command: logic-advanced-lizalfos-combat
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will only be expected to defeat Lizalfos enemies with a sword. on: You may need to
+    defeat Lizalfos enemies with only bombs or only the Bow.
+- name: Long Ranged Skyward Strikes
+  command: logic-long-ranged-skyward-strikes
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will not need to perform any Skyward Strikes that travel long distances. on: You may
+    need to perform ranged Skyward Strikes to hit distant Goddess Cubes, enemies, or switches.
+- name: Gravestone Jump
+  command: logic-gravestone-jump
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will only be expected to get to the Batreaux's door entrance by sleeping to night and
+    bonking into the back-left gravestone. on: You may need to jump onto the back-middle gravestone,
+    then jump onto the back-right gravestone, then sidehop left in order to get to the Batreaux's
+    door entrance during the daytime.
+- name: Waterfall Cave Jump
+  command: logic-waterfall-cave-jump
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will only be expected to enter the end Waterfall Cave entrance by first exiting out of
+    it into the loftwing prison area. on: You may need to dive off the platform near Sparrot the
+    Fortune-Teller's house and skydive towards the loftwing prison in order to enter the end
+    Waterfall Cave entrance.
+- name: Bird's Nest from Beedle's Airshop
+  command: logic-bird-nest-item-from-beedles-shop
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will only be expected to get the Item in Bird's Nest by diving from the top of the
+    Waterfall. on: You may need to stop Beedle's Airshop near to the Bird's Nest and get the item by
+    climbing the rope and using the Gust Bellows to blow away the dust and a Beetle to collect the
+    item.
+- name: Beedle's Airshop with Bombs
+  command: logic-beedles-shop-with-bombs
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will only be expected to enter Beedle's Airshop using the Slingshot, Bow, Clawshots, or
+    a Beetle to hit the bell. on: You may need to precisely time a bomb explosion to hit the bell on
+    Beedle's Airshop.
+- name: Stutter Sprinting
+  command: logic-stuttersprint
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will only be expected to continuously hold the sprint button in order to travel across
+    quicksand or up slopes. on: You may need to use short sprints in order to travel farther across
+    quicksand or up slopes without the use of items.
+- name: Precise Beetle Flying
+  command: logic-precise-beetle
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will only be expected to use the Beetle in the same way as the vanilla game expects.
+    on: You may need to precisely move the Beetle to get distant checks or carry bomb flowers long
+    distances.
+- name: Precise Bomb Throws
+  command: logic-bomb-throws
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will only be expected to use the Slingshot, Bow, Clawshots, or a Beetle to activate
+    distant switches and you will only be expected to use nearby bomb flowers with the Hook Beetle
+    to blow up distant rocks. on: You may need to use the Bomb Bag and time bomb throws to activate
+    switches or blow up distant rocks or towers.
+- name: Faron Woods with Groosenator
+  command: logic-faron-woods-with-groosenator
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will never be expected to use the Groosenator to access Faron Woods by unlocking bird
+    statues in Flooded Faron Woods. on: You may need to use the Groosenator to unlock the bird
+    statues in Flooded Faron Woods to land at those bird statues in normal Faron Woods.
+- name: Itemless First Timeshift Stone
+  command: logic-itemless-first-timeshift-stone
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will only be expected to use an item to activate the first timeshift stone in Lanayru
+    Mine. on: You may need to use the bomb flower near the Chus in order to activate the first
+    timeshift stone in Lanayru Mine without items.
+- name: Stamina Potion through Sink Sand
+  command: logic-stamina-potion-through-sink-sand
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will only be expected to navigate sink sand by creating paths to run on (usually done
+    by knocking down statues by carrying bomb flowers with the Hook Beetle). on: You may need to
+    purchase a stamina potion to run through sink sand further than is normally possible.
+- name: Brakesliding
+  command: logic-brakeslide
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will only be expected to use items to help travel across quicksand. on: You may need to
+    use the brakeslide glitch in order to travel across quicksand.
+- name: Lanayru Mine Quick Bomb
+  command: logic-lanayru-mine-quick-bomb
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You are not expected to be able to enter Lanayru Mine from Lanayru Desert via the minecart.
+    on: You may need to enter Lanayru Mine from Lanayru Desert and use Bomb Bag to blow up the rock
+    on the minecart track.
+- name: Temple of Time Skip Brakeslide
+  command: logic-tot-skip-brakeslide
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will only be expected to get to east Lanayru Desert exiting from the Temple of Time
+    area or one of the nodes, or with Clawshots. on: You may need to use the brakeslide glitch to
+    travel across the quicksand near the Caged Robot to east Lanayru Desert.
+- name: Temple of Time Precise Slingshot
+  command: logic-tot-slingshot
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will only be expected to use the Hook Beetle to activate the timeshift stone in the big
+    tree near the Temple of Time. on: You may need to use the Slingshot to precisely activate the
+    timeshift stone in the big tree near the Temple of Time.
+- name: Activate Fire Node without Hook Beetle
+  command: logic-fire-node-without-hook-beetle
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will not be expected to get to the back of Fire Node without Hook Beetle. on: You may
+    need to throw a Baby Ampilus up onto the high ledge in Fire Node to lower the bars at the back.
+- name: Whip Bomb Flowers off Cacti
+  command: logic-cactus-bomb-whip
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will only be expected to use bomb flowers that can be picked up off the ground or with
+    the Hook Beetle. on: You may need to use the Whip to pick up bomb flowers from on top of cacti.
+- name: Skipper's Retreat Fast Clawshots
+  command: logic-skippers-fast-clawshots
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will only be expected to get to the top of Skipper's Retreat with an item to defeat the
+    Deku Baba. on: You may need to use the Clawshots to stun the Deku Baba in-front of the clawshot
+    target in Skipper's Retreat and quickly clawshot across the gaps.
+- name: Skyview Temple Spider Roll
+  command: logic-skyview-spider-roll
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will only be expected to find an alternative path around Skultullas on their webs in
+    the Skyview Temple. on: You may need to roll next the Skultullas in the Skyview Temple while
+    they are on their webs in order to get past them.
+- name: Skyview Coiled Rupee Jump
+  command: logic-skyview-coiled-rupee-jump
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will only be expected to get the Rupee check on the Coiled Branch in the Skyview Temple
+    using the Beetle. on: You may need to use a Sword to jump-slash into the Rupee check on the
+    Coiled Branch in the Skyview Temple.
+- name: Skyview Temple Precise Slingshot
+  command: logic-skyview-precise-slingshot
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will only be expected to get the Skyview Temple - Item behind Bars by either using the
+    Beetle to hit the crystal or by using the Whip. on: You may need to use the Slingshot to
+    precisely hit the crystal at the top of the second hub room to get the Skyview Temple - Item
+    behind Bars.
+- name: Earth Temple Keese Skyward Strike
+  command: logic-et-keese-skyward-strike
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will only be expected to break the high rope on the first Earth Temple bridge using a
+    Beetle or the Bow. on: You may need to precisely manipulate a specific Keese's position and use
+    a long range Skyward Strike to break the high rope on the first bridge in Earth Temple.
+- name: Earth Temple Slope Stuttersprint
+  command: logic-et-slope-stuttersprint
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will only be expected to get to the top of the second Earth Temple slope by opening the
+    blocked cubby part-way up the slope so you can recover stamina. on: You may need to manipulate
+    the boulders to fall on the second Earth Temple slope so that you can stuttersprint to the top
+    without getting hit.
+- name: Earth Temple Bomb Flower Scaldera
+  command: logic-et-bombless-scaldera
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will only be expected to defeat Scaldera using the Bomb Bag and a Sword. on: You may
+    need to defeat Scaldera using only the bomb flowers at the top of the boss arena and the fully
+    upgraded Skyward Strike.
+- name: Lanayru Mining Facility Whip Switch
+  command: logic-lmf-whip-switch
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will only be expected to flip the left lever in the first room of Lanayru Mining
+    Facility by using the Hook Beetle to knock down the statue platform. on: You may need to run
+    into the quicksand and use the Whip to flip the left lever in the first room of Lanayru Mining
+    Facility.
+- name: Lanayru Mining Facility Precise Slingshot
+  command: logic-lmf-ceiling-precise-slingshot
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will only be expected to hit the timeshift stone in the key-locked room in Lanayru
+    Mining Facility with the Beetle or Bow. on: You may need to precisely use the Slingshot to hit
+    the timeshift stone in the key-locked room in Lanayru Mining Facility.
+- name: Lanayru Mining Facility Whip Timeshift Stone
+  command: logic-lmf-whip-armos-room-timeshift-stone
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will only be expected to hit the timeshift stone in the Armos room of Lanayru Mining
+    Facility with a Skyward Strike, Slingshot, or Bow. on: You may need to use the Whip to hit the
+    timeshift stone in the Armos room of Lanayru Mining Facility
+- name: Lanayru Mining Facility Ride on Minecart
+  command: logic-lmf-minecart-jump
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will only be expected to get to the vanilla boss key room by opening the Wind Gates and
+    following the central minecart path. on: You may need to jump onto and ride the minecart
+    in-front of the Lanayru Mining Facility boss door to get to the vanilla boss key room.
+- name: Lanayru Mining Facility Moldarach without Gust Bellows
+  command: logic-lmf-bellowsless-moldarach
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will only be expected to defeat Moldarach in Lanayru Mining Facility with the Gust
+    Bellows. on: You may need to defeat Moldarach in Lanayru Mining Facility without the Gust
+    Bellows.
+- name: Ancient Cistern Lever Jump
+  command: logic-ac-lever-jump-trick
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will only be expected to use the Whip to flip the lever that stops the waterfall in
+    Ancient Cistern. on: You may need to jump down from above to flip the lever that stops the
+    waterfall in Ancient Cistern.
+- name: Ancient Cistern Chest after Whip Hooks Jump
+  command: logic-ac-chest-after-whip-hooks-jump
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will only be expected to get the Ancient Cistern - Chest after Whip Hooks by using the
+    Whip. on: You may be expected to get the Ancient Cistern - Chest after Whip Hooks by jumping
+    down from the higher platform after exiting the basement via the long thread.
+- name: Sandship Jump to Stern
+  command: logic-sandship-jump-to-stern
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will only be expected to get the Sandship - Chest at Ship's Stern by using the
+    Clawshots. on: You may need to get the Sandship - Chest at Ship's Stern by side-hopping from the
+    top of the mast.
+- name: Sandship Itemless Spume
+  command: logic-sandship-itemless-spume
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will only be expected to get past the Spume in the Sandship corridor by defeating it or
+    stunning it with the Slingshot. on: You may need to get past the Spume in the Sandship corridor
+    without any items.
+- name: Sandship No Combination Hint
+  command: logic-sandship-no-combination-hint
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will only be expected to open the combination lock in the Sandship if you have the Gust
+    Bellows to uncover the combination. on: You may need to open the combination lock in the
+    Sandship without using the Gust Bellows to get the combination.
+- name: Fire Sanctuary Pillar Jump
+  command: logic-fs-pillar-jump
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will only be expected to cross the broken bridge in Fire Sanctuary with the Clawshots.
+    on: You may need to precisely jump around the pillars on the broken bridge in Fire Sanctuary.
+- name: Fire Sanctuary Ghirahim 2 with Practice Sword
+  command: logic-fs-practice-sword-ghirahim-2
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will only be expected to defeat Ghirahim 2 with Goddess Sword or better. on: You may
+    need to defeat Ghirahim 2 with Practice Sword.
+- name: Present Bow Switch Shots
+  command: logic-present-bow-switches
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will only be expected to hit Bow switches in the past when they are not covered by
+    barbed wire. on: You may need to hit Bow switches in the present when they are covered by barbed
+    wire.
+- name: Sky Keep Vine Clip
+  command: logic-skykeep-vineclip
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will only be expected to use the Beetle and Clawshots to travel across the Fire
+    Sanctuary room in Sky Keep. on: You may need to use the Bomb Bag and Clawshots to clip through
+    the vines in the Fire Sanctuary room in Sky Keep.
+- name: Random Starting Tablet Count
+  command: random-starting-tablet-count
+  type: int
+  min: 0
+  max: 3
+  default: 1
+  bits: 2
+  help: >-
+    0-3: Select the number of randomly chosen tablets you would like to start with. This is in
+    addition to any tablets you have added to your starting inventory already.
+- name: Random Starting Item Count
+  command: random-starting-item-count
+  type: int
+  min: 0
+  max: 7
+  default: 0
+  bits: 3
+  help: >-
+    0-7: Select the number of randomly chosen items you would like to start with. Only a selection
+    of the most useful items are able to be chosen to maximize the benefit of this setting.
+- name: Starting Hearts
+  command: starting-hearts
+  type: int
+  min: 6
+  max: 18
+  default: 6
+  bits: 5
+  help: '6-18: Select the number of hearts you want to start with.'
+- name: Start with All Bugs
+  command: start-with-all-bugs
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will start the game without any bugs in your inventory. on: You will start the game
+    with 99 of each bug in your inventory.
+- name: Start with All Treasures
+  command: start-with-all-treasures
+  type: singlechoice
+  choices:
+    - 'off'
+    - 'on'
+  default: 'off'
+  bits: 1
+  help: >-
+    off: You will start the game without any treasures in your inventory. on: You will start the
+    game with 99 of each treasure in your inventory.

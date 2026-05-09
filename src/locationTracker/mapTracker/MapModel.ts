@@ -59,10 +59,13 @@ function getEntranceMarker(
     marker: MapDataEntranceMarker,
     areaGraph: AreaGraph,
     exits: Record<string, ExitMapping>,
-): MapHintRegion {
+): MapHintRegion | undefined {
     const exitPool = marker.exitPool as keyof AreaGraph['linkedEntrancePools'];
     const exitId =
-        areaGraph.linkedEntrancePools[exitPool][marker.entryName].exits[0];
+        areaGraph.linkedEntrancePools[exitPool]?.[marker.entryName]?.exits[0];
+    if (exitId === undefined || areaGraph.exits[exitId] === undefined) {
+        return undefined;
+    }
     const mapping = exits[exitId];
     return {
         type: 'exit',
@@ -89,7 +92,10 @@ function getProvince(
         name: province.name,
         regions: [
             ...province.markers.map(getMarker),
-            ...province.entranceMarkers.map(getEntrance),
+            ...province.entranceMarkers.flatMap((marker) => {
+                const entrance = getEntrance(marker);
+                return entrance ? [entrance] : [];
+            }),
         ],
     };
 }

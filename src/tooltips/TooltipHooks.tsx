@@ -10,6 +10,7 @@ import {
 } from 'react';
 import { useSelector } from 'react-redux';
 import {
+    debugModeSelector,
     trickSemiLogicSelector,
     trickSemiLogicTrickListSelector,
 } from '../customization/Selectors';
@@ -17,6 +18,8 @@ import { mergeRequirements } from '../logic/bitlogic/BitLogic';
 import type { ExplorationNode } from '../logic/Pathfinding';
 import { logicSelector, optionsSelector } from '../logic/Selectors';
 import {
+    checkSelector,
+    exitsByIdSelector,
     getRequirementLogicalStateSelector,
     inLogicPathfindingSelector,
     optimisticPathfindingSelector,
@@ -140,4 +143,194 @@ export function useEntrancePath(checkId: string): string[] | undefined {
         segments.push('Start');
         return segments.reverse();
     }, [checkId, entranceRando, logicPathfinding, optimisticPathfinding]);
+}
+
+export interface TooltipDebugInfo {
+    checkId: string;
+    checkName: string;
+    logicalState: string;
+    checkBit: number | undefined;
+    rawStaticRequirements: string[];
+    staticRequirements: string[];
+    staticRequirementStates: string[];
+    inLogicPathFound: boolean;
+    optimisticPathFound: boolean;
+    startEntrance: string | undefined;
+    area: string | undefined;
+    relevantExits: string[];
+    entranceSettings: Record<string, string | boolean | undefined>;
+}
+
+function isImpossibleTooltip(requirements: RootTooltipExpression | undefined) {
+    return (
+        requirements?.items.length === 1 &&
+        requirements.items[0]?.type === 'item' &&
+        requirements.items[0].item === 'Impossible (discover an entrance first)'
+    );
+}
+
+function summarizeStaticRequirements(
+    logic: ReturnType<typeof logicSelector>,
+    bit: number | undefined,
+    useRaw = false,
+) {
+    if (bit === undefined) {
+        return ['check bit missing'];
+    }
+
+    const expr = useRaw
+        ? logic.rawStaticRequirements[bit]
+        : logic.staticRequirements[bit];
+    if (!expr || expr.conjunctions.length === 0) {
+        return ['static requirements = false'];
+    }
+
+    const summaries = expr.conjunctions.slice(0, 3).map((conjunction) => {
+        const parts = [...conjunction.iter()]
+            .slice(0, 8)
+            .map((reqBit) => logic.allItems[reqBit] ?? `bit:${reqBit}`);
+        const suffix =
+            conjunction.numSetBits > 8
+                ? ` +${conjunction.numSetBits - 8} more`
+                : '';
+        return parts.length > 0 ? `${parts.join(' & ')}${suffix}` : 'true';
+    });
+
+    if (expr.conjunctions.length > 3) {
+        summaries.push(`... ${expr.conjunctions.length - 3} other branches`);
+    }
+    return summaries;
+}
+
+function summarizeStaticRequirementStates(
+    logic: ReturnType<typeof logicSelector>,
+    bit: number | undefined,
+    getRequirementLogicalState: (requirement: string) => string,
+) {
+    if (bit === undefined) {
+        return ['check bit missing'];
+    }
+
+    const expr = logic.staticRequirements[bit];
+    if (!expr || expr.conjunctions.length === 0) {
+        return ['static requirements = false'];
+    }
+
+    return expr.conjunctions.slice(0, 3).map((conjunction, index) => {
+        const parts = [...conjunction.iter()].slice(0, 8).map((reqBit) => {
+            const requirement = logic.allItems[reqBit] ?? `bit:${reqBit}`;
+            return `${requirement} [${getRequirementLogicalState(requirement)}]`;
+        });
+        const suffix =
+            conjunction.numSetBits > 8
+                ? ` +${conjunction.numSetBits - 8} more`
+                : '';
+        return `branch ${index + 1}: ${parts.join(' & ')}${suffix}`;
+    });
+}
+
+export function useTooltipDebug(
+    checkId: string,
+    requirements: RootTooltipExpression | undefined,
+): TooltipDebugInfo | undefined {
+    const logic = useSelector(logicSelector);
+    const check = useSelector(checkSelector(checkId));
+    const exitsById = useSelector(exitsByIdSelector);
+    const inLogicPathfinding = useSelector(inLogicPathfindingSelector);
+    const optimisticPathfinding = useSelector(optimisticPathfindingSelector);
+    const getRequirementLogicalState = useSelector(
+        getRequirementLogicalStateSelector,
+    );
+    const settings = useSelector(settingsSelector);
+    const debugMode = useSelector(debugModeSelector);
+
+    return useMemo(() => {
+        if (
+            !debugMode ||
+            check.type === 'exit' ||
+            check.logicalState !== 'outLogic' ||
+            !isImpossibleTooltip(requirements)
+        ) {
+            return undefined;
+        }
+
+        const startEntrance = exitsById['\\Start']?.entrance?.name;
+        const area = logic.checks[checkId]?.area;
+        const checkBit = logic.itemBits[checkId];
+        const rawSettings = settings as Record<
+            string,
+            string | number | boolean | string[] | undefined
+        >;
+        const relevantExits = (area ? logic.exitsByHintRegion[area] : undefined)
+            ?.map((exitId) => {
+                const exit = exitsById[exitId];
+                if (!exit) {
+                    return `${exitId}: missing exit mapping`;
+                }
+                const status = exit.entrance
+                    ? `mapped to ${exit.entrance.name}`
+                    : exit.canAssign
+                      ? 'unmapped random exit'
+                      : 'vanilla';
+                return `${exit.exit.name}: ${status}`;
+            })
+            .slice(0, 8);
+
+        return {
+            checkId,
+            checkName: check.checkName,
+            logicalState: check.logicalState,
+            checkBit,
+            rawStaticRequirements: summarizeStaticRequirements(
+                logic,
+                checkBit,
+                true,
+            ),
+            staticRequirements: summarizeStaticRequirements(logic, checkBit),
+            staticRequirementStates: summarizeStaticRequirementStates(
+                logic,
+                checkBit,
+                getRequirementLogicalState,
+            ),
+            inLogicPathFound: Boolean(inLogicPathfinding?.[checkId]),
+            optimisticPathFound: Boolean(optimisticPathfinding?.[checkId]),
+            startEntrance,
+            area,
+            relevantExits: relevantExits ?? [],
+            entranceSettings: {
+                randomizeEntrances: rawSettings['randomize-entrances'] as
+                    | string
+                    | boolean
+                    | undefined,
+                randomizeDungeonEntrances: rawSettings[
+                    'randomize-dungeon-entrances'
+                ] as string | boolean | undefined,
+                randomizeTrialEntrances: rawSettings['randomize-trials'] as
+                    | string
+                    | boolean
+                    | undefined,
+                randomizeInteriorEntrances: rawSettings[
+                    'randomize-interior-entrances'
+                ] as string | boolean | undefined,
+                randomizeOverworldEntrances: rawSettings[
+                    'randomize-overworld-entrances'
+                ] as string | boolean | undefined,
+                randomStartEntrance: rawSettings['random-start-entrance'] as
+                    | string
+                    | boolean
+                    | undefined,
+            },
+        };
+    }, [
+        check,
+        checkId,
+        exitsById,
+        getRequirementLogicalState,
+        inLogicPathfinding,
+        logic,
+        optimisticPathfinding,
+        requirements,
+        settings,
+        debugMode,
+    ]);
 }

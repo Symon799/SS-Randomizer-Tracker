@@ -7,25 +7,37 @@
         color: var(--scheme-interact-text);
         background-color: var(--scheme-interact);
         text-align: center;
-        transition: all 150ms ease-out;
-        padding: 0.375rem 0.75rem;
-        border: 1px solid var(--scheme-interact);
-        border-radius: 0.375rem;
-        font-size: 16px;
-        line-height: 1.5;
+        transition:
+            background-color 150ms ease-out,
+            border-color 150ms ease-out,
+            box-shadow 150ms ease-out,
+            transform 150ms ease-out;
+        padding: 0.5rem 0.85rem;
+        border: 1px solid color-mix(in srgb, var(--scheme-interact) 70%, white);
+        border-radius: 8px;
+        box-shadow: 0 1px 2px
+            color-mix(in srgb, var(--scheme-text) 14%, transparent);
+        font-size: 0.95rem;
+        font-weight: 600;
+        line-height: 1.2;
 
         &:hover,
         &:active {
             background-color: var(--scheme-interact-hover);
+            border-color: var(--scheme-interact-hover);
+            transform: translateY(-1px);
         }
 
         &:disabled {
-            opacity: 0.65;
+            opacity: 0.5;
             cursor: not-allowed;
+            box-shadow: none;
 
             &:hover,
             &:active {
                 background-color: var(--scheme-interact);
+                border-color: var(--scheme-interact);
+                transform: none;
             }
         }
     }

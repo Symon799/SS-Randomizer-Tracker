@@ -1,10 +1,17 @@
-import { Client, type ConnectedPacket, type MessageNode } from 'archipelago.js';
+import {
+    Client,
+    type ConnectedPacket,
+    type MessageNode,
+    type NetworkItem,
+} from 'archipelago.js';
 import { invert } from 'es-toolkit';
 import type { ReactNode } from 'react';
 import React from 'react';
 import type { ColorScheme } from '../customization/ColorScheme';
-import { setStoredArchipelagoServer } from '../LocalStorage';
-import { isItem, type InventoryItem } from '../logic/Inventory';
+import {
+    setStoredArchipelagoServer,
+    setStoredArchipelagoSlot,
+} from '../LocalStorage';
 import {
     sothItemReplacement,
     triforceItemReplacement,
@@ -23,17 +30,46 @@ function kebabToSnake(input: string): string {
     return input.replace(/-/g, '_');
 }
 
+const apItemAliases: Record<string, string> = {
+    Rattle: 'Baby Rattle',
+    'Skyview Temple Boss Key': 'Skyview Boss Key',
+    'Skyview Temple Small Key': 'Skyview Small Key',
+};
+
+const apProgressiveItemMinimums: Record<string, [item: string, count: number]> =
+    {
+        'Goddess Sword': ['Progressive Sword', 2],
+        'Goddess Longsword': ['Progressive Sword', 3],
+        'Goddess White Sword': ['Progressive Sword', 4],
+        'Master Sword': ['Progressive Sword', 5],
+        'True Master Sword': ['Progressive Sword', 6],
+        'Hook Beetle': ['Progressive Beetle', 2],
+        'Quick Beetle': ['Progressive Beetle', 3],
+        'Tough Beetle': ['Progressive Beetle', 4],
+        Scattershot: ['Progressive Slingshot', 2],
+        'Big Bug Net': ['Progressive Bug Net', 2],
+        'Mogma Mitts': ['Progressive Mitts', 2],
+        'Iron Bow': ['Progressive Bow', 2],
+        'Sacred Bow': ['Progressive Bow', 3],
+        'Song of the Hero': [sothItemReplacement, 3],
+    };
+
+function isArchipelagoCrystalLogicItem(item: string): boolean {
+    return item === 'Gratitude Crystal' || item === 'Gratitude Crystal Pack';
+}
+
 function optionIndicesToOptions(
     optionDefs: OptionDefs,
-    loadedOptions: Record<string, number | string[]>,
+    loadedOptions: Record<string, number | string | string[]>,
 ): AllTypedOptions {
     const settings: Partial<Record<OptionsCommand, OptionValue>> =
         defaultSettings(optionDefs);
-    // Excluded locations are handled differently, and starting items are just manually sent by AP
+    // Excluded locations are handled differently.
     settings['excluded-locations'] = [];
-    settings['starting-items'] = [];
     for (const option of optionDefs) {
-        const loadedVal = loadedOptions[kebabToSnake(option.command)];
+        const optionKey = kebabToSnake(option.command);
+        const loadedVal =
+            loadedOptions[optionKey] ?? loadedOptions[`option_${optionKey}`];
         if (option.permalink !== false && loadedVal !== undefined) {
             if (option.command === 'excluded-locations') {
                 settings[option.command] = loadedVal;
@@ -42,9 +78,14 @@ function optionIndicesToOptions(
             } else if (option.type === 'int') {
                 settings[option.command] = loadedVal;
             } else if (option.type === 'multichoice') {
-                // shouldn't be possible
+                if (Array.isArray(loadedVal)) {
+                    settings[option.command] = loadedVal;
+                }
             } else if (option.type === 'singlechoice') {
-                settings[option.command] = option.choices[loadedVal as number];
+                settings[option.command] =
+                    typeof loadedVal === 'string'
+                        ? loadedVal
+                        : option.choices[loadedVal as number];
             }
         }
     }
@@ -77,6 +118,16 @@ export class ColoredText {
 
 export type ClientMessage = ColoredText[];
 
+export type RequiredDungeonDiagnostic = {
+    slotDataKeys: string[];
+    keysContainingRequired: string[];
+    requiredDungeonsRaw: unknown;
+    requiredDungeons: string[];
+    verdict: string;
+};
+
+type SlotData = Record<string, unknown>;
+
 const MAX_MESSAGES = 1000;
 const GAME_NAME = 'Skyward Sword HD';
 
@@ -87,14 +138,29 @@ export class APClientManager {
     idToItem?: Record<number, string>;
     connectedData?: ConnectedPacket;
     inventory: TrackerState['inventory'] = {};
+    pendingReceivedItems: NetworkItem[] = [];
+    receivedNetworkItems: NetworkItem[] = [];
     checkedLocationIds: number[] = [];
     checkedLocations: string[] = [];
     checkedCubes: number = 0;
     messages: ClientMessage[] = [];
     requiredDungeons: string[] = [];
+    requiredDungeonDiagnostic?: RequiredDungeonDiagnostic;
+    totalLocationCount?: number;
     cubeDataKey?: string;
+    scoutedCheckedLocationIds = new Set<number>();
+    scoutedSelfItemsByLocation = new Map<
+        number,
+        {
+            name: string;
+            game: string;
+            receiverSlot: number;
+        }
+    >();
     resolveLocations?: (locs: string[]) => void;
     resolveItems?: (items: TrackerState['inventory']) => void;
+    resolveRequiredDungeons?: (dungeons: string[]) => void;
+    resolveLocationStats?: (stats: { total?: number; checked: number }) => void;
     changeStage?: (stage: string) => void;
     resolveCubes?: (cubeflags: number) => void;
     onMessage?: (messages: ClientMessage[]) => void;
@@ -132,6 +198,13 @@ export class APClientManager {
     private setCheckedLocationIds(locationIds: number[]) {
         this.checkedLocationIds = [...new Set(locationIds)];
         this.syncCheckedLocations();
+        this.resolveLocationStats?.({
+            total: this.totalLocationCount,
+            checked: this.checkedLocationIds.length,
+        });
+        if (this.idToItem !== undefined) {
+            void this.scoutCheckedSelfItems(this.checkedLocationIds);
+        }
     }
 
     private addCheckedLocationIds(locationIds: number[]) {
@@ -141,9 +214,182 @@ export class APClientManager {
         ]);
     }
 
-    add(item: InventoryItem, count: number = 1) {
-        this.inventory[item] ??= 0;
-        this.inventory[item] += count;
+    private addToInventory(
+        inventory: TrackerState['inventory'],
+        item: string,
+        count: number = 1,
+    ) {
+        inventory[item] ??= 0;
+        inventory[item] += count;
+    }
+
+    private setInventoryAtLeast(
+        inventory: TrackerState['inventory'],
+        item: string,
+        count: number,
+    ) {
+        inventory[item] = Math.max(inventory[item] ?? 0, count);
+    }
+
+    private applyApItemToInventory(
+        inventory: TrackerState['inventory'],
+        item: string,
+    ) {
+        // SSHD tracker logic follows actual crystal checks (plus starting packs),
+        // not shuffled AP crystal items. Counting AP crystal items here makes
+        // Batreaux thresholds drift away from the in-game / UT behavior.
+        if (isArchipelagoCrystalLogicItem(item)) {
+            return;
+        }
+        const progressiveMinimum = apProgressiveItemMinimums[item];
+        if (progressiveMinimum) {
+            this.setInventoryAtLeast(
+                inventory,
+                progressiveMinimum[0],
+                progressiveMinimum[1],
+            );
+        } else if (item.includes(sothItemReplacement)) {
+            this.addToInventory(inventory, sothItemReplacement);
+        } else if (item.includes(triforceItemReplacement)) {
+            this.addToInventory(inventory, triforceItemReplacement);
+        } else {
+            const normalizedItem = apItemAliases[item] ?? item;
+            if (
+                !normalizedItem.includes('Pouch') ||
+                !inventory['Progressive Pouch']
+            ) {
+                this.addToInventory(inventory, normalizedItem);
+            }
+        }
+    }
+
+    private rebuildInventory() {
+        if (this.connectedData === undefined || this.idToItem === undefined) {
+            return;
+        }
+
+        const nextInventory: TrackerState['inventory'] = {};
+
+        for (const networkItem of this.receivedNetworkItems) {
+            if (networkItem.player === this.connectedData.slot) {
+                continue;
+            }
+
+            const item = this.idToItem[networkItem.item];
+            if (item === undefined) {
+                console.warn(
+                    'AP received item ID missing from DataPackage:',
+                    networkItem.item,
+                );
+                continue;
+            }
+
+            this.applyApItemToInventory(nextInventory, item);
+        }
+
+        const slotDataLocationToItemMap = this.getSlotDataLocationToItemMap();
+        const reconstructedSelfLocations = new Set<number>();
+        for (const locationId of this.checkedLocationIds) {
+            const itemId = slotDataLocationToItemMap[locationId];
+            if (itemId === undefined) {
+                continue;
+            }
+
+            const item = this.idToItem[itemId];
+            if (item === undefined) {
+                continue;
+            }
+
+            reconstructedSelfLocations.add(locationId);
+            this.applyApItemToInventory(nextInventory, item);
+        }
+
+        for (const [locationId, scoutedItem] of this
+            .scoutedSelfItemsByLocation) {
+            if (reconstructedSelfLocations.has(locationId)) {
+                continue;
+            }
+            if (
+                scoutedItem.receiverSlot !== this.connectedData.slot ||
+                scoutedItem.game !== GAME_NAME
+            ) {
+                continue;
+            }
+
+            this.applyApItemToInventory(nextInventory, scoutedItem.name);
+        }
+
+        this.inventory = nextInventory;
+        this.resolveItems?.(this.inventory);
+    }
+
+    private getSlotDataLocationToItemMap(): Record<number, number> {
+        const slotData = this.connectedData?.slot_data as SlotData | undefined;
+        const rawLocationToItemMap = slotData?.location_to_item_map;
+        if (
+            rawLocationToItemMap === undefined ||
+            typeof rawLocationToItemMap !== 'object' ||
+            rawLocationToItemMap === null
+        ) {
+            return {};
+        }
+
+        const locationToItemMap: Record<number, number> = {};
+        for (const [locationId, itemId] of Object.entries(
+            rawLocationToItemMap,
+        )) {
+            const parsedLocationId = Number(locationId);
+            if (
+                !Number.isFinite(parsedLocationId) ||
+                typeof itemId !== 'number'
+            ) {
+                continue;
+            }
+            locationToItemMap[parsedLocationId] = itemId;
+        }
+        return locationToItemMap;
+    }
+
+    private processReceivedItems(items: NetworkItem[]) {
+        if (this.idToItem === undefined) {
+            this.pendingReceivedItems.push(...items);
+            return;
+        }
+
+        this.receivedNetworkItems.push(...items);
+        this.rebuildInventory();
+    }
+
+    private async scoutCheckedSelfItems(locationIds: number[]) {
+        if (
+            this.client === undefined ||
+            !this.client.authenticated ||
+            this.connectedData === undefined
+        ) {
+            return;
+        }
+
+        const toScout = [...new Set(locationIds)].filter(
+            (locationId) => !this.scoutedCheckedLocationIds.has(locationId),
+        );
+        if (toScout.length === 0) {
+            return;
+        }
+
+        try {
+            const scoutedItems = await this.client.scout(toScout, 0);
+            for (const scoutedItem of scoutedItems) {
+                this.scoutedCheckedLocationIds.add(scoutedItem.locationId);
+                this.scoutedSelfItemsByLocation.set(scoutedItem.locationId, {
+                    name: scoutedItem.name,
+                    game: scoutedItem.game,
+                    receiverSlot: scoutedItem.receiver.slot,
+                });
+            }
+            this.rebuildInventory();
+        } catch (error) {
+            console.warn('AP location scouting failed:', error);
+        }
     }
 
     isHooked(): boolean {
@@ -152,6 +398,10 @@ export class APClientManager {
 
     getLoadedSettings(): AllTypedOptions | undefined {
         return this.loadedSettings;
+    }
+
+    getRequiredDungeonDiagnostic(): RequiredDungeonDiagnostic | undefined {
+        return this.requiredDungeonDiagnostic;
     }
 
     setLocationCallback(func: (locs: string[]) => void) {
@@ -166,6 +416,21 @@ export class APClientManager {
 
     setNewStageCallback(func: (stage: string) => void) {
         this.changeStage = func;
+    }
+
+    setRequiredDungeonsCallback(func: (dungeons: string[]) => void) {
+        this.resolveRequiredDungeons = func;
+        this.resolveRequiredDungeons(this.requiredDungeons);
+    }
+
+    setLocationStatsCallback(
+        func: (stats: { total?: number; checked: number }) => void,
+    ) {
+        this.resolveLocationStats = func;
+        this.resolveLocationStats({
+            total: this.totalLocationCount,
+            checked: this.checkedLocationIds.length,
+        });
     }
 
     setCubeCallback(func: (cubeflags: number) => void) {
@@ -191,14 +456,22 @@ export class APClientManager {
             this.loadedSettings = undefined;
             this.connectedData = undefined;
             this.inventory = {};
+            this.pendingReceivedItems = [];
+            this.receivedNetworkItems = [];
             this.checkedLocationIds = [];
             this.checkedLocations = [];
             this.checkedCubes = 0;
             this.messages = [];
             this.cubeDataKey = undefined;
+            this.scoutedCheckedLocationIds.clear();
+            this.scoutedSelfItemsByLocation.clear();
+            this.requiredDungeonDiagnostic = undefined;
+            this.totalLocationCount = undefined;
             this.resolveLocations = undefined;
             this.resolveItems = undefined;
             this.changeStage = undefined;
+            this.resolveRequiredDungeons = undefined;
+            this.resolveLocationStats = undefined;
             this.resolveCubes = undefined;
 
             this.status = { state: 'loggedOut' };
@@ -251,31 +524,73 @@ export class APClientManager {
         }
 
         const client = new Client();
+        let connectSetupError: unknown;
 
         client.socket.on('connected', (content) => {
-            this.connectedData = content;
-            setStoredArchipelagoServer(server);
-            const slotData = content.slot_data as Record<
-                string,
-                number | string[]
-            >;
-            this.loadedSettings = optionIndicesToOptions(optionDefs, slotData);
-            this.requiredDungeons =
-                (slotData['required_dungeons'] as string[]) ?? [];
-            this.setCheckedLocationIds(this.connectedData.checked_locations);
-            client.socket.send({
-                cmd: 'GetDataPackage',
-                games: [GAME_NAME],
-            });
-            this.cubeDataKey = `skyward_sword_cubes_${content.team}_${content.slot}`;
-            client.socket.send({
-                cmd: 'SetNotify',
-                keys: [this.cubeDataKey],
-            });
-            client.socket.send({
-                cmd: 'Get',
-                keys: [this.cubeDataKey],
-            });
+            try {
+                this.connectedData = content;
+                setStoredArchipelagoServer(server);
+                setStoredArchipelagoSlot(slot);
+                const slotData = content.slot_data as Record<string, unknown>;
+                this.loadedSettings = optionIndicesToOptions(
+                    optionDefs,
+                    slotData as Record<string, number | string | string[]>,
+                );
+                const requiredDungeonsRaw = slotData['required_dungeons'];
+                this.requiredDungeons =
+                    Array.isArray(requiredDungeonsRaw) &&
+                    requiredDungeonsRaw.every(
+                        (entry) => typeof entry === 'string',
+                    )
+                        ? requiredDungeonsRaw
+                        : [];
+                this.requiredDungeonDiagnostic = {
+                    slotDataKeys: Object.keys(slotData).sort((left, right) =>
+                        left.localeCompare(right),
+                    ),
+                    keysContainingRequired: Object.keys(slotData)
+                        .filter((key) => key.toLowerCase().includes('required'))
+                        .sort((left, right) => left.localeCompare(right)),
+                    requiredDungeonsRaw,
+                    requiredDungeons: this.requiredDungeons,
+                    verdict:
+                        requiredDungeonsRaw === undefined
+                            ? 'slot_data does not contain required_dungeons'
+                            : this.requiredDungeons.length > 0
+                              ? 'slot_data contains required_dungeons'
+                              : 'slot_data contains required_dungeons but not as a string[]',
+                };
+                console.info('AP slot_data:', slotData);
+                console.info(
+                    'AP required dungeon diagnostic:',
+                    this.requiredDungeonDiagnostic,
+                );
+                this.resolveRequiredDungeons?.(this.requiredDungeons);
+                this.setCheckedLocationIds(
+                    this.connectedData.checked_locations,
+                );
+                this.notifyStatusSubscribers();
+                client.socket.send({
+                    cmd: 'GetDataPackage',
+                    games: [GAME_NAME],
+                });
+                this.cubeDataKey = `skyward_sword_cubes_${content.team}_${content.slot}`;
+                client.socket.send({
+                    cmd: 'SetNotify',
+                    keys: [this.cubeDataKey],
+                });
+                client.socket.send({
+                    cmd: 'Get',
+                    keys: [this.cubeDataKey],
+                });
+            } catch (error) {
+                connectSetupError = error;
+                this.status = {
+                    state: 'loggedOut',
+                    error: convertError(error),
+                };
+                this.notifyStatusSubscribers();
+            }
         });
 
         client.socket.on('dataPackage', (content) => {
@@ -300,7 +615,19 @@ export class APClientManager {
                     ssData.location_name_to_id,
                 );
                 this.idToItem = invert<string, number>(ssData.item_name_to_id);
+                this.totalLocationCount = Object.keys(
+                    ssData.location_name_to_id ?? {},
+                ).length;
+                this.resolveLocationStats?.({
+                    total: this.totalLocationCount,
+                    checked: this.checkedLocationIds.length,
+                });
+                if (this.pendingReceivedItems.length > 0) {
+                    this.processReceivedItems(this.pendingReceivedItems);
+                    this.pendingReceivedItems = [];
+                }
                 this.syncCheckedLocations();
+                void this.scoutCheckedSelfItems(this.checkedLocationIds);
             }
         });
 
@@ -386,21 +713,7 @@ export class APClientManager {
         });
 
         client.socket.on('receivedItems', (content) => {
-            for (const netItem of content.items) {
-                const item = this.idToItem![netItem.item];
-                if (item.includes(sothItemReplacement)) {
-                    this.add(sothItemReplacement);
-                } else if (item.includes(triforceItemReplacement)) {
-                    this.add(triforceItemReplacement);
-                } else if (
-                    isItem(item) &&
-                    (!item.includes('Pouch') ||
-                        !this.inventory['Progressive Pouch'])
-                ) {
-                    this.add(item);
-                }
-            }
-            this.resolveItems?.(this.inventory);
+            this.processReceivedItems(content.items);
         });
 
         client.socket.on('roomUpdate', (content) => {
@@ -443,6 +756,9 @@ export class APClientManager {
                 tags: ['Tracker'],
                 password: password,
             });
+            if (connectSetupError) {
+                throw new Error(convertError(connectSetupError));
+            }
             this.client = client;
             this.status = {
                 state: 'loggedIn',

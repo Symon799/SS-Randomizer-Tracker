@@ -1,6 +1,7 @@
 .location {
     user-select: none;
-    font-size: large;
+    font-size: 0.91rem;
+    line-height: 1.2;
 
     height: 100%;
 
@@ -9,10 +10,14 @@
 
     &.checked {
         text-decoration: line-through;
+        color: var(--scheme-checked);
+        background: color-mix(in srgb, var(--scheme-checked) 8%, transparent);
     }
 
     .text {
-        margin: 1.5% 2%;
+        margin: 0;
+        padding: 7px 9px;
+        min-width: 0;
     }
 
     &.droppable {
@@ -33,9 +38,9 @@
 
     .hintItem {
         margin-left: auto;
-        margin-right: 6px;
+        margin-right: 7px;
         align-self: center;
-        width: 36px;
+        width: 28px;
         height: 100%;
 
         display: flex;
@@ -50,7 +55,31 @@
 
 .tooltipNote {
     font-style: italic;
-    color: grey;
+    color: color-mix(in srgb, var(--scheme-text) 58%, transparent);
+}
+
+.debugBlock {
+    margin-top: 6px;
+    padding-top: 4px;
+    font-size: 0.78rem;
+    line-height: 1.35;
+    color: rgba(255, 255, 255, 0.92);
+}
+
+.debugTitle {
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: #fff;
+}
+
+.debugSection {
+    margin-top: 6px;
+    font-weight: 600;
+    color: #fff;
+}
+
+.debugLine {
+    word-break: break-word;
 }
 
 .exit {

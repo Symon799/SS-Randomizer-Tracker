@@ -6,12 +6,20 @@ import { compareBy } from '../utils/Compare';
 import { appError } from '../utils/Debug';
 import { convertError } from '../utils/Errors';
 import { getLatestRelease } from './ReleasesLoader';
+// eslint-disable-next-line import/no-unresolved
+import localSshdDump from '../../testData/sshd-dump.yaml?raw';
+// eslint-disable-next-line import/no-unresolved
+import localSshdOptions from '../../testData/sshd-options.yaml?raw';
 
 export const LATEST_STRING = 'Latest';
+export const LOCAL_SSHD_STRING = 'Skyward Sword HD (generated local logic)';
 // Fallback in case the GitHub API is unreachable or rate limited
 const LATEST_KNOWN_RELEASE = 'v2.2.0';
 
 export type RemoteReference =
+    | {
+          type: 'localSshd';
+      }
     | {
           type: 'latestRelease';
       }
@@ -44,6 +52,8 @@ async function resolveRemote(
     ref: RemoteReference,
 ): Promise<[url: string, name: string]> {
     switch (ref.type) {
+        case 'localSshd':
+            throw new Error('local SSHD logic does not resolve to a URL');
         case 'latestRelease':
             try {
                 const latest = await getLatestRelease();
@@ -85,6 +95,8 @@ async function resolveRemote(
 
 export function formatRemote(ref: RemoteReference) {
     switch (ref.type) {
+        case 'localSshd':
+            return LOCAL_SSHD_STRING;
         case 'latestRelease':
             return LATEST_STRING;
         case 'releaseVersion':
@@ -108,6 +120,9 @@ const versionPattern = /^v\d+\.\d+\.\d+$/;
 export function parseRemote(remote: string): RemoteReference | undefined {
     // eslint-disable-next-line no-param-reassign
     remote = remote.trim();
+    if (remote === LOCAL_SSHD_STRING) {
+        return { type: 'localSshd' };
+    }
     if (remote === LATEST_STRING) {
         return { type: 'latestRelease' };
     }
@@ -156,6 +171,22 @@ const loadFile = async (baseUrl: string, file: string) => {
 export async function loadRemoteLogic(
     remote: RemoteReference,
 ): Promise<[RawLogic, OptionDefs, RawPresets, string]> {
+    if (remote.type === 'localSshd') {
+        const localFiles: Record<string, string> = {
+            'dump.yaml': localSshdDump,
+            'options.yaml': localSshdOptions,
+            'gui/presets/default_presets.json': '{}',
+        };
+        const loader = (file: string) => {
+            const data = localFiles[file];
+            if (data === undefined) {
+                throw new Error(`local SSHD logic is missing ${file}`);
+            }
+            return Promise.resolve(data);
+        };
+        return [...(await getAndPatchLogic(loader)), formatRemote(remote)];
+    }
+
     const [baseUrl, remoteName] = await resolveRemote(remote);
     const loader = (file: string) => loadFile(baseUrl, file);
 

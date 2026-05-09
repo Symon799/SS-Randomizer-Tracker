@@ -31,6 +31,70 @@ export const TimeOfDay = {
 } as const;
 export type TTimeOfDay = typeof TimeOfDay;
 
+const sshdSettingRequirementPattern =
+    /^\\SSHD Setting\\(.+) (==|!=|>=|<=) (.+)$/;
+
+function settingCommand(settingName: string) {
+    return settingName.replace(/_/g, '-');
+}
+
+function normalizeSettingValue(value: unknown) {
+    if (typeof value === 'boolean') {
+        return value ? 'on' : 'off';
+    }
+    if (typeof value === 'number') {
+        return String(value);
+    }
+    if (typeof value === 'string') {
+        return value;
+    }
+    return undefined;
+}
+
+function settingComparisonMatches(
+    options: OptionDefs,
+    settings: TypedOptions,
+    settingName: string,
+    operator: string,
+    comparedValue: string,
+) {
+    const command = settingCommand(settingName);
+    const actual = normalizeSettingValue(
+        (settings as Record<string, unknown>)[command],
+    );
+    if (actual === undefined) {
+        return false;
+    }
+
+    if (operator === '==') {
+        return actual === comparedValue;
+    }
+    if (operator === '!=') {
+        return actual !== comparedValue;
+    }
+
+    const option = options.find((entry) => entry.command === command);
+    if (option?.type === 'singlechoice') {
+        const actualIndex = option.choices.indexOf(actual);
+        const comparedIndex = option.choices.indexOf(comparedValue);
+        if (actualIndex === -1 || comparedIndex === -1) {
+            return false;
+        }
+        return operator === '>='
+            ? actualIndex >= comparedIndex
+            : actualIndex <= comparedIndex;
+    }
+
+    const actualNumber = Number(actual);
+    const comparedNumber = Number(comparedValue);
+    if (Number.isNaN(actualNumber) || Number.isNaN(comparedNumber)) {
+        return false;
+    }
+    return operator === '>='
+        ? actualNumber >= comparedNumber
+        : actualNumber <= comparedNumber;
+}
+
 export function mapSettings(
     logic: Logic,
     options: OptionDefs,
@@ -49,6 +113,22 @@ export function mapSettings(
             (typeof expect === 'function' ? expect(val) : expect === val);
         if (match) {
             appDebug('setting', item);
+            b.trySet(item, b.true());
+        }
+    }
+
+    for (const item of logic.allItems) {
+        const match = item.match(sshdSettingRequirementPattern);
+        if (
+            match &&
+            settingComparisonMatches(
+                options,
+                settings,
+                match[1],
+                match[2],
+                match[3],
+            )
+        ) {
             b.set(item, b.true());
         }
     }
@@ -72,24 +152,32 @@ export function mapSettings(
         ) {
             const vals = settings[option.command];
             for (const option of vals) {
-                b.set(`${option} Trick`, b.true());
+                b.trySet(`${option} Trick`, b.true());
             }
         }
     }
 
-    const raiseGotExpr =
-        settings['got-start'] === 'Raised'
-            ? b.true()
-            : b.singleBit(impaSongCheck);
+    const hasItem = (item: string) => logic.itemBits[item] !== undefined;
     const neededSwords = swordsToAdd[settings['got-sword-requirement']];
-    let openGotExpr = b.singleBit(`Progressive Sword x ${neededSwords}`);
-    let hordeDoorExpr = settings['triforce-required']
-        ? b.singleBit(completeTriforceReq)
-        : b.true();
+    const swordRequirement =
+        neededSwords === 0
+            ? 'Progressive Sword'
+            : `Progressive Sword x ${neededSwords}`;
+    let openGotExpr =
+        neededSwords === 0 || !hasItem(swordRequirement)
+            ? b.true()
+            : b.singleBit(swordRequirement);
+    let hordeDoorExpr =
+        settings['triforce-required'] && hasItem(completeTriforceReq)
+            ? b.singleBit(completeTriforceReq)
+            : b.true();
 
     const allRequiredDungeonsBits = requiredDungeons.reduce((acc, dungeon) => {
         if (dungeon !== 'Sky Keep') {
-            acc.setBit(logic.itemBits[dungeonCompletionItems[dungeon]]);
+            const bit = logic.itemBits[dungeonCompletionItems[dungeon]];
+            if (bit !== undefined) {
+                acc.setBit(bit);
+            }
         }
         return acc;
     }, new BitVector());
@@ -101,9 +189,14 @@ export function mapSettings(
         hordeDoorExpr = hordeDoorExpr.and(dungeonsExpr);
     }
 
-    b.set(gotOpeningReq, openGotExpr);
-    b.set(gotRaisingReq, raiseGotExpr);
-    b.set(hordeDoorReq, hordeDoorExpr);
+    const raiseGotExpr =
+        settings['got-start'] === 'Raised' || !hasItem(impaSongCheck)
+            ? b.true()
+            : b.singleBit(impaSongCheck);
+
+    b.trySet(gotOpeningReq, openGotExpr);
+    b.trySet(gotRaisingReq, raiseGotExpr);
+    b.trySet(hordeDoorReq, hordeDoorExpr);
 
     const mapConnection = (from: string, to: string) => {
         const exitArea = logic.areaGraph.areasByExit[from];
@@ -153,6 +246,7 @@ export function mapSettings(
 export function mapInventory(logic: Logic, itemCounts: Record<string, number>) {
     const requirements: Requirements = {};
     const b = new LogicBuilder(logic.allItems, logic.itemLookup, requirements);
+    const trySet = (item: string) => b.trySet(item, b.true());
 
     for (const [item, count] of Object.entries(itemCounts)) {
         if (
@@ -164,15 +258,15 @@ export function mapInventory(logic: Logic, itemCounts: Record<string, number>) {
         }
         if (item === sothItemReplacement) {
             for (let i = 1; i <= count; i++) {
-                b.set(sothItems[i - 1], b.true());
+                trySet(sothItems[i - 1]);
             }
         } else if (item === triforceItemReplacement) {
             for (let i = 1; i <= count; i++) {
-                b.set(triforceItems[i - 1], b.true());
+                trySet(triforceItems[i - 1]);
             }
         } else {
             for (let i = 1; i <= count; i++) {
-                b.set(itemName(item, i), b.true());
+                trySet(itemName(item, i));
             }
         }
     }

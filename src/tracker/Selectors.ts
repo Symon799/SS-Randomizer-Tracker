@@ -24,7 +24,7 @@ import {
     isDungeon,
     type LogicalState,
 } from '../logic/Locations';
-import type { LogicalCheck } from '../logic/Logic';
+import { isRegularItemCheck, type LogicalCheck } from '../logic/Logic';
 import { mapInventory, mapSettings } from '../logic/Mappers';
 import {
     getAdditionalItems,
@@ -52,7 +52,7 @@ import {
 } from '../logic/bitlogic/BitLogic';
 import { BitVector } from '../logic/bitlogic/BitVector';
 import { validateSettings } from '../permalink/Settings';
-import type { TypedOptions } from '../permalink/SettingsTypes';
+import type { OptionValue, TypedOptions } from '../permalink/SettingsTypes';
 import type { RootState } from '../store/Store';
 import { emptyArray, mapValues } from '../utils/Collections';
 import { stubTrue } from '../utils/Function';
@@ -152,8 +152,16 @@ const rawItemCountsSelector = (state: RootState) => state.tracker.inventory;
 /** A map of all actual items to their counts. Since redux only stores partial counts, this ensures all items are present. */
 const inventorySelector = createSelector(
     [rawItemCountsSelector],
-    (rawInventory) =>
-        mapValues(itemMaxes, (_val, item) => rawInventory[item] ?? 0),
+    (rawInventory) => {
+        const inventory: Record<string, number> = mapValues(
+            itemMaxes,
+            (_val, item) => rawInventory[item] ?? 0,
+        );
+        for (const [item, count] of Object.entries(rawInventory)) {
+            inventory[item] = count ?? 0;
+        }
+        return inventory;
+    },
     { memoizeOptions: { resultEqualityCheck: isEqual } },
 );
 
@@ -394,6 +402,7 @@ export const isCheckBannedSelector = createSelector(
     [
         logicSelector,
         areaNonprogressSelector,
+        settingsSelector,
         settingSelector('excluded-locations'),
         settingSelector('rupeesanity'),
         settingSelector('shopsanity'),
@@ -408,6 +417,7 @@ export const isCheckBannedSelector = createSelector(
     (
         logic,
         areaNonprogress,
+        settings,
         bannedLocations,
         rupeeSanity,
         shopSanity,
@@ -419,18 +429,47 @@ export const isCheckBannedSelector = createSelector(
         silentRealmTreasureAmount,
         hintDistro,
     ) => {
+        const allSettings = settings as Record<string, OptionValue | undefined>;
+        const hdRupeeShuffle = allSettings['rupee-shuffle'];
+        const hdTrialTreasureAmount = Number(
+            allSettings['trial-treasure-shuffle'],
+        );
+        const hdBeedleShopShuffle = allSettings['beedle-shop-shuffle'];
+        const hdTadtoneShuffle = allSettings['tadtone-shuffle'];
+        const hdStaminaFruitShuffle = allSettings['stamina-fruit-shuffle'];
+        const hdHiddenItemShuffle = allSettings['hidden-item-shuffle'];
+        const hdNpcClosetShuffle = allSettings['npc-closet-shuffle'];
+        const hdGoddessChestShuffle = allSettings['goddess-chest-shuffle'];
+        const hdGossipStoneTreasureShuffle =
+            allSettings['gossip-stone-treasure-shuffle'];
+
         const bannedChecks = new Set(bannedLocations);
         const rupeesExcluded =
-            rupeeSanity === 'Vanilla' || rupeeSanity === false;
+            hdRupeeShuffle !== undefined
+                ? hdRupeeShuffle === 'vanilla'
+                : rupeeSanity === 'Vanilla' || rupeeSanity === false;
         const maxRelics = silentRealmTreasuresanity
             ? silentRealmTreasureAmount
-            : 0;
+            : Number.isNaN(hdTrialTreasureAmount)
+              ? 0
+              : hdTrialTreasureAmount;
         const banBeedle =
-            shopSanity !== undefined
-                ? shopSanity !== true
-                : beedleShopsanity !== true;
+            hdBeedleShopShuffle !== undefined
+                ? hdBeedleShopShuffle === 'vanilla'
+                : shopSanity !== undefined
+                  ? shopSanity !== true
+                  : beedleShopsanity !== true;
         const banGearShop = rupinShopSanity !== true;
         const banPotionShop = luvShopSanity !== true;
+        const banTadtones =
+            hdTadtoneShuffle !== undefined
+                ? hdTadtoneShuffle !== 'on'
+                : !tadtoneSanity;
+        const banStaminaFruits = hdStaminaFruitShuffle === 'off';
+        const banHiddenItems = hdHiddenItemShuffle === 'off';
+        const banClosets = hdNpcClosetShuffle === 'vanilla';
+        const banGoddessCubes = hdGoddessChestShuffle === 'off';
+        const banGossipStoneTreasures = hdGossipStoneTreasureShuffle === 'off';
 
         const trialTreasurePattern = /Relic (\d+)/;
         const isExcessRelic = (check: LogicalCheck) => {
@@ -444,17 +483,19 @@ export const isCheckBannedSelector = createSelector(
             checkId: string,
             check: LogicalCheck,
         ) => {
+            const chestCheck =
+                logic.checks[cubeCheckToGoddessChestCheck[checkId]];
             return (
                 check.type === 'tr_cube' &&
-                bannedChecks.has(
-                    logic.checks[cubeCheckToGoddessChestCheck[checkId]].name,
-                )
+                chestCheck !== undefined &&
+                bannedChecks.has(chestCheck.name)
             );
         };
 
         const isBannedChestViaCube = (checkId: string) => {
             const cube = goddessChestCheckToCubeCheck[checkId];
-            return cube && areaNonprogress(logic.checks[cube].area!);
+            const cubeCheck = cube ? logic.checks[cube] : undefined;
+            return cubeCheck && areaNonprogress(cubeCheck.area!);
         };
 
         const gossipStoneUsed =
@@ -472,11 +513,134 @@ export const isCheckBannedSelector = createSelector(
                 (banBeedle && check.type === 'beedle_shop') ||
                 (banGearShop && check.type === 'gear_shop') ||
                 (banPotionShop && check.type === 'potion_shop') ||
-                (!tadtoneSanity && check.type === 'tadtone') ||
+                (banTadtones && check.type === 'tadtone') ||
+                (banStaminaFruits && check.type === 'stamina_fruit') ||
+                (banHiddenItems && check.type === 'hidden_item') ||
+                (banClosets && check.type === 'closet') ||
+                check.type === 'goddess_cube' ||
+                (banGoddessCubes && check.type === 'goddess_chest') ||
+                (banGossipStoneTreasures &&
+                    check.type === 'gossip_stone_treasure') ||
                 (check.type === 'gossip_stone' && !gossipStoneUsed(checkId))
             );
         };
     },
+);
+
+const isCheckCountedByApSelector = createSelector(
+    [
+        logicSelector,
+        settingsSelector,
+        settingSelector('excluded-locations'),
+        settingSelector('rupeesanity'),
+        settingSelector('shopsanity'),
+        settingSelector('beedle-shopsanity'),
+        settingSelector('rupin-shopsanity'),
+        settingSelector('luv-shopsanity'),
+        settingSelector('tadtonesanity'),
+        settingSelector('treasuresanity-in-silent-realms'),
+        settingSelector('trial-treasure-amount'),
+    ],
+    (
+        logic,
+        settings,
+        bannedLocations,
+        rupeeSanity,
+        shopSanity,
+        beedleShopsanity,
+        rupinShopSanity,
+        luvShopSanity,
+        tadtoneSanity,
+        silentRealmTreasuresanity,
+        silentRealmTreasureAmount,
+    ) => {
+        const allSettings = settings as Record<string, OptionValue | undefined>;
+        const hdRupeeShuffle = allSettings['rupee-shuffle'];
+        const hdTrialTreasureAmount = Number(
+            allSettings['trial-treasure-shuffle'],
+        );
+        const hdBeedleShopShuffle = allSettings['beedle-shop-shuffle'];
+        const hdTadtoneShuffle = allSettings['tadtone-shuffle'];
+        const hdStaminaFruitShuffle = allSettings['stamina-fruit-shuffle'];
+        const hdHiddenItemShuffle = allSettings['hidden-item-shuffle'];
+        const hdNpcClosetShuffle = allSettings['npc-closet-shuffle'];
+        const hdGoddessChestShuffle = allSettings['goddess-chest-shuffle'];
+        const hdGossipStoneTreasureShuffle =
+            allSettings['gossip-stone-treasure-shuffle'];
+
+        const bannedChecks = new Set(bannedLocations);
+        const rupeesExcluded =
+            hdRupeeShuffle !== undefined
+                ? hdRupeeShuffle === 'vanilla'
+                : rupeeSanity === 'Vanilla' || rupeeSanity === false;
+        const maxRelics = silentRealmTreasuresanity
+            ? silentRealmTreasureAmount
+            : Number.isNaN(hdTrialTreasureAmount)
+              ? 0
+              : hdTrialTreasureAmount;
+        const banBeedle =
+            hdBeedleShopShuffle !== undefined
+                ? hdBeedleShopShuffle === 'vanilla'
+                : shopSanity !== undefined
+                  ? shopSanity !== true
+                  : beedleShopsanity !== true;
+        const banGearShop = rupinShopSanity !== true;
+        const banPotionShop = luvShopSanity !== true;
+        const banTadtones =
+            hdTadtoneShuffle !== undefined
+                ? hdTadtoneShuffle !== 'on'
+                : !tadtoneSanity;
+        const banStaminaFruits = hdStaminaFruitShuffle === 'off';
+        const banHiddenItems = hdHiddenItemShuffle === 'off';
+        const banClosets = hdNpcClosetShuffle === 'vanilla';
+        const banGoddessCubes = hdGoddessChestShuffle === 'off';
+        const banGossipStoneTreasures = hdGossipStoneTreasureShuffle === 'off';
+
+        const trialTreasurePattern = /Relic (\d+)/;
+        const isExcessRelic = (check: LogicalCheck) => {
+            if (check.type === 'trial_treasure') {
+                const match = check.name.match(trialTreasurePattern);
+                return match && parseInt(match[1], 10) > maxRelics;
+            }
+        };
+
+        return (checkId: string) => {
+            const check = logic.checks[checkId];
+            if (!check || check.area === undefined) {
+                return false;
+            }
+            if (
+                !isRegularItemCheck(check.type) &&
+                check.type !== 'loose_crystal'
+            ) {
+                return false;
+            }
+            return !(
+                bannedChecks.has(check.name) ||
+                isExcessRelic(check) ||
+                (rupeesExcluded && check.type === 'rupee') ||
+                (banBeedle && check.type === 'beedle_shop') ||
+                (banGearShop && check.type === 'gear_shop') ||
+                (banPotionShop && check.type === 'potion_shop') ||
+                (banTadtones && check.type === 'tadtone') ||
+                (banStaminaFruits && check.type === 'stamina_fruit') ||
+                (banHiddenItems && check.type === 'hidden_item') ||
+                (banClosets && check.type === 'closet') ||
+                check.type === 'goddess_cube' ||
+                (banGoddessCubes && check.type === 'goddess_chest') ||
+                (banGossipStoneTreasures &&
+                    check.type === 'gossip_stone_treasure')
+            );
+        };
+    },
+);
+
+export const apCountedCheckIdsSelector = createSelector(
+    [logicSelector, isCheckCountedByApSelector],
+    (logic, isCheckCountedByAp) =>
+        Object.keys(logic.checks).filter((checkId) =>
+            isCheckCountedByAp(checkId),
+        ),
 );
 
 const dungeonKeyLogicSelector = createSelector(
@@ -539,6 +703,9 @@ export const getRequirementLogicalStateSelector = createSelector(
     (logic, inLogicBits, semiLogicBits) =>
         (requirement: string): LogicalState => {
             const bit = logic.itemBits[requirement];
+            if (bit === undefined) {
+                return 'outLogic';
+            }
             return inLogicBits.test(bit)
                 ? 'inLogic'
                 : semiLogicBits.inSemiLogicBits.test(bit)
@@ -579,10 +746,12 @@ export const checkSelector = currySelector(
             const logicalState = getRequirementLogicalState(checkId);
 
             if (logic.checks[checkId]) {
-                const checkName = logic.checks[checkId].name;
-                const shortCheckName = checkName.includes('-')
-                    ? checkName.substring(checkName.indexOf('-') + 1).trim()
-                    : checkName;
+                const { area, name: checkName } = logic.checks[checkId];
+                const areaPrefix = area ? `${area} - ` : undefined;
+                const shortCheckName =
+                    areaPrefix && checkName.startsWith(areaPrefix)
+                        ? checkName.substring(areaPrefix.length).trim()
+                        : checkName;
                 return {
                     checked: checkedChecks.has(checkId),
                     checkId,
@@ -686,18 +855,18 @@ export const areasSelector = createSelector(
                         checkGroup,
                     );
 
-                const relevantExits = logic.exitsByHintRegion[area].filter(
-                    (e) => {
-                        const exitMapping = exitsById[e];
-                        if (!exitMapping) {
-                            return false;
-                        }
-                        return (
-                            exitMapping.canAssign &&
-                            exitMapping.rule.type === 'random'
-                        );
-                    },
-                );
+                const relevantExits = (
+                    logic.exitsByHintRegion[area] ?? emptyArray()
+                ).filter((e) => {
+                    const exitMapping = exitsById[e];
+                    if (!exitMapping) {
+                        return false;
+                    }
+                    return (
+                        exitMapping.canAssign &&
+                        exitMapping.rule.type === 'random'
+                    );
+                });
 
                 const remainingExits = relevantExits.filter((e) => {
                     const exitMapping = exitsById[e];
@@ -733,14 +902,36 @@ export const areasSelector = createSelector(
 );
 
 export const totalCountersSelector = createSelector(
-    [areasSelector, exitsByIdSelector],
-    (areas, exits) => {
-        const numChecked = sumBy(
-            areas,
-            (a) => a.checks.numTotal - a.checks.numRemaining,
+    [
+        areasSelector,
+        exitsByIdSelector,
+        apCountedCheckIdsSelector,
+        checkedChecksSelector,
+        (state: RootState) => state.tracker.apLocationTotal,
+        (state: RootState) => state.tracker.apCheckedLocationCount,
+    ],
+    (
+        areas,
+        exits,
+        apCountedCheckIds,
+        checkedChecks,
+        apLocationTotal,
+        apCheckedLocationCount,
+    ) => {
+        const localNumChecked = sumBy(apCountedCheckIds, (checkId) =>
+            checkedChecks.has(checkId) ? 1 : 0,
         );
-        const numAccessible = sumBy(areas, (a) => a.checks.numAccessible);
-        const numRemaining = sumBy(areas, (a) => a.checks.numRemaining);
+        const numChecked = apCheckedLocationCount ?? localNumChecked;
+        const numAccessible = sumBy(
+            areas,
+            (a) =>
+                a.checks.numAccessible +
+                (a.extraLocations.loose_crystal?.numAccessible ?? 0),
+        );
+        const numRemaining =
+            apLocationTotal !== undefined
+                ? Math.max(apLocationTotal - numChecked, 0)
+                : apCountedCheckIds.length - numChecked;
         let numExitsAccessible = sumBy(
             areas,
             (a) => a.extraLocations.exits?.numAccessible ?? 0,

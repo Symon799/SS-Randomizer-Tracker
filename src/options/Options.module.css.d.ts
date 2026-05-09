@@ -15,5 +15,9 @@ declare const classNames: {
     readonly optionsTab: 'optionsTab';
     readonly checkboxOption: 'checkboxOption';
     readonly optionsBadRemote: 'optionsBadRemote';
+    readonly connectionStatus: 'connectionStatus';
+    readonly connectionActions: 'connectionActions';
+    readonly connectionNote: 'connectionNote';
+    readonly loadingState: 'loadingState';
 };
 export = classNames;

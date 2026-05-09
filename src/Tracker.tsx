@@ -3,45 +3,43 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link, Navigate } from 'react-router-dom';
 import {
     ClientManagerContext,
-    useApConnectionStatusString,
+    useApRequiredDungeonDiagnostic,
 } from './archipelago/ClientHooks';
-import sshdTrustedLocationMapping from './archipelago/sshdTrustedLocationMapping.json';
+import { buildSshdApLocationResolver } from './archipelago/locationMapping';
+import BasicCounters from './BasicCounters';
 import CustomizationModal from './customization/CustomizationModal';
 import {
     autoRegionLoadingSelector,
+    debugModeSelector,
     hasCustomLayoutSelector,
 } from './customization/Selectors';
-import goddessCubesList_ from './data/goddessCubes2.json';
+import { setDebugMode } from './customization/Slice';
 import stageToRegion from './data/stageToRegion.json';
 import { DragAndDropContext } from './dragAndDrop/DragAndDrop';
 import EntranceTracker from './entranceTracker/EntranceTracker';
-import { ExportButton } from './ImportExport';
+import { TextClient } from './hints/TextClient';
+import { ExportButton, ExportUtSnapshotButton } from './ImportExport';
 import { TrackerLayoutCustom } from './layouts/TrackerLayoutCustom';
 import { TrackerLayout } from './layouts/TrackerLayouts';
 import { useSyncTrackerStateToLocalStorage } from './LocalStorage';
 import LocationContextMenu from './locationTracker/LocationContextMenu';
 import LocationGroupContextMenu from './locationTracker/LocationGroupContextMenu';
-import type { InventoryItem } from './logic/Inventory';
 import { isLogicLoadedSelector, logicSelector } from './logic/Selectors';
+import { getInitialItems } from './logic/TrackerModifications';
 import { MakeTooltipsAvailable } from './tooltips/TooltipHooks';
+import styles from './Tracker.module.css';
+import { settingsSelector } from './tracker/Selectors';
 import {
-    bulkEditChecks,
+    replaceCheckedChecks,
+    replaceItemCounts,
     // clickDungeonName,
-    setItemCounts,
+    setApLocationCounts,
+    setRequiredDungeons,
     type TrackerState,
 } from './tracker/Slice';
 import { useTrackerInterfaceReducer } from './tracker/TrackerInterfaceReducer';
 // import { requiredDungeonsSelector } from './tracker/Selectors';
 // import type { RegularDungeon } from './logic/Locations';
-
-type SshdLocationMappingEntry = {
-    hdName: string;
-    trackerCheckId: string | null;
-    trackerName: string | null;
-};
-
-const sshdLocationMappingEntries =
-    sshdTrustedLocationMapping as SshdLocationMappingEntry[];
 
 export default function TrackerContainer() {
     const logicLoaded = useSelector(isLogicLoadedSelector);
@@ -69,38 +67,61 @@ function TrackerStateSaver() {
 }
 
 function Tracker() {
+    const [activeView, setActiveView] = useState<'tracker' | 'server'>(
+        'tracker',
+    );
+    const [showCustomizationDialog, setShowCustomizationDialog] =
+        useState(false);
+    const [showEntranceDialog, setShowEntranceDialog] = useState(false);
+
     return (
         <>
-            <div
-                style={{
-                    width: '100vw',
-                    height: '100vh',
-                    overflow: 'hidden',
-                    background: 'var(--scheme-background)',
-                }}
-            >
-                <div
-                    style={{
-                        height: '95%',
-                        position: 'relative',
-                        display: 'flex',
-                        flexFlow: 'row nowrap',
-                    }}
-                >
-                    <TrackerContents />
+            <div className={styles.shell}>
+                <div className={styles.topBar}>
+                    <div className={styles.topTabs}>
+                        <button
+                            type="button"
+                            className={`${styles.tabButton} ${
+                                activeView === 'tracker' ? styles.activeTab : ''
+                            }`}
+                            aria-pressed={activeView === 'tracker'}
+                            onClick={() => setActiveView('tracker')}
+                        >
+                            Tracker
+                        </button>
+                        <button
+                            type="button"
+                            className={`${styles.tabButton} ${
+                                activeView === 'server' ? styles.activeTab : ''
+                            }`}
+                            aria-pressed={activeView === 'server'}
+                            onClick={() => setActiveView('server')}
+                        >
+                            Server & Tools
+                        </button>
+                    </div>
                 </div>
-                <div
-                    style={{
-                        position: 'fixed',
-                        bottom: 0,
-                        left: 0,
-                        width: '100%',
-                        height: '5%',
-                    }}
-                >
-                    <TrackerFooter />
+                <div className={styles.mainArea}>
+                    {activeView === 'tracker' ? (
+                        <TrackerContents />
+                    ) : (
+                        <TrackerToolsView
+                            openCustomization={() =>
+                                setShowCustomizationDialog(true)
+                            }
+                            openEntrances={() => setShowEntranceDialog(true)}
+                        />
+                    )}
                 </div>
             </div>
+            <CustomizationModal
+                open={showCustomizationDialog}
+                onOpenChange={setShowCustomizationDialog}
+            />
+            <EntranceTracker
+                open={showEntranceDialog}
+                onOpenChange={setShowEntranceDialog}
+            />
         </>
     );
 }
@@ -114,43 +135,27 @@ function TrackerContents() {
     const dispatch = useDispatch();
     const clientManager = useContext(ClientManagerContext);
     const autoRegionLoading = useSelector(autoRegionLoadingSelector);
+    const trackerSettings = useSelector((state: { tracker: TrackerState }) => {
+        return state.tracker.settings;
+    });
     const seenUnmappedApLocations = useRef<Set<string>>(new Set());
+    const autotrackedChecks = useRef<{
+        locations: Set<string>;
+    }>({
+        locations: new Set(),
+    });
     // const reqDungeons = useSelector(requiredDungeonsSelector);
 
     // Configure the AP client for auto-tracking
     useEffect(() => {
-        const apLocationToTrackerCheck: Record<string, string> = {};
-        for (const [fullName, checkInfo] of Object.entries(logic.checks)) {
-            apLocationToTrackerCheck[checkInfo.name] = fullName;
-        }
-
-        const invalidMappedLocations: string[] = [];
-        for (const entry of sshdLocationMappingEntries) {
-            if (entry.trackerCheckId === null) {
-                continue;
-            }
-            if (logic.checks[entry.trackerCheckId]) {
-                apLocationToTrackerCheck[entry.hdName] = entry.trackerCheckId;
-            } else {
-                invalidMappedLocations.push(
-                    `${entry.hdName} -> ${entry.trackerCheckId}`,
-                );
-            }
-        }
-
-        if (invalidMappedLocations.length > 0) {
-            console.warn(
-                'Invalid SSHD location mappings:',
-                invalidMappedLocations,
-            );
-        }
+        const resolveApLocation = buildSshdApLocationResolver(logic);
 
         const clientLocationCallback = (locs: string[]) => {
             const mappedChecks: string[] = [];
             const newlyUnmappedLocations: string[] = [];
 
             for (const loc of locs) {
-                const trackerCheck = apLocationToTrackerCheck[loc];
+                const trackerCheck = resolveApLocation(loc);
                 if (trackerCheck !== undefined) {
                     mappedChecks.push(trackerCheck);
                 } else if (!seenUnmappedApLocations.current.has(loc)) {
@@ -165,38 +170,36 @@ function TrackerContents() {
                     newlyUnmappedLocations,
                 );
             }
-
-            if (mappedChecks.length === 0) {
-                return;
-            }
-
+            autotrackedChecks.current.locations = new Set(mappedChecks);
             dispatch(
-                bulkEditChecks({
-                    checks: [...new Set(mappedChecks)],
-                    markChecked: true,
-                }),
+                replaceCheckedChecks([...autotrackedChecks.current.locations]),
             );
         };
 
         const clientCubeCallback = (cubeflags: number) => {
-            const cubes = Array.from(goddessCubesList_);
-            const struck = cubes
-                .filter((_, index) => (cubeflags & (1 << index)) !== 0)
-                .map((cubedata) => cubedata[1]);
-            dispatch(
-                bulkEditChecks({
-                    checks: struck,
-                    markChecked: true,
-                }),
-            );
+            // Legacy AP worlds may still send an auxiliary cube bitfield.
+            // SSHD AP 0.6.x already exposes cube strikes as regular AP locations,
+            // so checked_locations is the authoritative source and this callback
+            // only remains as a harmless compatibility hook.
+            void cubeflags;
         };
 
         const clientItemCallback = (inv: TrackerState['inventory']) => {
-            const items: { item: InventoryItem; count: number }[] = [];
+            const mergedInventory = getInitialItems(
+                trackerSettings as Parameters<typeof getInitialItems>[0],
+            );
             for (const [item, count] of Object.entries(inv)) {
-                items.push({ item: item as InventoryItem, count });
+                mergedInventory[item] =
+                    (mergedInventory[item] ?? 0) + (count ?? 0);
             }
-            dispatch(setItemCounts(items));
+            dispatch(
+                replaceItemCounts(
+                    Object.entries(mergedInventory).map(([item, count]) => ({
+                        item,
+                        count: count ?? 0,
+                    })),
+                ),
+            );
         };
 
         const stageCallback = (stage: string) => {
@@ -212,9 +215,27 @@ function TrackerContents() {
             }
         };
 
+        const requiredDungeonsCallback = (dungeons: string[]) => {
+            dispatch(setRequiredDungeons({ dungeons }));
+        };
+
+        const locationStatsCallback = (stats: {
+            total?: number;
+            checked: number;
+        }) => {
+            dispatch(
+                setApLocationCounts({
+                    total: stats.total,
+                    checked: stats.checked,
+                }),
+            );
+        };
+
         clientManager?.setLocationCallback(clientLocationCallback);
         clientManager?.setItemCallback(clientItemCallback);
         clientManager?.setNewStageCallback(stageCallback);
+        clientManager?.setRequiredDungeonsCallback(requiredDungeonsCallback);
+        clientManager?.setLocationStatsCallback(locationStatsCallback);
         clientManager?.setCubeCallback(clientCubeCallback);
         /* This will have to happen somewhere else to work properly
         if (clientManager !== undefined) {
@@ -231,6 +252,7 @@ function TrackerContents() {
         clientManager,
         autoRegionLoading,
         trackerInterfaceDispatch,
+        trackerSettings,
     ]);
 
     return (
@@ -254,62 +276,110 @@ function TrackerContents() {
     );
 }
 
-function TrackerFooter() {
-    const [showCustomizationDialog, setShowCustomizationDialog] =
-        useState(false);
-    const [showEntranceDialog, setShowEntranceDialog] = useState(false);
-    const statusString = useApConnectionStatusString();
+function TrackerToolsView({
+    openCustomization,
+    openEntrances,
+}: {
+    openCustomization: () => void;
+    openEntrances: () => void;
+}) {
+    const dispatch = useDispatch();
+    const debugMode = useSelector(debugModeSelector);
+    const settings = useSelector(settingsSelector) as Record<
+        string,
+        string | number | boolean | string[] | undefined
+    >;
+    const requiredDungeonDiagnostic = useApRequiredDungeonDiagnostic();
+
+    const canUseEntrances = [
+        settings['randomize-entrances'],
+        settings['randomize-dungeon-entrances'],
+        settings['randomize-interior-entrances'],
+        settings['randomize-overworld-entrances'],
+        settings['randomize-trials'],
+        settings['random-start-entrance'],
+        settings['random-start-statues'],
+    ].some(
+        (value) =>
+            value !== undefined &&
+            value !== false &&
+            value !== 'off' &&
+            value !== 'None' &&
+            value !== 'vanilla',
+    );
 
     return (
-        <>
-            <div
-                style={{
-                    background: 'lightgrey',
-                    width: '100%',
-                    height: '100%',
-                    alignContent: 'center',
-                    display: 'flex',
-                    flexFlow: 'row nowrap',
-                    justifyContent: 'space-around',
-                    alignItems: 'center',
-                }}
-            >
-                <div style={{ color: '#000000' }}>{statusString}</div>
-                <div>
-                    <Link to="/">
-                        <div className="tracker-button">← Options</div>
-                    </Link>
+        <div className={styles.toolsLayout}>
+            <div className={styles.toolsSidebar}>
+                <BasicCounters />
+                <div className={styles.toolsCard}>
+                    <div className={styles.toolsTitle}>Tools</div>
+                    <div className={styles.toolsButtons}>
+                        <Link to="/">
+                            <div className="tracker-button">← Options</div>
+                        </Link>
+                        <ExportButton />
+                        <ExportUtSnapshotButton />
+                        {canUseEntrances && (
+                            <button
+                                type="button"
+                                className="tracker-button"
+                                onClick={openEntrances}
+                            >
+                                Entrances
+                            </button>
+                        )}
+                        <button
+                            type="button"
+                            className="tracker-button"
+                            onClick={openCustomization}
+                        >
+                            Customization
+                        </button>
+                        <button
+                            type="button"
+                            className="tracker-button"
+                            onClick={() => dispatch(setDebugMode(!debugMode))}
+                        >
+                            {debugMode ? 'Debug On' : 'Debug Off'}
+                        </button>
+                    </div>
                 </div>
-                <div>
-                    <ExportButton />
-                </div>
-                <div>
-                    <button
-                        type="button"
-                        className="tracker-button"
-                        onClick={() => setShowEntranceDialog(true)}
-                    >
-                        Entrances
-                    </button>
-                </div>
-                <div>
-                    <button
-                        type="button"
-                        className="tracker-button"
-                        onClick={() => setShowCustomizationDialog(true)}
-                    >
-                        Customization
-                    </button>
+                {debugMode && requiredDungeonDiagnostic && (
+                    <div className={styles.toolsCard}>
+                        <div className={styles.toolsTitle}>Debug</div>
+                        <div className={styles.debugLine}>
+                            <strong>Required dungeons diagnostic:</strong>{' '}
+                            {requiredDungeonDiagnostic.verdict}
+                        </div>
+                        <div className={styles.debugLine}>
+                            <strong>`required_dungeons` raw value:</strong>{' '}
+                            <code>
+                                {JSON.stringify(
+                                    requiredDungeonDiagnostic.requiredDungeonsRaw,
+                                )}
+                            </code>
+                        </div>
+                        <div className={styles.debugLine}>
+                            <strong>Matching keys in `slot_data`:</strong>{' '}
+                            <code>
+                                {requiredDungeonDiagnostic
+                                    .keysContainingRequired.length > 0
+                                    ? requiredDungeonDiagnostic.keysContainingRequired.join(
+                                          ', ',
+                                      )
+                                    : '(none)'}
+                            </code>
+                        </div>
+                    </div>
+                )}
+            </div>
+            <div className={styles.toolsLogPane}>
+                <div className={styles.toolsTitle}>Server Log</div>
+                <div className={styles.logClientWrap}>
+                    <TextClient />
                 </div>
             </div>
-            <CustomizationModal
-                open={showCustomizationDialog}
-                onOpenChange={setShowCustomizationDialog}
-            />
-            <EntranceTracker
-                open={showEntranceDialog}
-                onOpenChange={setShowEntranceDialog}
-            />
-        </>
+        </div>
     );
 }

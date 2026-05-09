@@ -11,9 +11,29 @@ export default function RequirementsTooltip({
 }: {
     requirements: RootTooltipExpression | undefined;
 }) {
+    const singleImpossible =
+        requirements?.items.length === 1 &&
+        requirements.items[0]?.type === 'item' &&
+        requirements.items[0].item ===
+            'Impossible (discover an entrance first)';
+
     return (
         <>
-            {requirements ? <TopLevelExpr expr={requirements} /> : 'Loading...'}
+            {requirements ? (
+                singleImpossible ? (
+                    <span
+                        style={{
+                            color: 'var(--scheme-outLogic)',
+                        }}
+                    >
+                        Currently not reachable
+                    </span>
+                ) : (
+                    <TopLevelExpr expr={requirements} />
+                )
+            ) : (
+                'Loading...'
+            )}
         </>
     );
 }

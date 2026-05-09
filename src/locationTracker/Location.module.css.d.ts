@@ -7,6 +7,10 @@ declare const classNames: {
     readonly hintItem: 'hintItem';
     readonly preview: 'preview';
     readonly tooltipNote: 'tooltipNote';
+    readonly debugBlock: 'debugBlock';
+    readonly debugTitle: 'debugTitle';
+    readonly debugSection: 'debugSection';
+    readonly debugLine: 'debugLine';
     readonly exit: 'exit';
 };
 export = classNames;

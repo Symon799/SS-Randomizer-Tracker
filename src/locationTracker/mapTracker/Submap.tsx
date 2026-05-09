@@ -86,12 +86,16 @@ function Submap({
                         />
                     );
                 } else {
+                    const exit = areaGraph.exits[marker.exitId];
+                    if (!exit) {
+                        return null;
+                    }
                     return (
                         <EntranceMarker
                             key={marker.exitId}
                             markerX={marker.markerX}
                             markerY={marker.markerY}
-                            title={areaGraph.exits[marker.exitId].short_name}
+                            title={exit.short_name}
                             active={provinceId === activeSubmap}
                             exitId={marker.exitId}
                             selected={

@@ -10,6 +10,7 @@ export interface CustomizationState {
     colorScheme: ColorScheme;
     itemLayout: ItemLayout;
     locationLayout: LocationLayout;
+    debugMode: boolean;
     trickSemilogic: boolean;
     enabledTrickLogicTricks: string[];
     counterBasis: CounterBasis;
@@ -23,6 +24,7 @@ const initialState: CustomizationState = {
     colorScheme: lightColorScheme,
     itemLayout: 'inventory',
     locationLayout: 'map',
+    debugMode: false,
     trickSemilogic: false,
     enabledTrickLogicTricks: [],
     counterBasis: 'logic',
@@ -55,6 +57,9 @@ const customizationSlice = createSlice({
         setLocationLayout: (state, action: PayloadAction<LocationLayout>) => {
             state.locationLayout = action.payload;
         },
+        setDebugMode: (state, action: PayloadAction<boolean>) => {
+            state.debugMode = action.payload;
+        },
         setTrickSemiLogic: (state, action: PayloadAction<boolean>) => {
             state.trickSemilogic = action.payload;
         },
@@ -86,6 +91,7 @@ export const {
     setColorScheme,
     setItemLayout,
     setLocationLayout,
+    setDebugMode,
     setTrickSemiLogic,
     setCounterBasis,
     setEnabledSemilogicTricks,

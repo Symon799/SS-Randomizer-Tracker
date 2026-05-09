@@ -12,7 +12,11 @@ import type { InventoryItem } from '../logic/Inventory';
 import type { Check } from '../logic/Locations';
 import { isRegularItemCheck } from '../logic/Logic';
 import { useAppDispatch, type RootState } from '../store/Store';
-import { useEntrancePath, useTooltipExpr } from '../tooltips/TooltipHooks';
+import {
+    useEntrancePath,
+    useTooltipDebug,
+    useTooltipExpr,
+} from '../tooltips/TooltipHooks';
 import { clickCheck } from '../tracker/Actions';
 import {
     checkHintSelector,
@@ -74,6 +78,7 @@ function CheckLocation({ id }: { id: string }) {
     );
 
     const expr = useTooltipExpr(id);
+    const debug = useTooltipDebug(id, expr);
     const path = useEntrancePath(id);
     const canAssignItemHint =
         check.type !== 'exit' && isRegularItemCheck(check.type);
@@ -99,6 +104,71 @@ function CheckLocation({ id }: { id: string }) {
                         <>
                             <hr />
                             <PathTooltip segments={path} />
+                        </>
+                    )}
+                    {debug && (
+                        <>
+                            <hr />
+                            <div className={styles.debugBlock}>
+                                <div className={styles.debugTitle}>
+                                    Debug logic
+                                </div>
+                                <div>{`checkId: ${debug.checkId}`}</div>
+                                <div>{`area: ${debug.area ?? 'unknown'}`}</div>
+                                <div>{`checkBit: ${debug.checkBit ?? 'missing'}`}</div>
+                                <div>{`inLogic path: ${debug.inLogicPathFound}`}</div>
+                                <div>{`optimistic path: ${debug.optimisticPathFound}`}</div>
+                                <div>{`start entrance: ${debug.startEntrance ?? 'unset'}`}</div>
+                                <div>{`ER settings: dungeon=${String(debug.entranceSettings.randomizeDungeonEntrances)}, interior=${String(debug.entranceSettings.randomizeInteriorEntrances)}, overworld=${String(debug.entranceSettings.randomizeOverworldEntrances)}, trials=${String(debug.entranceSettings.randomizeTrialEntrances)}, legacy=${String(debug.entranceSettings.randomizeEntrances)}`}</div>
+                                <div className={styles.debugSection}>
+                                    Raw requirements:
+                                </div>
+                                {debug.rawStaticRequirements.map((line) => (
+                                    <div
+                                        key={line}
+                                        className={styles.debugLine}
+                                    >
+                                        {line}
+                                    </div>
+                                ))}
+                                <div className={styles.debugSection}>
+                                    Static requirements:
+                                </div>
+                                {debug.staticRequirements.map((line) => (
+                                    <div
+                                        key={line}
+                                        className={styles.debugLine}
+                                    >
+                                        {line}
+                                    </div>
+                                ))}
+                                <div className={styles.debugSection}>
+                                    Requirement states:
+                                </div>
+                                {debug.staticRequirementStates.map((line) => (
+                                    <div
+                                        key={line}
+                                        className={styles.debugLine}
+                                    >
+                                        {line}
+                                    </div>
+                                ))}
+                                {debug.relevantExits.length > 0 && (
+                                    <>
+                                        <div className={styles.debugSection}>
+                                            Region exits:
+                                        </div>
+                                        {debug.relevantExits.map((line) => (
+                                            <div
+                                                key={line}
+                                                className={styles.debugLine}
+                                            >
+                                                {line}
+                                            </div>
+                                        ))}
+                                    </>
+                                )}
+                            </div>
                         </>
                     )}
                     {isBanned && (

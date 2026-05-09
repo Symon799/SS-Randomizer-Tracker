@@ -12,6 +12,7 @@ import { logicSelector, optionsSelector } from '../logic/Selectors';
 import { createTestLogic } from '../testing/TestingUtils';
 import {
     allSettingsSelector,
+    areasSelector,
     getRequirementLogicalStateSelector,
     settingsRequirementsSelector,
     settingsSelector,
@@ -102,6 +103,21 @@ describe('tooltips', () => {
         }
     }
 
+    function findCheckIdAnywhere(checkName: string) {
+        const area = tester
+            .readSelector(areasSelector)
+            .find((candidate) =>
+                [
+                    ...candidate.checks.list,
+                    ...(candidate.extraLocations.loose_crystal?.list ?? []),
+                    ...(candidate.extraLocations.tr_cube?.list ?? []),
+                    ...(candidate.extraLocations.gossip_stone?.list ?? []),
+                ].some((checkId) => checkId.includes(checkName)),
+            );
+        expect(area).toBeDefined();
+        return tester.findCheckId(area!.name, checkName);
+    }
+
     describe('basic checks', () => {
         let computer: TooltipComputer;
         beforeAll(() => {
@@ -133,6 +149,41 @@ describe('tooltips', () => {
                 `"(30 Gratitude Crystals)"`,
             );
         });
+
+        it.concurrent(
+            'computes Skyloft interior requirements without unknown entrances',
+            async ({ expect }) => {
+                const gondo = await getTooltipExpression(
+                    computer,
+                    findCheckIdAnywhere("Repair Gondo's Junk"),
+                );
+                const parrow = await getTooltipExpression(
+                    computer,
+                    findCheckIdAnywhere("Parrow's Gift"),
+                );
+                const beedle300 = await getTooltipExpression(
+                    computer,
+                    findCheckIdAnywhere('300 Rupee Item'),
+                );
+                const beedleThird100 = await getTooltipExpression(
+                    computer,
+                    findCheckIdAnywhere('Third 100 Rupee Item'),
+                );
+
+                expect(formatExpr(gondo)).not.toContain(
+                    'Impossible (discover an entrance first)',
+                );
+                expect(formatExpr(parrow)).not.toContain(
+                    'Impossible (discover an entrance first)',
+                );
+                expect(formatExpr(beedle300)).not.toContain(
+                    'Impossible (discover an entrance first)',
+                );
+                expect(formatExpr(beedleThird100)).not.toContain(
+                    'Impossible (discover an entrance first)',
+                );
+            },
+        );
 
         it.concurrent(
             'computes more complicated things',

@@ -16,7 +16,7 @@ export interface TrackerState {
     /**
      * Items we've marked as acquired.
      */
-    inventory: Partial<Record<InventoryItem, number>>;
+    inventory: Partial<Record<string, number>>;
     /**
      * Whether this state has been modified.
      */
@@ -50,6 +50,14 @@ export interface TrackerState {
      * The last tracked location, for auto item-at-location tracking.
      */
     lastCheckedLocation: string | undefined;
+    /**
+     * Total number of AP locations for the currently connected slot, when known.
+     */
+    apLocationTotal?: number;
+    /**
+     * Number of AP locations already checked for the currently connected slot, when known.
+     */
+    apCheckedLocationCount?: number;
 }
 
 const initialState: TrackerState = {
@@ -63,6 +71,8 @@ const initialState: TrackerState = {
     settings: {},
     userHintsText: '',
     lastCheckedLocation: undefined,
+    apLocationTotal: undefined,
+    apCheckedLocationCount: undefined,
 };
 
 export function preloadedTrackerState(): TrackerState {
@@ -136,11 +146,42 @@ const trackerSlice = createSlice({
         },
         setItemCounts: (
             state,
-            action: PayloadAction<{ item: InventoryItem; count: number }[]>,
+            action: PayloadAction<{ item: string; count: number }[]>,
         ) => {
             for (const { item, count } of action.payload) {
                 state.inventory[item] = count;
             }
+            state.hasBeenModified = true;
+        },
+        replaceItemCounts: (
+            state,
+            action: PayloadAction<{ item: string; count: number }[]>,
+        ) => {
+            state.inventory = {};
+            for (const { item, count } of action.payload) {
+                state.inventory[item] = count;
+            }
+            state.hasBeenModified = true;
+        },
+        replaceCheckedChecks: (state, action: PayloadAction<string[]>) => {
+            state.checkedChecks = [...new Set(action.payload)];
+            state.hasBeenModified = true;
+        },
+        setApLocationCounts: (
+            state,
+            action: PayloadAction<{
+                total?: number;
+                checked?: number;
+            }>,
+        ) => {
+            state.apLocationTotal = action.payload.total;
+            state.apCheckedLocationCount = action.payload.checked;
+        },
+        setRequiredDungeons: (
+            state,
+            action: PayloadAction<{ dungeons: string[] }>,
+        ) => {
+            state.requiredDungeons = [...new Set(action.payload.dungeons)];
             state.hasBeenModified = true;
         },
         clickDungeonName: (
@@ -241,6 +282,10 @@ export const {
     clickItem,
     clickCheckInternal,
     setItemCounts,
+    replaceItemCounts,
+    replaceCheckedChecks,
+    setApLocationCounts,
+    setRequiredDungeons,
     clickDungeonName,
     bulkEditChecks,
     mapEntrance,

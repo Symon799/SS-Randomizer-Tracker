@@ -65,9 +65,10 @@ export function SubmapMarker({
     const birdSanityOn = useSelector(settingSelector('random-start-statues'));
     const birdStatueSanityPool =
         birdSanityOn && areaGraph.birdStatueSanity[title];
+    const birdStatueExit =
+        birdStatueSanityPool && exits[birdStatueSanityPool.exit];
     const needsBirdStatueSanityExit =
-        birdStatueSanityPool &&
-        exits[birdStatueSanityPool.exit].entrance === undefined;
+        birdStatueExit && birdStatueExit.entrance === undefined;
     const exitCheck = useSelector(
         (state: RootState) =>
             needsBirdStatueSanityExit &&
@@ -88,10 +89,10 @@ export function SubmapMarker({
                 {title} ({data.checks.numAccessible}/{data.checks.numRemaining})
             </div>
             <div>Click to Expand</div>
-            {birdStatueSanityPool && (
+            {birdStatueExit && (
                 <div>
-                    {exits[birdStatueSanityPool.exit].entrance
-                        ? `↳${exits[birdStatueSanityPool.exit].entrance!.name}`
+                    {birdStatueExit.entrance
+                        ? `↳${birdStatueExit.entrance.name}`
                         : '↳Right-click to choose Starting Statue'}
                 </div>
             )}

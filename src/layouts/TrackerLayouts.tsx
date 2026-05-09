@@ -1,11 +1,11 @@
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
+import { useApConnectionStatusString } from '../archipelago/ClientHooks';
 import BasicCounters from '../BasicCounters';
 import {
     itemLayoutSelector,
     locationLayoutSelector,
 } from '../customization/Selectors';
-import { TextClient } from '../hints/TextClient';
 import DungeonTracker from '../itemTracker/DungeonTracker';
 import GridTracker, {
     GRID_TRACKER_ASPECT_RATIO,
@@ -34,6 +34,39 @@ export function TrackerLayout({
 }) {
     const itemLayout = useSelector(itemLayoutSelector);
     const locationLayout = useSelector(locationLayoutSelector);
+    const [sidebarWidth, setSidebarWidth] = useState(390);
+    const [isResizing, setIsResizing] = useState(false);
+    const containerRef = useRef<HTMLDivElement | null>(null);
+    const { measuredWidth } = useElementSize(containerRef);
+    const minSidebarWidth = 300;
+    const maxSidebarWidth = Math.max(
+        minSidebarWidth,
+        Math.floor(measuredWidth * 0.48),
+    );
+    const clampedSidebarWidth = Math.max(
+        minSidebarWidth,
+        Math.min(sidebarWidth, maxSidebarWidth),
+    );
+
+    useEffect(() => {
+        if (!isResizing) {
+            return;
+        }
+        const onMove = (event: MouseEvent) => {
+            const bounds = containerRef.current?.getBoundingClientRect();
+            if (!bounds) {
+                return;
+            }
+            setSidebarWidth(event.clientX - bounds.left);
+        };
+        const onUp = () => setIsResizing(false);
+        window.addEventListener('mousemove', onMove);
+        window.addEventListener('mouseup', onUp);
+        return () => {
+            window.removeEventListener('mousemove', onMove);
+            window.removeEventListener('mouseup', onUp);
+        };
+    }, [isResizing]);
 
     // Warning: Layout horrors below.
     // This main tracker area used to be implemented with react-bootstrap's
@@ -67,18 +100,27 @@ export function TrackerLayout({
     if (locationLayout === 'list') {
         return (
             <>
-                <div style={{ flex: '0 0 auto', width: '33.333%' }}>
+                <div style={{ flex: '0 0 auto', width: '30%' }}>
                     <div
                         style={{
                             padding: '0.75rem',
                             height: '100%',
                             width: '100%',
+                            display: 'flex',
+                            flexFlow: 'column nowrap',
+                            gap: '10px',
                         }}
                     >
+                        <BasicCounters compact />
+                        <DungeonTracker
+                            interfaceDispatch={interfaceDispatch}
+                            compact
+                        />
                         {itemTracker}
+                        <TrackerConnectionStatus />
                     </div>
                 </div>
-                <div style={{ flex: '0 0 auto', width: '33.333%' }}>
+                <div style={{ flex: '0 0 auto', width: '70%' }}>
                     <div
                         style={{
                             padding: '0 0.75rem',
@@ -108,56 +150,75 @@ export function TrackerLayout({
                         </div>
                     </div>
                 </div>
-                <div
-                    style={{
-                        flex: '0 0 auto',
-                        height: '100%',
-                        width: '33.333%',
-                    }}
-                >
-                    <div
-                        style={{
-                            padding: '0 0.75rem 2% 0.75rem',
-                            display: 'flex',
-                            height: '100%',
-                            flexFlow: 'column nowrap',
-                            gap: '2%',
-                        }}
-                    >
-                        <BasicCounters />
-                        <DungeonTracker interfaceDispatch={interfaceDispatch} />
-                        <div style={{ flex: '1', maxHeight: 450 }}>
-                            <TextClient />
-                        </div>
-                    </div>
-                </div>
             </>
         );
     } else {
         return (
-            <>
-                <div style={{ flex: '0 0 auto', width: '33.333%' }}>
+            <div
+                ref={containerRef}
+                style={{
+                    display: 'flex',
+                    width: '100%',
+                    height: '100%',
+                    minWidth: 0,
+                }}
+            >
+                <div
+                    style={{
+                        flex: `0 0 ${clampedSidebarWidth}px`,
+                        minWidth: minSidebarWidth,
+                        maxWidth: maxSidebarWidth,
+                    }}
+                >
                     <div
                         style={{
-                            padding: '0 0.75rem 0.75rem 0.75rem',
+                            padding: '10px 0.85rem 0.75rem 0.75rem',
                             display: 'flex',
                             flexFlow: 'column',
                             height: '100%',
                             width: '100%',
-                            gap: '10px',
+                            gap: '8px',
                         }}
                     >
+                        <BasicCounters compact />
                         <DungeonTracker
                             interfaceDispatch={interfaceDispatch}
                             compact
                         />
                         {itemTracker}
+                        <TrackerConnectionStatus />
                     </div>
                 </div>
-                <div style={{ flex: '0 0 auto', width: '50%' }}>
+                <button
+                    type="button"
+                    style={{
+                        flex: '0 0 12px',
+                        cursor: 'col-resize',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'stretch',
+                        padding: '6px 0',
+                        border: 0,
+                        background: 'transparent',
+                    }}
+                    onMouseDown={() => setIsResizing(true)}
+                    role="separator"
+                    aria-orientation="vertical"
+                    aria-label="Resize tracker panels"
+                >
                     <div
                         style={{
-                            padding: '0 0.75rem',
+                            width: 4,
+                            borderRadius: 999,
+                            background:
+                                'color-mix(in srgb, var(--scheme-text) 16%, transparent)',
+                        }}
+                    />
+                </button>
+                <div style={{ flex: '1 1 auto', minWidth: 0 }}>
+                    <div
+                        style={{
+                            padding: '0 0.75rem 0 0.25rem',
                             height: '100%',
                             width: '100%',
                             position: 'relative',
@@ -169,29 +230,7 @@ export function TrackerLayout({
                         />
                     </div>
                 </div>
-                <div
-                    style={{
-                        flex: '0 0 auto',
-                        height: '100%',
-                        width: '16.666667%',
-                    }}
-                >
-                    <div
-                        style={{
-                            padding: '0 0.75rem',
-                            display: 'flex',
-                            height: '100%',
-                            flexFlow: 'column nowrap',
-                            gap: '20px',
-                        }}
-                    >
-                        <BasicCounters />
-                        <div style={{ height: '100%', maxHeight: 450 }}>
-                            <TextClient />
-                        </div>
-                    </div>
-                </div>
-            </>
+            </div>
         );
     }
 }
@@ -213,26 +252,25 @@ function MapLayoutCenterColumnContainer({
 
     const mapWidth = Math.min(
         measuredWidth,
-        measuredHeight * 0.55 * WORLD_MAP_ASPECT_RATIO,
+        measuredHeight * 0.42 * WORLD_MAP_ASPECT_RATIO,
     );
     const mapHeight = mapWidth / WORLD_MAP_ASPECT_RATIO;
-    const contentHeight = Math.min(measuredHeight, mapHeight * 4);
     return (
         <div style={{ width: '100%', height: '100%' }} ref={ref}>
-            {/* placed absolutely in here so that we don't end up influencing our measurement */}
             <div
                 style={{
-                    position: 'absolute',
-                    width: mapWidth,
-                    height: contentHeight,
+                    width: '100%',
+                    height: '100%',
                     display: 'flex',
                     flexFlow: 'column nowrap',
-                    gap: '10px',
+                    gap: '8px',
                 }}
             >
                 <div
                     style={{
                         flex: `0 0 ${mapHeight}px`,
+                        display: 'flex',
+                        justifyContent: 'center',
                     }}
                 >
                     <WorldMap
@@ -250,6 +288,23 @@ function MapLayoutCenterColumnContainer({
                     />
                 </div>
             </div>
+        </div>
+    );
+}
+
+function TrackerConnectionStatus() {
+    const statusString = useApConnectionStatusString();
+    return (
+        <div
+            style={{
+                marginTop: 'auto',
+                padding: '6px 2px 0',
+                fontSize: '0.82rem',
+                color: 'color-mix(in srgb, var(--scheme-text) 72%, transparent)',
+                lineHeight: 1.35,
+            }}
+        >
+            {statusString}
         </div>
     );
 }

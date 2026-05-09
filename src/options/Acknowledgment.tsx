@@ -1,48 +1,34 @@
 import { Link } from 'react-router-dom';
-import Contributor from '../additionalComponents/Contributor';
 import DiscordButton from '../additionalComponents/DiscordButton';
-import contributors from '../data/contributors.json';
 import styles from './Acknowledgement.module.css';
 
 export default function Acknowledgement() {
     return (
         <div className={styles.ackContainer}>
-            <div>Tracker by</div>
-            <div className={styles.contributorsList}>
-                {contributors.creators.map((creator) => (
-                    <Contributor
-                        key={creator.name}
-                        name={creator.name}
-                        links={creator.links}
+            <div className={styles.primaryLine}>
+                SSHD AP Tracker by{' '}
+                <a href="https://github.com/Symon799">Symon799</a>
+            </div>
+            <div className={styles.secondaryLine}>
+                Based on the original Skyward Sword tracker work by{' '}
+                <a href="https://github.com/cjs8487">cjs07</a>, with major logic
+                and architecture contributions from{' '}
+                <a href="https://github.com/robojumper">robojumper</a> and map
+                tracker work from{' '}
+                <a href="https://github.com/youraveragelink">YourAverageLink</a>
+                .
+            </div>
+            <div className={styles.linksRow}>
+                <a href="https://github.com/Symon799">
+                    Symon799 on GitHub
+                    <i
+                        style={{ paddingLeft: '0.3%' }}
+                        className="fab fa-github"
                     />
-                ))}
+                </a>
+                <DiscordButton />
             </div>
-            <div>Additional contributions by</div>
-            <div className={styles.contributorsList}>
-                {contributors.contributors.map((creator) => (
-                    <Contributor
-                        key={creator.name}
-                        name={creator.name}
-                        links={creator.links}
-                    />
-                ))}
-            </div>
-            <div>
-                <span style={{ paddingRight: '1%' }}>
-                    <a href="https://github.com/youraveragelink/SS-Randomizer-Tracker/tree/archipelago">
-                        View the Source Code
-                        <i
-                            style={{ paddingLeft: '0.3%' }}
-                            className="fab fa-github"
-                        />
-                    </a>
-                </span>
-                <span>
-                    <DiscordButton />
-                </span>
-            </div>
-            <br />
-            <div>
+            <div className={styles.navRow}>
                 <Link to="/acknowledgement">Full Acknowledgement</Link>
                 {' ⋅ '}
                 <Link to="/guide">User Guide</Link>

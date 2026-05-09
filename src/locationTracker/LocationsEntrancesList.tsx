@@ -43,7 +43,7 @@ export function LocationsEntrancesList({
                     }}
                 >
                     {includeHeader && (
-                        <div style={{ padding: '2%', width: '100%' }}>
+                        <div style={{ padding: '8px 8px 4px', width: '100%' }}>
                             <LocationGroupHeader
                                 area={selectedArea}
                                 setActiveArea={setActiveArea}

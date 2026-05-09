@@ -1,4 +1,3 @@
-import type { LogicOption } from '../options/Options';
 import type { GeneratedOptions } from './GeneratedOptions';
 
 export type BaseOption = {
@@ -44,13 +43,15 @@ export type OptionDefs = Option[];
 
 export type OptionValue = string | string[] | number | boolean;
 export type OptionType = Option['type'];
-export type OptionsCommand = keyof AllTypedOptions;
+export type OptionsCommand = string;
 
 export interface AllTypedOptions
     extends Omit<
         GeneratedOptions,
         'rupeesanity' | 'shopsanity' | 'randomize-entrances' | 'logic-mode'
     > {
+    [command: string]: OptionValue | undefined;
+
     rupeesanity: GeneratedOptions['rupeesanity'] | 'Vanilla';
 
     // Bizzare Bazaar splits Shopsanity into three settings
@@ -87,4 +88,4 @@ export interface AllTypedOptions
         | 'Beatable Then Banned';
 }
 
-export type TypedOptions = Pick<AllTypedOptions, LogicOption>;
+export type TypedOptions = AllTypedOptions;

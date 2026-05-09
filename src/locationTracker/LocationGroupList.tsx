@@ -19,7 +19,7 @@ export function LocationGroupList({
         interfaceDispatch({ type: 'selectHintRegion', hintRegion: area });
 
     return (
-        <div style={{ padding: '2%', paddingLeft: 20 }}>
+        <div style={{ padding: '8px 10px 8px 16px' }}>
             {areas
                 .filter(
                     (area) =>

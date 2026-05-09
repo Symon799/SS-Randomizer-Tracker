@@ -1,4 +1,5 @@
 import { groupBy, last } from 'es-toolkit';
+import sshdTrustedLocationMapping from '../archipelago/sshdTrustedLocationMapping.json';
 import { isEmpty, mapValues } from '../utils/Collections';
 import { chainComparators, compareBy } from '../utils/Compare';
 import { appDebug, appWarn } from '../utils/Debug';
@@ -21,8 +22,8 @@ import { LogicBuilder } from './LogicBuilder';
 import { TimeOfDay, type TTimeOfDay } from './Mappers';
 import {
     cubeCheckToCubeCollected,
-    cubeCollectedToCubeCheck,
     dungeonCompletionItems,
+    mapToCubeCollectedRequirement,
 } from './TrackerModifications';
 import type {
     RawArea,
@@ -35,6 +36,7 @@ import type {
 export interface Logic {
     numRequirements: number;
     staticRequirements: Requirements;
+    rawStaticRequirements: Requirements;
 
     allItems: string[];
     itemLookup: Record<string, number>;
@@ -58,11 +60,17 @@ export interface Logic {
 export interface LogicalCheck {
     type:
         | 'regular'
+        | 'goddess_chest'
         | 'loose_crystal'
         | 'gossip_stone'
         | 'trial_treasure'
         | 'rupee'
         | 'tadtone'
+        | 'stamina_fruit'
+        | 'hidden_item'
+        | 'closet'
+        | 'goddess_cube'
+        | 'gossip_stone_treasure'
         | 'beedle_shop'
         | 'gear_shop'
         | 'potion_shop'
@@ -91,9 +99,15 @@ export type TrackerLinkedEntrancePool =
 export function isRegularItemCheck(type: LogicalCheck['type']) {
     switch (type) {
         case 'regular':
+        case 'goddess_chest':
         case 'trial_treasure':
         case 'rupee':
         case 'tadtone':
+        case 'stamina_fruit':
+        case 'hidden_item':
+        case 'closet':
+        case 'goddess_cube':
+        case 'gossip_stone_treasure':
         case 'beedle_shop':
         case 'gear_shop':
         case 'potion_shop':
@@ -293,42 +307,103 @@ function preprocessItems(raw: string[]): {
 } {
     const impliedBy: Logic['impliedBy'] = {};
     const implies: Logic['implies'] = {};
-    const newItems = raw
-        .filter((item) => !excludedItemPrefixes.some((p) => item.startsWith(p)))
-        .map((rawItem) => {
-            const [item, index] = splitItemIndex(rawItem);
-            if (index === undefined) {
-                return rawItem;
-            } else {
-                const amount = index + 1;
+    const newItems = new Set(
+        raw
+            .filter(
+                (item) => !excludedItemPrefixes.some((p) => item.startsWith(p)),
+            )
+            .map((rawItem) => {
+                const [item, index] = splitItemIndex(rawItem);
+                if (index === undefined) {
+                    return rawItem;
+                } else {
+                    const amount = index + 1;
 
-                for (let i = 0; i <= amount; i++) {
-                    (impliedBy[itemName(item, i)] ??= []).push(
-                        itemName(item, amount),
-                    );
-                    (implies[itemName(item, amount)] ??= []).push(
-                        itemName(item, i),
-                    );
+                    for (let i = 0; i <= amount; i++) {
+                        (impliedBy[itemName(item, i)] ??= []).push(
+                            itemName(item, amount),
+                        );
+                        (implies[itemName(item, amount)] ??= []).push(
+                            itemName(item, i),
+                        );
+                    }
+
+                    return itemName(item, amount);
                 }
+            }),
+    );
 
-                return itemName(item, amount);
-            }
-        });
-
-    return { newItems, impliedBy, implies };
+    return { newItems: [...newItems], impliedBy, implies };
 }
 
 const checkAreaPlaceholder = 'filled-in-later';
 
+const sshdDisplayAreaOverrides = Object.fromEntries(
+    sshdTrustedLocationMapping
+        .map((entry) => {
+            const trackerArea = entry.trackerName.split(' - ')[0];
+            return trackerArea ? [entry.hdName, trackerArea] : undefined;
+        })
+        .filter((entry): entry is [string, string] => Boolean(entry)),
+);
+
+const sshdHintRegionDisplayOverrides: Record<string, string> = {
+    Bazaar: 'Central Skyloft',
+    "Batreaux's House": 'Skyloft Village',
+    'Inside the Statue of the Goddess': 'Upper Skyloft',
+    'Knight Academy': 'Upper Skyloft',
+    'Sparring Hall': 'Upper Skyloft',
+};
+
 export function parseLogic(raw: RawLogic): Logic {
     const start = performance.now();
+
+    const supportedCubeCollectedToCubeCheck = Object.fromEntries(
+        Object.entries(raw.checks)
+            .filter(
+                ([, check]) =>
+                    getCheckType(check.short_name, check.type) ===
+                    'goddess_cube',
+            )
+            .map(([cubeCheck]) => [
+                cubeCheckToCubeCollected[cubeCheck] ??
+                    mapToCubeCollectedRequirement(cubeCheck),
+                cubeCheck,
+            ]),
+    );
+    const supportedCubeCheckToCubeCollected = Object.fromEntries(
+        Object.entries(supportedCubeCollectedToCubeCheck).map(
+            ([cubeItem, cubeCheck]) => [cubeCheck, cubeItem],
+        ),
+    );
+    const supportedCubeOriginalItemToCubeCollected = Object.fromEntries(
+        Object.entries(supportedCubeCollectedToCubeCheck)
+            .map(([cubeItem, cubeCheck]) => {
+                const originalItem = raw.checks[cubeCheck]?.['original item'];
+                return originalItem ? [originalItem, cubeItem] : undefined;
+            })
+            .filter((entry): entry is [string, string] => Boolean(entry)),
+    );
 
     const { newItems, impliedBy, implies } = preprocessItems(raw.items);
     const rawItems = [
         ...newItems,
-        ...Object.keys(cubeCollectedToCubeCheck),
+        ...Object.keys(supportedCubeCollectedToCubeCheck),
         ...Object.values(dungeonCompletionItems),
     ];
+    const escapedSelfAliasToInventoryItem = Object.fromEntries(
+        Object.entries(raw.areas.locations ?? {})
+            .map(([alias, target]) => {
+                if (!alias.startsWith('\\') || target !== alias) {
+                    return undefined;
+                }
+                const inventoryItem = alias.slice(1);
+                return rawItems.includes(inventoryItem)
+                    ? ([alias, inventoryItem] as const)
+                    : undefined;
+            })
+            .filter((entry): entry is [string, string] => Boolean(entry)),
+    );
 
     // Pessimistically, all items are opaque
     const opaqueItems = new BitVector();
@@ -349,7 +424,7 @@ export function parseLogic(raw: RawLogic): Logic {
     });
 
     for (const [cubeItem, cubeCheck] of Object.entries(
-        cubeCollectedToCubeCheck,
+        supportedCubeCollectedToCubeCheck,
     )) {
         checks[cubeCheck] = {
             type: 'tr_cube',
@@ -424,8 +499,11 @@ export function parseLogic(raw: RawLogic): Logic {
                         'is mentioned by a requirement, which makes it unbannable',
                     );
                 }
-                // If an expression looks at "goddess cube in X", require the actual item instead.
-                const actualItem = cubeCheckToCubeCollected[item] ?? item;
+                const actualItem =
+                    supportedCubeCheckToCubeCollected[item] ??
+                    supportedCubeOriginalItemToCubeCollected[item] ??
+                    escapedSelfAliasToInventoryItem[item] ??
+                    item;
                 return itemBits[actualItem];
             },
         );
@@ -695,7 +773,11 @@ export function parseLogic(raw: RawLogic): Logic {
                 const isPrimaryLocation = check && !location.startsWith('\\');
                 if (check) {
                     if (isPrimaryLocation) {
-                        const region = getHintRegion(locationId);
+                        const hintedRegion = getHintRegion(locationId);
+                        const region =
+                            sshdDisplayAreaOverrides[check.name] ??
+                            sshdHintRegionDisplayOverrides[hintedRegion] ??
+                            hintedRegion;
                         if (check.type === 'tr_cube') {
                             check.name = `${region} - ${check.name}`;
                         }
@@ -884,6 +966,24 @@ export function parseLogic(raw: RawLogic): Logic {
         staticRequirements,
     );
     mapAreaToBitLogic(newBuilder, areaGraph, opaqueItems);
+    // Universal Tracker treats a goddess chest as available as soon as the
+    // corresponding cube strike is reachable in logic.
+    for (const [cubeCollectedItem, cubeCheck] of Object.entries(
+        supportedCubeCollectedToCubeCheck,
+    )) {
+        newBuilder.addAlternative(
+            cubeCollectedItem,
+            newBuilder.singleBit(cubeCheck),
+        );
+    }
+    for (const [cubeOriginalItem, cubeCollectedItem] of Object.entries(
+        supportedCubeOriginalItemToCubeCollected,
+    )) {
+        newBuilder.addAlternative(
+            cubeOriginalItem,
+            newBuilder.singleBit(cubeCollectedItem),
+        );
+    }
 
     // check for orphaned locations. This again should probably not be in here
     // but in the rando instead...
@@ -921,6 +1021,10 @@ export function parseLogic(raw: RawLogic): Logic {
         ),
     );
 
+    const rawStaticRequirements = mapValues(staticRequirements, (value) =>
+        value.clone(),
+    );
+
     const bitLogic = mergeRequirements(numItems, staticRequirements);
 
     // Some cheap optimizations - these have opaque entrances,
@@ -951,6 +1055,7 @@ export function parseLogic(raw: RawLogic): Logic {
     return {
         numRequirements: rawItems.length,
         staticRequirements: updatedRequirements,
+        rawStaticRequirements,
         allItems: rawItems,
         itemLookup,
         impliedBy,
@@ -978,6 +1083,16 @@ function mapAreaToBitLogic(
     if (area.canSleep) {
         b.addAlternative(b.day(area.id), b.singleBit(b.night(area.id)));
         b.addAlternative(b.night(area.id), b.singleBit(b.day(area.id)));
+    }
+
+    if (area.availability === TimeOfDay.Both) {
+        // Some SSHD requirements use can_access(Area), which the dump maps to the
+        // bare area id rather than a time-qualified DAY/NIGHT node. For dual-ToD
+        // areas, treat the aggregate area bit as reachable if either time-qualified
+        // variant is reachable.
+        b.addAlternative(area.id, b.singleBit(b.day(area.id)));
+        b.addAlternative(area.id, b.singleBit(b.night(area.id)));
+        opaqueItems.clearBit(b.bit(area.id));
     }
 
     for (const location of area.locations) {
@@ -1096,10 +1211,23 @@ function mapAreaToBitLogic(
     for (const entrance of area.entrances) {
         const entranceDef = areaGraph.entrances[entrance];
         if (entranceDef.allowed_time_of_day === TimeOfDay.Both) {
-            b.addAlternative(b.day(area.id), b.singleBit(b.day(entrance)));
-            b.addAlternative(b.night(area.id), b.singleBit(b.night(entrance)));
-            opaqueItems.clearBit(b.bit(b.day(area.id)));
-            opaqueItems.clearBit(b.bit(b.night(area.id)));
+            if (area.availability === TimeOfDay.Both) {
+                b.addAlternative(b.day(area.id), b.singleBit(b.day(entrance)));
+                b.addAlternative(
+                    b.night(area.id),
+                    b.singleBit(b.night(entrance)),
+                );
+                opaqueItems.clearBit(b.bit(b.day(area.id)));
+                opaqueItems.clearBit(b.bit(b.night(area.id)));
+            } else if (area.availability === TimeOfDay.DayOnly) {
+                b.addAlternative(area.id, b.singleBit(b.day(entrance)));
+                opaqueItems.clearBit(b.bit(area.id));
+            } else if (area.availability === TimeOfDay.NightOnly) {
+                b.addAlternative(area.id, b.singleBit(b.night(entrance)));
+                opaqueItems.clearBit(b.bit(area.id));
+            } else {
+                throw new Error('bad area ToD');
+            }
         } else {
             let areaReq: string;
             if (area.availability === TimeOfDay.Both) {
@@ -1149,6 +1277,18 @@ function getCheckType(
         !checkName.includes("Water Dragon's Reward")
     ) {
         return 'tadtone';
+    } else if (checkType.includes('Stamina Fruits')) {
+        return 'stamina_fruit';
+    } else if (checkType.includes('Hidden Items')) {
+        return 'hidden_item';
+    } else if (checkType.includes('Closets')) {
+        return 'closet';
+    } else if (checkType.includes('Goddess Chests')) {
+        return 'goddess_chest';
+    } else if (checkType.includes('Goddess Cube')) {
+        return 'goddess_cube';
+    } else if (checkType.includes('Gossip Stone Treasures')) {
+        return 'gossip_stone_treasure';
     } else {
         return 'regular';
     }

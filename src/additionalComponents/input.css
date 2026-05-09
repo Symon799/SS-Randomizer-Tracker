@@ -4,19 +4,29 @@
     .tracker-input {
         display: block;
         color: var(--scheme-text);
-        background-color: var(--scheme-background);
+        background-color: color-mix(
+            in srgb,
+            var(--scheme-background) 94%,
+            white
+        );
 
-        transition: outline-width 50ms ease-in-out;
-        padding: 0.375rem 0.75rem;
+        transition:
+            border-color 120ms ease-in-out,
+            box-shadow 120ms ease-in-out;
+        padding: 0.55rem 0.75rem;
         border: 1px solid
-            color-mix(in srgb, var(--scheme-text) 40%, transparent);
-        outline: 0px solid
-            color-mix(in srgb, var(--scheme-interact) 40%, transparent);
-        border-radius: 0.375rem;
+            color-mix(in srgb, var(--scheme-text) 18%, transparent);
+        outline: none;
+        border-radius: 8px;
+        box-shadow: 0 1px 2px
+            color-mix(in srgb, var(--scheme-text) 8%, transparent);
 
         &:focus {
-            outline: 4px solid
-                color-mix(in srgb, var(--scheme-interact) 40%, transparent);
+            border-color: var(--scheme-interact);
+            box-shadow:
+                0 0 0 3px
+                    color-mix(in srgb, var(--scheme-interact) 18%, transparent),
+                0 1px 2px color-mix(in srgb, var(--scheme-text) 8%, transparent);
         }
 
         margin: 0;

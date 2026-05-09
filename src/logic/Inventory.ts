@@ -6,7 +6,7 @@ export const itemMaxes = {
     'Ruby Tablet': 1,
     'Amber Tablet': 1,
 
-    'Lanayru Caves Small Key': 1,
+    'Lanayru Caves Small Key': 2,
     'Sea Chart': 1,
     'Stone of Trials': 1,
 

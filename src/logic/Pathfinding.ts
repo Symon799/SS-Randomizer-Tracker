@@ -33,15 +33,19 @@ export function exploreAreaGraph(
         return undefined;
     }
     const startingEntranceDef = areaGraph.entrances[startingEntrance.id];
+    const startingTimeOfDay =
+        startingEntranceDef.allowed_time_of_day === TimeOfDay.Both
+            ? TimeOfDay.DayOnly
+            : startingEntranceDef.allowed_time_of_day;
     if (
-        startingEntranceDef.allowed_time_of_day !== TimeOfDay.DayOnly &&
-        startingEntranceDef.allowed_time_of_day !== TimeOfDay.NightOnly
+        startingTimeOfDay !== TimeOfDay.DayOnly &&
+        startingTimeOfDay !== TimeOfDay.NightOnly
     ) {
         return undefined;
     }
     const startingNode: ExplorationNode = {
         area: areaGraph.areasByEntrance[startingEntrance.id].id,
-        timeOfDay: startingEntranceDef.allowed_time_of_day,
+        timeOfDay: startingTimeOfDay,
         parent: undefined,
         edge: undefined,
     };

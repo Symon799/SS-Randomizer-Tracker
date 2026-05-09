@@ -68,7 +68,7 @@ export function keyData(
     }
 
     const regionChecks = (region: string) =>
-        logic.checksByHintRegion[region].filter(
+        (logic.checksByHintRegion[region] ?? []).filter(
             (c) =>
                 isRegularItemCheck(logic.checks[c].type) &&
                 !isCheckBanned(c, logic.checks[c]),

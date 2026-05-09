@@ -2,7 +2,13 @@
     user-select: none;
     display: flex;
     flex-flow: row nowrap;
-    font-size: 1.75rem;
+    align-items: center;
+    gap: 8px;
+    font-size: 1.15rem;
+    padding: 7px 10px;
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--scheme-background) 88%, white);
+    box-shadow: 0 1px 2px color-mix(in srgb, var(--scheme-text) 7%, transparent);
 
     &.droppable {
         background-color: color-mix(
@@ -23,6 +29,7 @@
     .name {
         flex: 1 1 auto;
         position: relative;
+        min-width: 0;
     }
 
     &.selected {
@@ -38,14 +45,15 @@
     }
 
     .hint {
-        flex: 0 0 45px;
+        flex: 0 0 38px;
+        min-width: 38px;
         text-align: center;
         margin-left: auto;
         display: flex;
 
         img {
             margin: auto;
-            height: 40px;
+            height: 30px;
         }
 
         &.preview {
@@ -54,8 +62,9 @@
     }
 
     .counter {
-        flex: 0 0 10%;
+        flex: 0 0 auto;
         margin-left: auto;
+        font-size: 0.92rem;
         &.align {
             text-align: right;
         }

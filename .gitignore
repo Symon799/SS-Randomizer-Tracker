@@ -118,6 +118,7 @@ dist
 # Local source clones used while generating SSHD prototype mapping data
 /.tmp_ss_apworld
 /.tmp_sshd_apworld
+/.tmp_sshd_rando
 
 # misc
 .DS_Store

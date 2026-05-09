@@ -45,7 +45,7 @@ export function getVisibleTricksEnabledRequirements(
                     !consideredTricks.size ||
                     consideredTricks.has(opt);
                 if (considered) {
-                    b.set(`${opt} Trick`, b.true());
+                    b.trySet(`${opt} Trick`, b.true());
                 }
             }
         }
@@ -146,7 +146,8 @@ function semiLogicStep(
     // The assumed number of loose gratitude crystals is the number of
     // loose crystal checks that are either checked or are in logic.
     for (const [checkId, checkDef] of Object.entries(logic.checks)) {
-        if (state.semiLogicBits.test(logic.itemBits[checkId])) {
+        const checkBit = logic.itemBits[checkId];
+        if (checkBit !== undefined && state.semiLogicBits.test(checkBit)) {
             if (
                 checkDef.type === 'loose_crystal' &&
                 !state.assumedChecks.has(checkId) &&
@@ -174,8 +175,10 @@ function semiLogicStep(
     }
 
     for (const cubeCheck of Object.keys(cubeCheckToCubeCollected)) {
+        const cubeBit = logic.itemBits[cubeCheck];
         if (
-            state.semiLogicBits.test(logic.itemBits[cubeCheck]) &&
+            cubeBit !== undefined &&
+            state.semiLogicBits.test(cubeBit) &&
             !state.assumedChecks.has(cubeCheck)
         ) {
             state.assumedChecks.add(cubeCheck);
@@ -186,8 +189,10 @@ function semiLogicStep(
     for (const dungeonCompletionCheck of Object.values(
         logic.dungeonCompletionRequirements,
     )) {
+        const completionBit = logic.itemBits[dungeonCompletionCheck];
         if (
-            state.semiLogicBits.test(logic.itemBits[dungeonCompletionCheck]) &&
+            completionBit !== undefined &&
+            state.semiLogicBits.test(completionBit) &&
             !state.assumedChecks.has(dungeonCompletionCheck)
         ) {
             state.assumedChecks.add(dungeonCompletionCheck);

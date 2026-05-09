@@ -5,7 +5,6 @@ import {
     areRemotesEqual,
     loadRemoteLogic,
 } from '../loader/LogicLoader';
-import { getStoredRemote } from '../LocalStorage';
 import type { RawLogic, RawPresets } from '../logic/UpstreamTypes';
 import { validateSettings } from '../permalink/Settings';
 import type {
@@ -22,10 +21,7 @@ import { convertError } from '../utils/Errors';
 import { delay } from '../utils/Promises';
 
 const defaultUpstream: RemoteReference = {
-    type: 'forkBranch',
-    author: 'Battlecats59',
-    repoName: 'sslib',
-    branch: 'archipelago',
+    type: 'localSshd',
 };
 
 /**
@@ -66,13 +62,12 @@ export type OptionsAction =
       };
 
 function initialOptionsState({
-    reduxRemote,
     reduxSettings,
 }: {
     reduxSettings: Partial<AllTypedOptions>;
     reduxRemote: RemoteReference | undefined;
 }): OptionsState {
-    const remote = reduxRemote ?? getStoredRemote() ?? defaultUpstream;
+    const remote = defaultUpstream;
     return {
         hasChanges: false,
         selectedRemote: remote,

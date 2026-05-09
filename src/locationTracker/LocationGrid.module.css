@@ -1,8 +1,8 @@
 .locationGroup {
-    padding: 1px 0 1px 1px;
+    padding: 2px;
 
     column-count: 1;
-    column-gap: 0;
+    column-gap: 6px;
 
     &.wide {
         column-count: 2;
@@ -10,9 +10,13 @@
 }
 
 .locationCell {
-    min-height: 45px;
-    outline: 1px solid var(--scheme-text);
-    margin: 0 1px 1px 0;
+    min-height: 36px;
+    border: 1px solid color-mix(in srgb, var(--scheme-text) 13%, transparent);
+    border-radius: 8px;
+    margin: 0 0 6px;
+    background: color-mix(in srgb, var(--scheme-background) 92%, white);
+    box-shadow: 0 1px 2px color-mix(in srgb, var(--scheme-text) 7%, transparent);
     break-inside: avoid;
     display: grid;
+    overflow: hidden;
 }

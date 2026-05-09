@@ -32,9 +32,9 @@ function MapMarker({
 }) {
     const area = useSelector((state: RootState) =>
         areasSelector(state).find((a) => a.name === title),
-    )!;
-    const data = getRegionData(area);
-    const markerColor = getMarkerColor(data.checks);
+    );
+    const data = area ? getRegionData(area) : undefined;
+    const markerColor = data ? getMarkerColor(data.checks) : 'checked';
 
     const { show } = useContextMenu<LocationGroupContextMenuProps>({
         id: 'group-context',
@@ -42,17 +42,23 @@ function MapMarker({
 
     const displayMenu = useCallback(
         (e: MouseEvent) => {
-            show({ event: e, props: { area: area.name } });
+            if (area) {
+                show({ event: e, props: { area: area.name } });
+            }
         },
         [area, show],
     );
 
     let hints = useSelector(areaHintSelector(title));
 
-    const { setNodeRef, active, isOver } = useDroppable({
-        type: 'hintRegion',
-        hintRegion: area.name,
-    });
+    const { setNodeRef, active, isOver } = useDroppable(
+        area
+            ? {
+                  type: 'hintRegion',
+                  hintRegion: area.name,
+              }
+            : undefined,
+    );
 
     const dragPreviewHint = active && draggableToRegionHint(active);
     if (dragPreviewHint && isOver) {
@@ -61,9 +67,12 @@ function MapMarker({
 
     const tooltip = (
         <center>
-            <div>
-                {title} ({data.checks.numAccessible}/{data.checks.numRemaining})
-            </div>
+            {data && (
+                <div>
+                    {title} ({data.checks.numAccessible}/
+                    {data.checks.numRemaining})
+                </div>
+            )}
             {hints.map((hint, idx) => (
                 <HintDescription key={idx} hint={decodeHint(hint)} />
             ))}
@@ -71,6 +80,9 @@ function MapMarker({
     );
 
     const handleClick = (e: TriggerEvent) => {
+        if (!area) {
+            return;
+        }
         if (e.type === 'contextmenu') {
             onGlickGroup(title);
             e.preventDefault();
@@ -95,11 +107,11 @@ function MapMarker({
                 dragPreviewHint ? (isOver ? 'hover' : 'droppable') : undefined
             }
             submarkers={[
-                ...getSubmarkerData(data),
+                ...(data ? getSubmarkerData(data) : []),
                 ...hintsToSubmarkers(hints),
             ]}
         >
-            {Boolean(data.checks.numAccessible) && data.checks.numAccessible}
+            {Boolean(data?.checks.numAccessible) && data?.checks.numAccessible}
         </Marker>
     );
 }

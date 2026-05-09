@@ -2,7 +2,6 @@ import { invert } from 'es-toolkit';
 import goddessCubesList_ from '../data/goddessCubes2.json';
 import type { OptionDefs, TypedOptions } from '../permalink/SettingsTypes';
 import type { TrackerState } from '../tracker/Slice';
-import { appError } from '../utils/Debug';
 import { BitVector } from './bitlogic/BitVector';
 import { type InventoryItem, isItem, itemMaxes, itemName } from './Inventory';
 import type { DungeonName } from './Locations';
@@ -27,7 +26,7 @@ export const cubeCheckToCubeCollected = invert<string, string>(
     cubeCollectedToCubeCheck,
 );
 
-function mapToCubeCollectedRequirement(check: string) {
+export function mapToCubeCollectedRequirement(check: string) {
     return `${check}${collectedCubeSuffix}`;
 }
 
@@ -118,8 +117,6 @@ export function getTooltipOpaqueBits(
         const bit = logic.itemBits[id];
         if (bit !== undefined) {
             items.setBit(bit);
-        } else {
-            appError('unknown item', id);
         }
     };
 
