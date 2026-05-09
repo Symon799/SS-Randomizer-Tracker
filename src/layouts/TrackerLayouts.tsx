@@ -11,6 +11,7 @@ import {
     itemLayoutSelector,
     locationLayoutSelector,
 } from '../customization/Selectors';
+import { CompactTextClient } from '../hints/TextClient';
 import DungeonTracker from '../itemTracker/DungeonTracker';
 import GridTracker, {
     GRID_TRACKER_ASPECT_RATIO,
@@ -94,7 +95,10 @@ export function TrackerLayout({
     // and use modern CSS solutions with fewer manual calculations.
 
     let itemTracker;
+    let itemTrackerAspectRatio: number | undefined;
+    const showCompactApLog = itemLayout === 'grid';
     if (itemLayout === 'inventory') {
+        itemTrackerAspectRatio = ITEM_TRACKER_ASPECT_RATIO;
         itemTracker = (
             <ItemTrackerContainer
                 aspectRatio={ITEM_TRACKER_ASPECT_RATIO}
@@ -102,6 +106,7 @@ export function TrackerLayout({
             />
         );
     } else if (itemLayout === 'grid') {
+        itemTrackerAspectRatio = GRID_TRACKER_ASPECT_RATIO;
         itemTracker = (
             <ItemTrackerContainer
                 aspectRatio={GRID_TRACKER_ASPECT_RATIO}
@@ -109,6 +114,29 @@ export function TrackerLayout({
             />
         );
     }
+    const itemTrackerBlock = (
+        <div
+            style={{
+                flex: '0 0 auto',
+                width: '100%',
+                aspectRatio: itemTrackerAspectRatio
+                    ? String(itemTrackerAspectRatio)
+                    : undefined,
+                minHeight: 0,
+                position: 'relative',
+            }}
+        >
+            {itemTracker}
+        </div>
+    );
+    const compactApLogBlock = showCompactApLog ? (
+        <div style={{ flex: '1 1 0', minHeight: 0, overflow: 'hidden' }}>
+            <CompactTextClient />
+        </div>
+    ) : null;
+    const footerBlock = footerContent ? (
+        <div style={{ flex: '0 0 auto' }}>{footerContent}</div>
+    ) : null;
 
     if (locationLayout === 'list') {
         return (
@@ -122,15 +150,27 @@ export function TrackerLayout({
                             display: 'flex',
                             flexFlow: 'column nowrap',
                             gap: '12px',
+                            minHeight: 0,
                         }}
                     >
-                        <BasicCounters compact />
-                        <DungeonTracker
-                            interfaceDispatch={interfaceDispatch}
-                            compact
-                        />
-                        {itemTracker}
-                        {footerContent}
+                        <div
+                            style={{
+                                flex: '1 1 0',
+                                minHeight: 0,
+                                display: 'flex',
+                                flexFlow: 'column nowrap',
+                                gap: '12px',
+                            }}
+                        >
+                            <BasicCounters compact />
+                            <DungeonTracker
+                                interfaceDispatch={interfaceDispatch}
+                                compact
+                            />
+                            {itemTrackerBlock}
+                            {compactApLogBlock}
+                        </div>
+                        {footerBlock}
                     </div>
                 </div>
                 <div style={{ flex: '0 0 auto', width: '70%' }}>
@@ -191,15 +231,27 @@ export function TrackerLayout({
                             height: '100%',
                             width: '100%',
                             gap: '12px',
+                            minHeight: 0,
                         }}
                     >
-                        <BasicCounters compact />
-                        <DungeonTracker
-                            interfaceDispatch={interfaceDispatch}
-                            compact
-                        />
-                        {itemTracker}
-                        {footerContent}
+                        <div
+                            style={{
+                                flex: '1 1 0',
+                                minHeight: 0,
+                                display: 'flex',
+                                flexFlow: 'column nowrap',
+                                gap: '12px',
+                            }}
+                        >
+                            <BasicCounters compact />
+                            <DungeonTracker
+                                interfaceDispatch={interfaceDispatch}
+                                compact
+                            />
+                            {itemTrackerBlock}
+                            {compactApLogBlock}
+                        </div>
+                        {footerBlock}
                     </div>
                 </div>
                 <button

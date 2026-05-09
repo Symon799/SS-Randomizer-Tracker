@@ -22,7 +22,7 @@ export interface CustomizationState {
 
 const initialState: CustomizationState = {
     colorScheme: lightColorScheme,
-    itemLayout: 'inventory',
+    itemLayout: 'grid',
     locationLayout: 'map',
     debugMode: false,
     trickSemilogic: false,

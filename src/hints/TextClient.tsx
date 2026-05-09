@@ -42,10 +42,8 @@ const renderMessage = (msg: ClientMessage) =>
         </Tooltip>
     ));
 
-// separate the list of messages so it only re-renders when new messages come in
-const MessageList = memo(function MessageList() {
+function useApMessages() {
     const clientManager = useContext(ClientManagerContext);
-    const lastItem = useRef<HTMLLIElement>(null);
     const [messages, setMessages] = useState<ClientMessage[]>([]);
 
     useEffect(() => {
@@ -57,12 +55,26 @@ const MessageList = memo(function MessageList() {
         };
     }, [clientManager]);
 
+    return messages;
+}
+
+// separate the list of messages so it only re-renders when new messages come in
+const MessageList = memo(function MessageList({
+    compact = false,
+}: {
+    compact?: boolean;
+}) {
+    const lastItem = useRef<HTMLLIElement>(null);
+    const messages = useApMessages();
+
     useEffect(() => {
         lastItem.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages]);
 
     return (
-        <ul className={styles.apMessages}>
+        <ul
+            className={`${styles.apMessages} ${compact ? styles.apMessagesCompact : ''}`}
+        >
             {messages.map((msg, idx) => {
                 const isLast = idx === messages.length - 1;
                 return (
@@ -72,6 +84,14 @@ const MessageList = memo(function MessageList() {
                 );
             })}
         </ul>
+    );
+});
+
+export const CompactTextClient = memo(function CompactTextClient() {
+    return (
+        <div className={styles.compactTextClient}>
+            <MessageList compact />
+        </div>
     );
 });
 

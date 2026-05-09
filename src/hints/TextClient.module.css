@@ -6,6 +6,14 @@
     gap: 10px;
 }
 
+.compactTextClient {
+    min-height: 0;
+    height: 100%;
+    flex: 1 1 auto;
+    display: flex;
+    overflow: hidden;
+}
+
 .textClient form {
     width: 100%;
 }
@@ -35,6 +43,18 @@
 
 .apMessages li:last-child {
     border-bottom: 0;
+}
+
+.apMessagesCompact {
+    font-size: 0.79rem;
+    border-radius: 8px;
+    min-height: 0;
+    height: 100%;
+}
+
+.apMessagesCompact li {
+    padding: 5px 8px;
+    line-height: 1.25;
 }
 
 .hintsTextArea {
