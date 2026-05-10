@@ -36,9 +36,30 @@ export interface MapModel {
     regions: MapHintRegion[];
 }
 
-type MapDataMarker = (typeof mapData)['sky' | 'thunderhead'];
+type StandaloneMapMarker = {
+    region: string;
+    markerX: number;
+    markerY: number;
+    submarkerPlacement?: string;
+};
 
-function getMarker(marker: MapDataMarker): MapHintRegion {
+const extraWorldMarkers: StandaloneMapMarker[] = [];
+
+const vanillaEntranceMarkerRegions: Record<string, string> = {
+    'Sky Keep': 'Sky Keep',
+    Skyview: 'Skyview',
+    'Ancient Cistern': 'Ancient Cistern',
+    'Earth Temple': 'Earth Temple',
+    'Fire Sanctuary': 'Fire Sanctuary',
+    'Lanayru Mining Facility': 'Lanayru Mining Facility',
+    Sandship: 'Sandship',
+    'Skyloft Silent Realm': "The Goddess's Silent Realm",
+    'Faron Silent Realm': "Farore's Silent Realm",
+    'Eldin Silent Realm': "Din's Silent Realm",
+    'Lanayru Silent Realm': "Nayru's Silent Realm",
+};
+
+function getMarker(marker: StandaloneMapMarker): MapHintRegion {
     return {
         type: 'hint_region',
         markerX: marker.markerX,
@@ -61,10 +82,20 @@ function getEntranceMarker(
     exits: Record<string, ExitMapping>,
 ): MapHintRegion | undefined {
     const exitPool = marker.exitPool as keyof AreaGraph['linkedEntrancePools'];
-    const exitId =
-        areaGraph.linkedEntrancePools[exitPool]?.[marker.entryName]?.exits[0];
+    const linkage = areaGraph.linkedEntrancePools[exitPool]?.[marker.entryName];
+    const exitId = linkage?.exits[0];
     if (exitId === undefined || areaGraph.exits[exitId] === undefined) {
-        return undefined;
+        const vanillaRegion = vanillaEntranceMarkerRegions[marker.entryName];
+        return vanillaRegion
+            ? {
+                  type: 'hint_region',
+                  markerX: marker.markerX,
+                  markerY: marker.markerY,
+                  hintRegion: vanillaRegion,
+                  supmarkerPlacement:
+                      marker.submarkerPlacement === 'left' ? 'left' : 'right',
+              }
+            : undefined;
     }
     const mapping = exits[exitId];
     return {
@@ -142,6 +173,10 @@ export function getMapModel(
             getProvince('eldinSubmap', areaGraph, exits),
             getProvince('lanayruSubmap', areaGraph, exits),
         ],
-        regions: [getMarker(mapData.sky), getMarker(mapData.thunderhead)],
+        regions: [
+            getMarker(mapData.sky),
+            getMarker(mapData.thunderhead),
+            ...extraWorldMarkers.map(getMarker),
+        ],
     };
 }

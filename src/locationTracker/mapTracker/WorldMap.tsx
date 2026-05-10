@@ -6,6 +6,11 @@ import lanayruMap from '../../assets/maps/Lanayru.png';
 import skyMap from '../../assets/maps/Sky.png';
 import skyloftMap from '../../assets/maps/Skyloft.png';
 import mapData from '../../data/mapData.json';
+import {
+    OTHERS_HINT_REGION,
+    displayAreasSelector,
+    unmappedAreaNamesSelector,
+} from '../../tracker/Selectors';
 import type {
     InterfaceAction,
     InterfaceState,
@@ -56,6 +61,8 @@ function WorldMap({
     interfaceDispatch: React.Dispatch<InterfaceAction>;
 }) {
     const mapModel = useSelector(mapModelSelector);
+    const displayAreas = useSelector(displayAreasSelector);
+    const unmappedAreaNames = useSelector(unmappedAreaNamesSelector);
     // Preload large images since we don't render all maps at the
     // same time
     usePrefetchImages(imagesToPrefetch);
@@ -83,6 +90,11 @@ function WorldMap({
         interfaceState.type === 'choosingEntrance'
             ? interfaceState.exitId
             : interfaceState.hintRegion;
+    const hasOthers = displayAreas.some((a) => a.name === OTHERS_HINT_REGION);
+    const othersSelected =
+        currentRegionOrExit === OTHERS_HINT_REGION ||
+        (typeof currentRegionOrExit === 'string' &&
+            unmappedAreaNames.has(currentRegionOrExit));
 
     return (
         <div
@@ -145,6 +157,16 @@ function WorldMap({
                             />
                         </div>
                     ))}
+                    {hasOthers && (
+                        <MapMarker
+                            markerX={8}
+                            markerY={90}
+                            title={OTHERS_HINT_REGION}
+                            onGlickGroup={handleGroupClick}
+                            submarkerPlacement="right"
+                            selected={othersSelected}
+                        />
+                    )}
                 </>
             )}
             {activeSubmap && (

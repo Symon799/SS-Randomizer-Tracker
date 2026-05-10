@@ -1,5 +1,4 @@
 import { groupBy, last } from 'es-toolkit';
-import sshdTrustedLocationMapping from '../archipelago/sshdTrustedLocationMapping.json';
 import { isEmpty, mapValues } from '../utils/Collections';
 import { chainComparators, compareBy } from '../utils/Compare';
 import { appDebug, appWarn } from '../utils/Debug';
@@ -338,22 +337,58 @@ function preprocessItems(raw: string[]): {
 
 const checkAreaPlaceholder = 'filled-in-later';
 
-const sshdDisplayAreaOverrides = Object.fromEntries(
-    sshdTrustedLocationMapping
-        .map((entry) => {
-            const trackerArea = entry.trackerName.split(' - ')[0];
-            return trackerArea ? [entry.hdName, trackerArea] : undefined;
-        })
-        .filter((entry): entry is [string, string] => Boolean(entry)),
-);
-
 const sshdHintRegionDisplayOverrides: Record<string, string> = {
     Bazaar: 'Central Skyloft',
-    "Batreaux's House": 'Skyloft Village',
     'Inside the Statue of the Goddess': 'Upper Skyloft',
     'Knight Academy': 'Upper Skyloft',
     'Sparring Hall': 'Upper Skyloft',
+    'Bamboo Island': 'Sky',
+    'Bamboo Island Interior': 'Sky',
+    "Beedle's Island": 'Sky',
+    "Beedle's Airshop": "Beedle's Shop",
+    'Skyview Temple': 'Skyview',
+    'Skyview Spring': 'Skyview',
+    'Floria Waterfall': 'Lake Floria',
+    'Sealed Temple': 'Sealed Grounds',
+    'Earth Spring': 'Earth Temple',
+    'Thrill Digger Cave': 'Eldin Volcano',
+    'Ancient Harbour': 'Lanayru Sand Sea',
+    'Construction Bay': 'Lanayru Sand Sea',
+    'Pirate Stronghold': 'Lanayru Sand Sea',
+    'Pirate Stronghold Interior': 'Lanayru Sand Sea',
+    Shipyard: 'Lanayru Sand Sea',
+    "Skipper's Retreat": 'Lanayru Sand Sea',
+    "Skipper's Retreat Shack": 'Lanayru Sand Sea',
+    'Bug Heaven': 'Thunderhead',
+    'Inside the Thunderhead': 'Thunderhead',
+    'Isle of Songs': 'Thunderhead',
+    'Fire Node': 'Lanayru Desert',
+    'Lightning Node': 'Lanayru Desert',
+    'Temple of Time': 'Lanayru Desert',
+    'Lumpy Pumpkin': 'Sky',
+    'Temple of Hylia': 'Sealed Grounds',
+    "Hylia's Realm": 'Sealed Grounds',
 };
+
+const sshdLocationIdRegionPrefixOverrides: Array<{
+    prefix: string;
+    region: string;
+}> = [
+    { prefix: '\\Faron\\Deep Woods', region: 'Deep Woods' },
+    { prefix: '\\Faron\\Deep Woods Entry', region: 'Deep Woods' },
+];
+
+function getSshdDisplayRegion(hintedRegion: string, locationId: string) {
+    const prefixedOverride = sshdLocationIdRegionPrefixOverrides.find(
+        ({ prefix }) =>
+            locationId === prefix || locationId.startsWith(`${prefix}\\`),
+    );
+    return (
+        prefixedOverride?.region ??
+        sshdHintRegionDisplayOverrides[hintedRegion] ??
+        hintedRegion
+    );
+}
 
 export function parseLogic(raw: RawLogic): Logic {
     const start = performance.now();
@@ -721,7 +756,10 @@ export function parseLogic(raw: RawLogic): Logic {
                     }
 
                     if (!area.abstract) {
-                        const region = getHintRegion(fullExitName);
+                        const region = getSshdDisplayRegion(
+                            getHintRegion(fullExitName),
+                            fullExitName,
+                        );
                         (exitsByHintRegion[region] ??= []).push(fullExitName);
                     }
                 } else {
@@ -739,7 +777,10 @@ export function parseLogic(raw: RawLogic): Logic {
                 const entranceId = `${rawArea.name}\\${entrance}`;
                 const entranceDef = raw.entrances[entranceId];
 
-                const region = getHintRegion(entranceId);
+                const region = getSshdDisplayRegion(
+                    getHintRegion(entranceId),
+                    entranceId,
+                );
                 entranceHintAreas[entranceId] = region;
 
                 // Are both of these needed???
@@ -774,10 +815,10 @@ export function parseLogic(raw: RawLogic): Logic {
                 if (check) {
                     if (isPrimaryLocation) {
                         const hintedRegion = getHintRegion(locationId);
-                        const region =
-                            sshdDisplayAreaOverrides[check.name] ??
-                            sshdHintRegionDisplayOverrides[hintedRegion] ??
-                            hintedRegion;
+                        const region = getSshdDisplayRegion(
+                            hintedRegion,
+                            locationId,
+                        );
                         if (check.type === 'tr_cube') {
                             check.name = `${region} - ${check.name}`;
                         }

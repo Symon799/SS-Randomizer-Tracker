@@ -52,6 +52,19 @@ describe('tracker interaction', () => {
             "type": "ok",
           }
         `);
+        expect(getOwningProvince(mapModel, 'Skyview')).toMatchInlineSnapshot(`
+          {
+            "result": "faronSubmap",
+            "type": "ok",
+          }
+        `);
+        expect(getOwningProvince(mapModel, 'Earth Temple'))
+            .toMatchInlineSnapshot(`
+          {
+            "result": "eldinSubmap",
+            "type": "ok",
+          }
+        `);
     });
 
     it('correctly assigns dungeons in other regions', () => {

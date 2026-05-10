@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import { useApSwordDiagnostic } from './archipelago/ClientHooks';
 import type { RemoteReference } from './loader/LogicLoader';
 import { logicSelector } from './logic/Selectors';
 import { type ThunkResult, useAppDispatch } from './store/Store';
@@ -80,6 +81,14 @@ type TrackerSnapshot = {
         staticRequirementStates: string[];
         checkedRequirementBits: string[];
     }>;
+    swordDiagnostic?: {
+        startingSword: number;
+        selfProgressiveSwordChecksForSelf: number;
+        receivedProgressiveSwordsFromOthers: number;
+        totalExpectedSwordLevel: number;
+        trackerInventoryProgressiveSword: number;
+        scoutedCheckedLocations: number;
+    };
 };
 
 function summarizeRequirements(
@@ -154,7 +163,9 @@ function downloadJson(filename: string, value: unknown) {
     window.URL.revokeObjectURL(url);
 }
 
-function doExportUtSnapshot(): ThunkResult {
+function doExportUtSnapshot(
+    swordDiagnostic?: TrackerSnapshot['swordDiagnostic'],
+): ThunkResult {
     return (_dispatch, getState) => {
         const state = getState();
         const logic = logicSelector(state);
@@ -298,6 +309,7 @@ function doExportUtSnapshot(): ThunkResult {
             },
             checkedVirtualLocations,
             focusDebug,
+            swordDiagnostic,
         };
 
         downloadJson(
@@ -322,9 +334,10 @@ export function ExportButton() {
 
 export function ExportUtSnapshotButton() {
     const dispatch = useAppDispatch();
+    const swordDiagnostic = useApSwordDiagnostic();
     const onClick = useCallback(() => {
-        dispatch(doExportUtSnapshot());
-    }, [dispatch]);
+        dispatch(doExportUtSnapshot(swordDiagnostic));
+    }, [dispatch, swordDiagnostic]);
 
     return (
         <button type="button" className="tracker-button" onClick={onClick}>

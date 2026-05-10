@@ -1,6 +1,9 @@
 import { useSelector } from 'react-redux';
 import { isDungeon } from '../logic/Locations';
-import { areasSelector } from '../tracker/Selectors';
+import {
+    displayAreasSelector,
+    unmappedAreaNamesSelector,
+} from '../tracker/Selectors';
 import type {
     InterfaceAction,
     InterfaceState,
@@ -14,7 +17,8 @@ export function LocationGroupList({
     interfaceState: InterfaceState;
     interfaceDispatch: React.Dispatch<InterfaceAction>;
 }) {
-    const areas = useSelector(areasSelector);
+    const areas = useSelector(displayAreasSelector);
+    const unmappedAreaNames = useSelector(unmappedAreaNamesSelector);
     const setActiveArea = (area: string) =>
         interfaceDispatch({ type: 'selectHintRegion', hintRegion: area });
 
@@ -24,8 +28,8 @@ export function LocationGroupList({
                 .filter(
                     (area) =>
                         !isDungeon(area.name) &&
-                        !area.name.includes('Silent Realm') &&
-                        !area.nonProgress,
+                        !area.nonProgress &&
+                        !unmappedAreaNames.has(area.name),
                 )
                 .map((value) => (
                     <LocationGroupHeader

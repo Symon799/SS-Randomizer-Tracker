@@ -33,6 +33,8 @@ export const useApConnectionStatus = () =>
     useApManagerData((manager) => manager.getStatus());
 export const useApRequiredDungeonDiagnostic = () =>
     useApManagerData((manager) => manager.getRequiredDungeonDiagnostic());
+export const useApSwordDiagnostic = () =>
+    useApManagerData((manager) => manager.getSwordDiagnostic());
 
 export function useIsApConnected() {
     return useApConnectionStatus().state === 'loggedIn';

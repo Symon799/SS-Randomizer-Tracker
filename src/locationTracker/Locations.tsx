@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import type { TrackerLocationFilter } from '../LocalStorage';
 import type { HintRegion } from '../logic/Locations';
 import type { RootState } from '../store/Store';
-import { checkSelector } from '../tracker/Selectors';
+import { checkSelector, OTHERS_HINT_REGION } from '../tracker/Selectors';
 import LocationGroup from './LocationGroup';
 
 export function Locations({
@@ -53,10 +53,12 @@ export function Locations({
             >,
         };
     });
+    const forceFullName = hintRegion.name === OTHERS_HINT_REGION;
     return (
         <>
             <LocationGroup
                 compact={compact}
+                forceFullName={forceFullName}
                 wide={wide}
                 onChooseEntrance={onChooseEntrance}
                 locations={filteredChecks.primary}
@@ -70,6 +72,7 @@ export function Locations({
                             <hr />
                             <LocationGroup
                                 compact={compact}
+                                forceFullName={forceFullName}
                                 wide={wide}
                                 onChooseEntrance={onChooseEntrance}
                                 locations={filteredChecks.extras[type]}

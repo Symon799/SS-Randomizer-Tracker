@@ -8,7 +8,10 @@ import {
 import { decodeHint } from '../../hints/Hints';
 import { hintsToSubmarkers } from '../../hints/HintsParser';
 import type { RootState } from '../../store/Store';
-import { areaHintSelector, areasSelector } from '../../tracker/Selectors';
+import {
+    areaHintSelector,
+    displayAreasSelector,
+} from '../../tracker/Selectors';
 import HintDescription from '../HintsDescription';
 import type { LocationGroupContextMenuProps } from '../LocationGroupContextMenu';
 import { useContextMenu } from '../context-menu';
@@ -31,7 +34,7 @@ function MapMarker({
     selected: boolean;
 }) {
     const area = useSelector((state: RootState) =>
-        areasSelector(state).find((a) => a.name === title),
+        displayAreasSelector(state).find((a) => a.name === title),
     );
     const data = area ? getRegionData(area) : undefined;
     const markerColor = data ? getMarkerColor(data.checks) : 'checked';

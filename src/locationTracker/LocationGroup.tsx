@@ -6,12 +6,14 @@ export default function LocationGroup({
     wide,
     locations,
     onChooseEntrance,
+    forceFullName = false,
 }: {
     compact: boolean;
     wide: boolean;
     /* the list of locations this group contains */
     locations: string[];
     onChooseEntrance: (exitId: string) => void;
+    forceFullName?: boolean;
 }) {
     return (
         <LocationGrid compact={compact} wide={wide}>
@@ -19,6 +21,7 @@ export default function LocationGroup({
                 <Location
                     key={l}
                     compact={compact}
+                    forceFullName={forceFullName}
                     onChooseEntrance={onChooseEntrance}
                     id={l}
                 />

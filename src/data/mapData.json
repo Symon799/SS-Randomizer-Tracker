@@ -78,6 +78,11 @@
                 "submarkerPlacement": "left"
             },
             {
+                "region": "Deep Woods",
+                "markerX": 53,
+                "markerY": 27
+            },
+            {
                 "region": "Lake Floria",
                 "markerX": 58,
                 "markerY": 77

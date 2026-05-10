@@ -54,6 +54,10 @@ const apProgressiveItemMinimums: Record<string, [item: string, count: number]> =
         'Song of the Hero': [sothItemReplacement, 3],
     };
 
+export const apAbsoluteProgressiveInventoryItems = new Set(
+    Object.values(apProgressiveItemMinimums).map(([item]) => item),
+);
+
 function isArchipelagoCrystalLogicItem(item: string): boolean {
     return item === 'Gratitude Crystal' || item === 'Gratitude Crystal Pack';
 }
@@ -126,6 +130,31 @@ export type RequiredDungeonDiagnostic = {
     verdict: string;
 };
 
+export type SwordDiagnostic = {
+    startingSword: number;
+    selfProgressiveSwordChecksForSelf: number;
+    receivedProgressiveSwordsFromOthers: number;
+    totalExpectedSwordLevel: number;
+    trackerInventoryProgressiveSword: number;
+    scoutedCheckedLocations: number;
+    receivedProgressiveSwordDetails: Array<{
+        itemId: number;
+        fromPlayerSlot: number;
+        locationId: number;
+        flags: number;
+    }>;
+    selfProgressiveSwordLocationDetails: Array<{
+        locationId: number;
+        receiverSlot: number;
+        game: string;
+        item: string;
+    }>;
+};
+
+function isSyntheticStartingItem(networkItem: NetworkItem): boolean {
+    return networkItem.player === 0 && networkItem.location === -2;
+}
+
 type SlotData = Record<string, unknown>;
 
 function getSlotDataLocationCount(slotData: SlotData): number | undefined {
@@ -158,6 +187,7 @@ export class APClientManager {
     messages: ClientMessage[] = [];
     requiredDungeons: string[] = [];
     requiredDungeonDiagnostic?: RequiredDungeonDiagnostic;
+    swordDiagnostic?: SwordDiagnostic;
     totalLocationCount?: number;
     cubeDataKey?: string;
     scoutedCheckedLocationIds = new Set<number>();
@@ -332,7 +362,82 @@ export class APClientManager {
         }
 
         this.inventory = nextInventory;
+        this.recomputeSwordDiagnostic();
         this.resolveItems?.(this.inventory);
+    }
+
+    private recomputeSwordDiagnostic() {
+        if (this.connectedData === undefined) {
+            this.swordDiagnostic = undefined;
+            return;
+        }
+
+        const startingSword = Number(
+            (
+                this.connectedData.slot_data as
+                    | Record<string, unknown>
+                    | undefined
+            )?.option_starting_sword ?? 0,
+        );
+
+        const selfProgressiveSwordChecksForSelf = [
+            ...this.scoutedSelfItemsByLocation.values(),
+        ].filter(
+            (item) =>
+                item.receiverSlot === this.connectedData!.slot &&
+                item.game === GAME_NAME &&
+                item.name === 'Progressive Sword',
+        ).length;
+
+        const receivedProgressiveSwordItems =
+            this.idToItem === undefined
+                ? []
+                : this.receivedNetworkItems.filter(
+                      (networkItem) =>
+                          networkItem.player !== this.connectedData!.slot &&
+                          !isSyntheticStartingItem(networkItem) &&
+                          this.idToItem?.[networkItem.item] ===
+                              'Progressive Sword',
+                  );
+        const receivedProgressiveSwordsFromOthers =
+            receivedProgressiveSwordItems.length;
+        const receivedProgressiveSwordDetails =
+            receivedProgressiveSwordItems.map((networkItem) => ({
+                itemId: networkItem.item,
+                fromPlayerSlot: networkItem.player,
+                locationId: networkItem.location,
+                flags: networkItem.flags,
+            }));
+        const selfProgressiveSwordLocationDetails = [
+            ...this.scoutedSelfItemsByLocation.entries(),
+        ]
+            .filter(
+                ([, item]) =>
+                    item.receiverSlot === this.connectedData!.slot &&
+                    item.game === GAME_NAME &&
+                    item.name === 'Progressive Sword',
+            )
+            .map(([locationId, item]) => ({
+                locationId,
+                receiverSlot: item.receiverSlot,
+                game: item.game,
+                item: item.name,
+            }));
+
+        this.swordDiagnostic = {
+            startingSword,
+            selfProgressiveSwordChecksForSelf,
+            receivedProgressiveSwordsFromOthers,
+            totalExpectedSwordLevel:
+                startingSword +
+                selfProgressiveSwordChecksForSelf +
+                receivedProgressiveSwordsFromOthers,
+            trackerInventoryProgressiveSword:
+                this.inventory['Progressive Sword'] ?? 0,
+            scoutedCheckedLocations: this.scoutedSelfItemsByLocation.size,
+            receivedProgressiveSwordDetails,
+            selfProgressiveSwordLocationDetails,
+        };
     }
 
     private getSlotDataLocationToItemMap(): Record<number, number> {
@@ -416,6 +521,10 @@ export class APClientManager {
         return this.requiredDungeonDiagnostic;
     }
 
+    getSwordDiagnostic(): SwordDiagnostic | undefined {
+        return this.swordDiagnostic;
+    }
+
     setLocationCallback(func: (locs: string[]) => void) {
         this.resolveLocations = func;
         this.resolveLocations(this.checkedLocations);
@@ -478,6 +587,7 @@ export class APClientManager {
             this.scoutedCheckedLocationIds.clear();
             this.scoutedSelfItemsByLocation.clear();
             this.requiredDungeonDiagnostic = undefined;
+            this.swordDiagnostic = undefined;
             this.totalLocationCount = undefined;
             this.resolveLocations = undefined;
             this.resolveItems = undefined;
@@ -578,6 +688,7 @@ export class APClientManager {
                     this.requiredDungeonDiagnostic,
                 );
                 this.totalLocationCount = getSlotDataLocationCount(slotData);
+                this.recomputeSwordDiagnostic();
                 this.resolveRequiredDungeons?.(this.requiredDungeons);
                 this.setCheckedLocationIds(
                     this.connectedData.checked_locations,

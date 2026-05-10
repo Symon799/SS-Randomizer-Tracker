@@ -1,6 +1,7 @@
 import { useContext, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, Navigate } from 'react-router-dom';
+import { apAbsoluteProgressiveInventoryItems } from './archipelago/Archipelago';
 import {
     ClientManagerContext,
     useApConnectionStatus,
@@ -169,8 +170,15 @@ function TrackerContents({ openTools }: { openTools: () => void }) {
                 trackerSettings as Parameters<typeof getInitialItems>[0],
             );
             for (const [item, count] of Object.entries(inv)) {
-                mergedInventory[item] =
-                    (mergedInventory[item] ?? 0) + (count ?? 0);
+                if (apAbsoluteProgressiveInventoryItems.has(item)) {
+                    mergedInventory[item] = Math.max(
+                        mergedInventory[item] ?? 0,
+                        count ?? 0,
+                    );
+                } else {
+                    mergedInventory[item] =
+                        (mergedInventory[item] ?? 0) + (count ?? 0);
+                }
             }
             dispatch(
                 replaceItemCounts(
@@ -308,26 +316,21 @@ function TrackerToolsView({
                 <div className={styles.toolsOverviewCard}>
                     <div className={styles.toolsSection}>
                         <div className={styles.toolsTitle}>Session</div>
-                        <div className={styles.debugStack}>
-                            <div className={styles.debugLine}>
-                                <strong>Checked Locations:</strong>{' '}
-                                {counters.numChecked}
+                        <div className={styles.sessionSummary}>
+                            <div className={styles.sessionLine}>
+                                Checked Locations: {counters.numChecked}
                             </div>
-                            <div className={styles.debugLine}>
-                                <strong>Accessible Locations:</strong>{' '}
-                                {counters.numAccessible}
+                            <div className={styles.sessionLine}>
+                                Accessible Locations: {counters.numAccessible}
                             </div>
-                            <div className={styles.debugLine}>
-                                <strong>Remaining Locations:</strong>{' '}
-                                {counters.numRemaining}
+                            <div className={styles.sessionLine}>
+                                Remaining Locations: {counters.numRemaining}
                             </div>
-                            <div className={styles.debugLine}>
-                                <strong>Total Locations:</strong>{' '}
-                                {locationTotal}
+                            <div className={styles.sessionLine}>
+                                Total Locations: {locationTotal}
                             </div>
-                            <div className={styles.debugLine}>
-                                <strong>Completion:</strong> {completionPercent}
-                                %
+                            <div className={styles.sessionLine}>
+                                Completion: {completionPercent}%
                             </div>
                         </div>
                     </div>

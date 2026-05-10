@@ -62,6 +62,7 @@ export function computeSemiLogic(
     inLogicBits: BitVector,
     dungeonKeyLogic: PotentialLocations[],
     settingsRequirements: Requirements,
+    settings: TypedOptions,
     checkHints: Record<string, string | undefined>,
     expertMode: boolean,
     allTricksRequirements: Requirements,
@@ -78,6 +79,7 @@ export function computeSemiLogic(
             isCheckBanned,
             dungeonKeyLogic,
             settingsRequirements,
+            settings,
             semiLogicState,
             checkHints,
         )
@@ -105,6 +107,7 @@ export function computeSemiLogic(
             isCheckBanned,
             dungeonKeyLogic,
             settingsRequirementsWithTricks,
+            settings,
             semiLogicState,
             checkHints,
         )
@@ -120,13 +123,19 @@ function semiLogicStep(
     isCheckBanned: (checkId: string) => boolean,
     dungeonKeyLogic: PotentialLocations[],
     settingsRequirements: Requirements,
+    settings: TypedOptions,
     state: SemiLogicState,
     checkHints: Record<string, string | undefined>,
 ): boolean {
     const assumedInventoryReqs = mapInventory(logic, state.assumedInventory);
     const assumedCheckReqs = mapInventory(
         logic,
-        getAdditionalItems(logic, state.assumedInventory, state.assumedChecks),
+        getAdditionalItems(
+            logic,
+            state.assumedInventory,
+            state.assumedChecks,
+            settings,
+        ),
     );
 
     state.semiLogicBits = computeLeastFixedPoint(

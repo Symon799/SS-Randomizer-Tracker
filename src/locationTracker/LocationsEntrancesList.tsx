@@ -5,7 +5,11 @@ import {
     setStoredTrackerLocationFilter,
     type TrackerLocationFilter,
 } from '../LocalStorage';
-import { areasSelector } from '../tracker/Selectors';
+import {
+    displayAreasSelector,
+    OTHERS_HINT_REGION,
+    unmappedAreaNamesSelector,
+} from '../tracker/Selectors';
 import type {
     InterfaceAction,
     InterfaceState,
@@ -25,7 +29,8 @@ export function LocationsEntrancesList({
     interfaceState: InterfaceState;
     interfaceDispatch: React.Dispatch<InterfaceAction>;
 }) {
-    const areas = useSelector(areasSelector);
+    const areas = useSelector(displayAreasSelector);
+    const unmappedAreaNames = useSelector(unmappedAreaNamesSelector);
     const [locationFilter, setLocationFilter] = useState<TrackerLocationFilter>(
         () => getStoredTrackerLocationFilter() ?? 'all',
     );
@@ -34,7 +39,14 @@ export function LocationsEntrancesList({
             ? interfaceState.hintRegion
             : undefined;
     const selectedArea =
-        (activeArea && areas.find((a) => a.name === activeArea)) || undefined;
+        (activeArea &&
+            areas.find(
+                (a) =>
+                    a.name === activeArea ||
+                    (a.name === OTHERS_HINT_REGION &&
+                        unmappedAreaNames.has(activeArea)),
+            )) ||
+        undefined;
     const onChooseEntrance = (exitId: string) =>
         interfaceDispatch({ type: 'chooseEntrance', exitId });
 

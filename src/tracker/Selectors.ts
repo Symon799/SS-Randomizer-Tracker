@@ -7,6 +7,10 @@ import {
 } from '../customization/Selectors';
 import { parseHintsText } from '../hints/HintsParser';
 import {
+    getMapModel,
+    getOwningProvince,
+} from '../locationTracker/mapTracker/MapModel';
+import {
     getAllowedStartingEntrances,
     getEntrancePools,
     getExitRules,
@@ -175,11 +179,13 @@ const checkedChecksSelector = createSelector(
     (checkedChecks) => new Set(checkedChecks),
 );
 
+export const OTHERS_HINT_REGION = 'Others';
+
 const isUndergroundRupeeCheck = (check: LogicalCheck) =>
     check.type === 'rupee' && check.name.includes('Underground Rupee');
 
 const checkItemsSelector = createSelector(
-    [logicSelector, inventorySelector, checkedChecksSelector],
+    [logicSelector, inventorySelector, checkedChecksSelector, settingsSelector],
     getAdditionalItems,
     { memoizeOptions: { resultEqualityCheck: isEqual } },
 );
@@ -716,6 +722,7 @@ const semiLogicBitsSelector = createSelector(
         inLogicBitsSelector,
         dungeonKeyLogicSelector,
         settingsRequirementsSelector,
+        settingsSelector,
         checkHintsSelector,
         trickSemiLogicSelector,
         visibleTricksRequirementsSelector,
@@ -922,6 +929,92 @@ export const areasSelector = createSelector(
                     name: area,
                 };
             }),
+        );
+    },
+);
+
+export const displayAreasSelector = createSelector(
+    [areasSelector, areaGraphSelector, exitsByIdSelector],
+    (areas, areaGraph, exits) => {
+        const mapModel = getMapModel(areaGraph, exits);
+        const isUnmappedNonDungeonArea = (area: HintRegion) =>
+            !isDungeon(area.name) &&
+            getOwningProvince(mapModel, area.name).type === 'err';
+
+        const unmappedAreas = areas.filter(isUnmappedNonDungeonArea);
+        const visibleAreas = areas.filter(
+            (area) => !isUnmappedNonDungeonArea(area),
+        );
+
+        if (unmappedAreas.length === 0) {
+            return visibleAreas;
+        }
+
+        const combineGroups = (
+            left: CheckGroup | undefined,
+            right: CheckGroup | undefined,
+        ): CheckGroup => ({
+            list: [...(left?.list ?? []), ...(right?.list ?? [])],
+            numAccessible:
+                (left?.numAccessible ?? 0) + (right?.numAccessible ?? 0),
+            numRemaining:
+                (left?.numRemaining ?? 0) + (right?.numRemaining ?? 0),
+            numTotal: (left?.numTotal ?? 0) + (right?.numTotal ?? 0),
+        });
+
+        const others = unmappedAreas.reduce<HintRegion>(
+            (acc, area) => ({
+                ...acc,
+                checks: combineGroups(acc.checks, area.checks),
+                extraLocations: {
+                    tr_cube: combineGroups(
+                        acc.extraLocations.tr_cube,
+                        area.extraLocations.tr_cube,
+                    ),
+                    loose_crystal: combineGroups(
+                        acc.extraLocations.loose_crystal,
+                        area.extraLocations.loose_crystal,
+                    ),
+                    gossip_stone: combineGroups(
+                        acc.extraLocations.gossip_stone,
+                        area.extraLocations.gossip_stone,
+                    ),
+                    exits: combineGroups(
+                        acc.extraLocations.exits,
+                        area.extraLocations.exits,
+                    ),
+                },
+            }),
+            {
+                name: OTHERS_HINT_REGION,
+                nonProgress: false,
+                hidden: false,
+                checks: {
+                    list: [],
+                    numAccessible: 0,
+                    numRemaining: 0,
+                    numTotal: 0,
+                },
+                extraLocations: {},
+            },
+        );
+
+        return [...visibleAreas, others];
+    },
+);
+
+export const unmappedAreaNamesSelector = createSelector(
+    [areasSelector, areaGraphSelector, exitsByIdSelector],
+    (areas, areaGraph, exits) => {
+        const mapModel = getMapModel(areaGraph, exits);
+        return new Set(
+            areas
+                .filter(
+                    (area) =>
+                        !isDungeon(area.name) &&
+                        getOwningProvince(mapModel, area.name).type === 'err',
+                )
+                .map((area) => area.name),
         );
     },
 );

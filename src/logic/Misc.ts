@@ -1,3 +1,4 @@
+import type { TypedOptions } from '../permalink/SettingsTypes';
 import type { Logic } from './Logic';
 import {
     cubeCheckToCubeCollected,
@@ -17,6 +18,7 @@ export function getAdditionalItems(
     logic: Logic,
     inventory: Record<string, number>,
     checkedChecks: Set<string>,
+    settings?: Partial<TypedOptions>,
 ) {
     const result: Record<string, number> = {};
     // Completed dungeons
@@ -52,5 +54,11 @@ export function getAdditionalItems(
     const looseCrystals = getNumLooseGratitudeCrystals(logic, checkedChecks);
     const packCrystals = (inventory['Gratitude Crystal Pack'] ?? 0) * 5;
     result['Gratitude Crystal'] = looseCrystals + packCrystals;
+    if (settings?.['tadtone-shuffle'] === 'off') {
+        result['Group of Tadtones'] = Math.max(
+            inventory['Group of Tadtones'] ?? 0,
+            17,
+        );
+    }
     return result;
 }

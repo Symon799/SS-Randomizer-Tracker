@@ -11,6 +11,7 @@ import images, { findRepresentativeIcon } from '../itemTracker/Images';
 import type { InventoryItem } from '../logic/Inventory';
 import type { Check } from '../logic/Locations';
 import { isRegularItemCheck } from '../logic/Logic';
+import { logicSelector } from '../logic/Selectors';
 import { useAppDispatch, type RootState } from '../store/Store';
 import {
     useEntrancePath,
@@ -39,32 +40,54 @@ export default function Location({
     compact,
     id,
     onChooseEntrance,
+    forceFullName = false,
 }: {
     compact: boolean;
     id: string;
     onChooseEntrance: (exitId: string) => void;
+    forceFullName?: boolean;
 }) {
     const check = useSelector(checkSelector(id));
     if (check.type === 'exit') {
         return (
             <Exit
                 compact={compact}
+                forceFullName={forceFullName}
                 onChooseEntrance={onChooseEntrance}
                 id={id}
             />
         );
     } else {
-        return <CheckLocation compact={compact} id={id} />;
+        return (
+            <CheckLocation
+                compact={compact}
+                id={id}
+                forceFullName={forceFullName}
+            />
+        );
     }
 }
 
-function CheckLocation({ id, compact }: { id: string; compact: boolean }) {
+function CheckLocation({
+    id,
+    compact,
+    forceFullName,
+}: {
+    id: string;
+    compact: boolean;
+    forceFullName: boolean;
+}) {
     const dispatch = useAppDispatch();
     const isBanned = useSelector((state: RootState) =>
         isCheckBannedSelector(state)(id),
     );
 
     const check = useSelector(checkSelector(id));
+    const logic = useSelector(logicSelector);
+    const displayName =
+        forceFullName && logic.checks[id]
+            ? logic.checks[id].name
+            : check.checkName;
 
     const onClick = () => dispatch(clickCheck({ checkId: id }));
 
@@ -202,7 +225,7 @@ function CheckLocation({ id, compact }: { id: string; compact: boolean }) {
                 onContextMenu={displayMenu}
                 ref={setNodeRef}
             >
-                <span className={styles.text}>{check.checkName}</span>
+                <span className={styles.text}>{displayName}</span>
                 <CheckIcon
                     check={check}
                     overrideHint={isOver ? draggedItem : undefined}
@@ -274,11 +297,13 @@ function Exit({
     compact,
     id,
     onChooseEntrance,
+    forceFullName,
     // setActiveArea,
 }: {
     compact: boolean;
     id: string;
     onChooseEntrance: (exitId: string) => void;
+    forceFullName: boolean;
     // TODO
     // setActiveArea: (area: string) => void;
 }) {
@@ -287,6 +312,7 @@ function Exit({
         (state: RootState) => exitsByIdSelector(state)[id],
     );
     const check = useSelector(checkSelector(id));
+    const displayName = forceFullName ? exit.exit.name : check.checkName;
 
     const style = {
         color: check.checked
@@ -330,7 +356,7 @@ function Exit({
                     }}
                 >
                     <div className={clsx(styles.exit, styles.text)}>
-                        <span style={style}>{check.checkName}</span>
+                        <span style={style}>{displayName}</span>
                         <span>
                             ↳{exit.entrance?.name ?? 'Select entrance...'}
                         </span>

@@ -15,6 +15,8 @@ declare const classNames: {
     readonly logHeaderNote: 'logHeaderNote';
     readonly logClientWrap: 'logClientWrap';
     readonly debugStack: 'debugStack';
+    readonly sessionSummary: 'sessionSummary';
+    readonly sessionLine: 'sessionLine';
     readonly debugLine: 'debugLine';
     readonly footerNav: 'footerNav';
     readonly footerNavRow: 'footerNavRow';
