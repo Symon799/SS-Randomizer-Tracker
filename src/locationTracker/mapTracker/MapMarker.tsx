@@ -25,6 +25,9 @@ function MapMarker({
     markerY,
     submarkerPlacement,
     selected,
+    debugEnabled,
+    debugPath,
+    onDebugMove,
 }: {
     markerX: number;
     markerY: number;
@@ -32,6 +35,9 @@ function MapMarker({
     title: string;
     onGlickGroup: (region: string) => void;
     selected: boolean;
+    debugEnabled?: boolean;
+    debugPath?: string;
+    onDebugMove?: (debugPath: string, x: number, y: number) => void;
 }) {
     const area = useSelector((state: RootState) =>
         displayAreasSelector(state).find((a) => a.name === title),
@@ -105,6 +111,9 @@ function MapMarker({
             onClick={handleClick}
             onContextMenu={displayMenu}
             selected={selected}
+            debugEnabled={debugEnabled}
+            debugPath={debugPath}
+            onDebugMove={onDebugMove}
             submarkerPlacement={submarkerPlacement}
             previewStyle={
                 dragPreviewHint ? (isOver ? 'hover' : 'droppable') : undefined

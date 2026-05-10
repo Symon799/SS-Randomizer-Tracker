@@ -7,6 +7,11 @@ import leaveSkyloft from '../../assets/maps/leaveSkyloft.png';
 import { areaGraphSelector } from '../../logic/Selectors';
 import keyDownWrapper from '../../utils/KeyDownWrapper';
 import EntranceMarker from './EntranceMarker';
+import {
+    ENABLE_MAP_LAYOUT_DEBUG,
+    getLayoutOverride,
+    setLayoutOverride,
+} from './layoutDebug';
 import MapMarker from './MapMarker';
 import type { MapHintRegion } from './MapModel';
 
@@ -48,6 +53,8 @@ function Submap({
     currentRegionOrExit: string | undefined;
 }) {
     const areaGraph = useSelector(areaGraphSelector);
+    const applyOverride = (debugPath: string, x: number, y: number) =>
+        setLayoutOverride(debugPath, { x, y });
 
     const handleBack = (e: TriggerEvent | React.UIEvent) => {
         if (e.type === 'contextmenu') {
@@ -70,15 +77,22 @@ function Submap({
                 draggable={false}
             />
             {markers.map((marker) => {
+                const position = getLayoutOverride(marker.debugPath, {
+                    x: marker.markerX,
+                    y: marker.markerY,
+                });
                 if (marker.type === 'hint_region') {
                     return (
                         <MapMarker
                             key={marker.hintRegion}
-                            markerX={marker.markerX}
-                            markerY={marker.markerY}
+                            markerX={position.x}
+                            markerY={position.y}
                             title={marker.hintRegion!}
                             submarkerPlacement={marker.supmarkerPlacement}
                             onGlickGroup={onGroupChange}
+                            debugEnabled={ENABLE_MAP_LAYOUT_DEBUG}
+                            debugPath={marker.debugPath}
+                            onDebugMove={applyOverride}
                             selected={
                                 marker.hintRegion !== undefined &&
                                 marker.hintRegion === currentRegionOrExit
@@ -93,8 +107,8 @@ function Submap({
                     return (
                         <EntranceMarker
                             key={marker.exitId}
-                            markerX={marker.markerX}
-                            markerY={marker.markerY}
+                            markerX={position.x}
+                            markerY={position.y}
                             title={exit.short_name}
                             active={provinceId === activeSubmap}
                             exitId={marker.exitId}
@@ -106,6 +120,9 @@ function Submap({
                             submarkerPlacement={marker.supmarkerPlacement}
                             onGlickGroup={onGroupChange}
                             onChooseEntrance={onChooseEntrance}
+                            debugEnabled={ENABLE_MAP_LAYOUT_DEBUG}
+                            debugPath={marker.debugPath}
+                            onDebugMove={applyOverride}
                         />
                     );
                 }

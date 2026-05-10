@@ -1,6 +1,7 @@
 import clsx from 'clsx';
 import type React from 'react';
 import type { CSSProperties } from 'react';
+import { useRef } from 'react';
 import type { TriggerEvent } from 'react-contexify';
 import Tooltip from '../../additionalComponents/Tooltip';
 import type { ColorScheme } from '../../customization/ColorScheme';
@@ -35,6 +36,9 @@ export function Marker({
     selected,
     previewStyle,
     ref,
+    debugEnabled,
+    onDebugMove,
+    debugPath,
 }: {
     variant: MarkerVariant;
     color: keyof ColorScheme;
@@ -49,7 +53,14 @@ export function Marker({
     selected: boolean;
     previewStyle?: PreviewStyle;
     ref?: React.Ref<HTMLDivElement>;
+    debugEnabled?: boolean;
+    onDebugMove?: (debugPath: string, x: number, y: number) => void;
+    debugPath?: string;
 }) {
+    const dragStateRef = useRef<{
+        pointerId: number;
+        parentRect: DOMRect;
+    } | null>(null);
     const positionVars = {
         '--map-marker-y': `${y}%`,
         '--map-marker-x': `${x}%`,
@@ -61,6 +72,22 @@ export function Marker({
     if (selected) {
         markerStyle.boxShadow = `0 0 20px var(--scheme-${color})`;
     }
+
+    if (debugEnabled) {
+        markerStyle.cursor = 'move';
+    }
+
+    const updateDebugPosition = (
+        ev: React.PointerEvent<HTMLDivElement>,
+        parentRect: DOMRect,
+    ) => {
+        if (!debugPath || !onDebugMove) {
+            return;
+        }
+        const nextX = ((ev.clientX - parentRect.left) / parentRect.width) * 100;
+        const nextY = ((ev.clientY - parentRect.top) / parentRect.height) * 100;
+        onDebugMove(debugPath, nextX, nextY);
+    };
 
     return (
         <>
@@ -77,6 +104,66 @@ export function Marker({
                     style={{ ...markerStyle, ...positionVars }}
                     className={clsx(styles.marker, borderRadiuses[variant])}
                     ref={ref}
+                    onPointerDown={(ev) => {
+                        if (
+                            !debugEnabled ||
+                            !debugPath ||
+                            !onDebugMove ||
+                            ev.button !== 0
+                        ) {
+                            return;
+                        }
+                        const parentRect =
+                            ev.currentTarget.parentElement?.getBoundingClientRect();
+                        if (!parentRect) {
+                            return;
+                        }
+                        ev.preventDefault();
+                        ev.stopPropagation();
+                        dragStateRef.current = {
+                            pointerId: ev.pointerId,
+                            parentRect,
+                        };
+                        ev.currentTarget.setPointerCapture(ev.pointerId);
+                        updateDebugPosition(ev, parentRect);
+                    }}
+                    onPointerMove={(ev) => {
+                        if (
+                            !debugEnabled ||
+                            !dragStateRef.current ||
+                            dragStateRef.current.pointerId !== ev.pointerId
+                        ) {
+                            return;
+                        }
+                        ev.preventDefault();
+                        ev.stopPropagation();
+                        updateDebugPosition(
+                            ev,
+                            dragStateRef.current.parentRect,
+                        );
+                    }}
+                    onPointerUp={(ev) => {
+                        if (
+                            !dragStateRef.current ||
+                            dragStateRef.current.pointerId !== ev.pointerId
+                        ) {
+                            return;
+                        }
+                        ev.preventDefault();
+                        ev.stopPropagation();
+                        dragStateRef.current = null;
+                        ev.currentTarget.releasePointerCapture(ev.pointerId);
+                    }}
+                    onPointerCancel={(ev) => {
+                        if (
+                            !dragStateRef.current ||
+                            dragStateRef.current.pointerId !== ev.pointerId
+                        ) {
+                            return;
+                        }
+                        dragStateRef.current = null;
+                        ev.currentTarget.releasePointerCapture(ev.pointerId);
+                    }}
                 >
                     <span>{children}</span>
                 </div>

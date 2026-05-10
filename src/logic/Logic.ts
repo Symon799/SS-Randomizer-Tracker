@@ -368,6 +368,7 @@ const sshdHintRegionDisplayOverrides: Record<string, string> = {
     'Lumpy Pumpkin': 'Sky',
     'Temple of Hylia': 'Sealed Grounds',
     "Hylia's Realm": 'Sealed Grounds',
+    'Inside the Great Tree': 'Faron Woods',
 };
 
 const sshdLocationIdRegionPrefixOverrides: Array<{
@@ -376,6 +377,9 @@ const sshdLocationIdRegionPrefixOverrides: Array<{
 }> = [
     { prefix: '\\Faron\\Deep Woods', region: 'Deep Woods' },
     { prefix: '\\Faron\\Deep Woods Entry', region: 'Deep Woods' },
+    { prefix: '\\Faron\\Great Tree Interior Lower', region: 'Faron Woods' },
+    { prefix: '\\Faron\\Great Tree Interior Middle', region: 'Faron Woods' },
+    { prefix: '\\Faron\\Great Tree Interior Upper', region: 'Faron Woods' },
 ];
 
 function getSshdDisplayRegion(hintedRegion: string, locationId: string) {

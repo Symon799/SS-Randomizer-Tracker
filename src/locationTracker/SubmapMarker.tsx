@@ -38,6 +38,9 @@ export function SubmapMarker({
     markerY,
     markers,
     currentRegionOrExit,
+    debugEnabled,
+    debugPath,
+    onDebugMove,
 }: {
     markerX: number;
     markerY: number;
@@ -47,6 +50,9 @@ export function SubmapMarker({
     onChooseEntrance: (exitId: string) => void;
     markers: MapHintRegion[];
     currentRegionOrExit: string | undefined;
+    debugEnabled?: boolean;
+    debugPath?: string;
+    onDebugMove?: (debugPath: string, x: number, y: number) => void;
 }) {
     const areas = useSelector(areasSelector);
     const exits = useSelector(exitsByIdSelector);
@@ -134,6 +140,9 @@ export function SubmapMarker({
             onClick={handleClick}
             onContextMenu={displayMenu}
             selected={currentRegionOrExit === birdStatueExitId}
+            debugEnabled={debugEnabled}
+            debugPath={debugPath}
+            onDebugMove={onDebugMove}
             submarkerPlacement="right"
             submarkers={getSubmarkerData(data)}
         >

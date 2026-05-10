@@ -1,8 +1,8 @@
 {
     "skyloftSubmap": {
         "name": "Skyloft",
-        "markerX": 48,
-        "markerY": 49,
+        "markerX": 49.492891507837655,
+        "markerY": 44.77727472152554,
         "map": "skyloftMap",
         "exitParams": {
             "image": "leaveSkyloft",
@@ -42,8 +42,8 @@
             {
                 "exitPool": "dungeons",
                 "entryName": "Sky Keep",
-                "markerX": 50,
-                "markerY": 24
+                "markerX": 43.45923127108562,
+                "markerY": 1.3691237283547422
             },
             {
                 "exitPool": "silent_realms",
@@ -56,8 +56,8 @@
     },
     "faronSubmap": {
         "name": "Faron Province",
-        "markerX": 67.6,
-        "markerY": 58,
+        "markerX": 69.90198540720979,
+        "markerY": 60.57449191976835,
         "map": "faronMap",
         "exitParams": {
             "image": "leaveFaron",
@@ -104,22 +104,22 @@
             {
                 "exitPool": "dungeons",
                 "entryName": "Ancient Cistern",
-                "markerX": 45,
-                "markerY": 72,
+                "markerX": 71.81234388166541,
+                "markerY": 83.37767170017,
                 "submarkerPlacement": "left"
             },
             {
                 "exitPool": "silent_realms",
                 "entryName": "Faron Silent Realm",
-                "markerX": 58,
-                "markerY": 40
+                "markerX": 57.48469904775031,
+                "markerY": 61.154452437431786
             }
         ]
     },
     "eldinSubmap": {
         "name": "Eldin Province",
-        "markerX": 48,
-        "markerY": 22,
+        "markerX": 48.73074950545828,
+        "markerY": 19.676525608322027,
         "map": "eldinMap",
         "exitParams": {
             "image": "leaveEldin",
@@ -130,8 +130,8 @@
         "markers": [
             {
                 "region": "Eldin Volcano",
-                "markerX": 28,
-                "markerY": 73,
+                "markerX": 28.343321855080962,
+                "markerY": 57.90439922734034,
                 "submarkerPlacement": "left"
             },
             {
@@ -141,8 +141,8 @@
             },
             {
                 "region": "Volcano Summit",
-                "markerX": 60,
-                "markerY": 40,
+                "markerX": 42.06196162984206,
+                "markerY": 39.59663850260663,
                 "submarkerPlacement": "left"
             },
             {
@@ -156,8 +156,8 @@
             {
                 "exitPool": "dungeons",
                 "entryName": "Earth Temple",
-                "markerX": 41.5,
-                "markerY": 57
+                "markerX": 55.39953040341348,
+                "markerY": 37.52406241348585
             },
             {
                 "exitPool": "dungeons",
@@ -168,16 +168,16 @@
             {
                 "exitPool": "silent_realms",
                 "entryName": "Eldin Silent Realm",
-                "markerX": 36,
-                "markerY": 62,
+                "markerX": 56.669771725819786,
+                "markerY": 63.08583945014227,
                 "submarkerPlacement": "left"
             }
         ]
     },
     "lanayruSubmap": {
         "name": "Lanayru Province",
-        "markerX": 27,
-        "markerY": 50,
+        "markerX": 26.056881892620776,
+        "markerY": 52.261439894412185,
         "map": "lanayruMap",
         "exitParams": {
             "image": "leaveLanayru",
@@ -193,19 +193,19 @@
             },
             {
                 "region": "Lanayru Desert",
-                "markerX": 64,
-                "markerY": 38
+                "markerX": 66.64119122628904,
+                "markerY": 37.754349348388196
             },
             {
                 "region": "Lanayru Caves",
-                "markerX": 55,
-                "markerY": 40,
+                "markerX": 53.430650771554866,
+                "markerY": 42.12978846153207,
                 "submarkerPlacement": "left"
             },
             {
                 "region": "Lanayru Sand Sea",
-                "markerX": 36,
-                "markerY": 50
+                "markerX": 37.8701596837724,
+                "markerY": 52.03209819983139
             },
             {
                 "region": "Lanayru Gorge",
@@ -218,15 +218,15 @@
             {
                 "exitPool": "dungeons",
                 "entryName": "Lanayru Mining Facility",
-                "markerX": 64,
-                "markerY": 26,
+                "markerX": 39.775521667381874,
+                "markerY": 19.33144989995352,
                 "submarkerPlacement": "left"
             },
             {
                 "exitPool": "dungeons",
                 "entryName": "Sandship",
-                "markerX": 27,
-                "markerY": 45,
+                "markerX": 26.374442223222356,
+                "markerY": 43.856934148299345,
                 "submarkerPlacement": "left"
             },
             {
@@ -247,5 +247,11 @@
         "region": "Sky",
         "markerX": 85,
         "markerY": 11
+    },
+    "others": {
+        "region": "Others",
+        "markerX": 8.561423987238047,
+        "markerY": 78.96588455232776,
+        "submarkerPlacement": "right"
     }
 }

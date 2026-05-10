@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import eldinMap from '../../assets/maps/Eldin.png';
 import faronMap from '../../assets/maps/Faron.png';
@@ -6,6 +6,7 @@ import lanayruMap from '../../assets/maps/Lanayru.png';
 import skyMap from '../../assets/maps/Sky.png';
 import skyloftMap from '../../assets/maps/Skyloft.png';
 import mapData from '../../data/mapData.json';
+import type { HintRegion } from '../../logic/Locations';
 import {
     OTHERS_HINT_REGION,
     displayAreasSelector,
@@ -16,6 +17,13 @@ import type {
     InterfaceState,
 } from '../../tracker/TrackerInterfaceReducer';
 import { SubmapMarker } from '../SubmapMarker';
+import {
+    ENABLE_MAP_LAYOUT_DEBUG,
+    getLayoutOverride,
+    registerLayoutDebugHelpers,
+    setLayoutOverride,
+    subscribeLayoutOverrides,
+} from './layoutDebug';
 import MapMarker from './MapMarker';
 import { mapModelSelector } from './Selectors';
 import StartingEntranceMarker from './StartingEntranceMarker';
@@ -68,6 +76,14 @@ function WorldMap({
     usePrefetchImages(imagesToPrefetch);
 
     const activeSubmap = interfaceState.mapView;
+    const [, setLayoutVersion] = useState(0);
+    useEffect(() => {
+        registerLayoutDebugHelpers();
+        return subscribeLayoutOverrides(() =>
+            setLayoutVersion((version) => version + 1),
+        );
+    }, []);
+
     const handleGroupClick = (hintRegion: string | undefined) => {
         if (hintRegion) {
             interfaceDispatch({ type: 'selectHintRegion', hintRegion });
@@ -90,11 +106,20 @@ function WorldMap({
         interfaceState.type === 'choosingEntrance'
             ? interfaceState.exitId
             : interfaceState.hintRegion;
-    const hasOthers = displayAreas.some((a) => a.name === OTHERS_HINT_REGION);
+    const hasAreaContent = (area: HintRegion) =>
+        area.checks.numTotal > 0 ||
+        Object.values(area.extraLocations).some(
+            (group) => (group?.numTotal ?? 0) > 0,
+        );
+    const othersArea = displayAreas.find((a) => a.name === OTHERS_HINT_REGION);
+    const hasOthers = Boolean(othersArea && hasAreaContent(othersArea));
     const othersSelected =
         currentRegionOrExit === OTHERS_HINT_REGION ||
         (typeof currentRegionOrExit === 'string' &&
             unmappedAreaNames.has(currentRegionOrExit));
+    const applyOverride = (debugPath: string, x: number, y: number) =>
+        setLayoutOverride(debugPath, { x, y });
+    const canDebugMove = (debugPath: string) => debugPath !== 'sky';
 
     return (
         <div
@@ -129,44 +154,80 @@ function WorldMap({
                     />
                     {mapModel.provinces.map((submap) => {
                         const entry = mapData[submap.provinceId];
+                        const position = getLayoutOverride(submap.provinceId, {
+                            x: entry.markerX,
+                            y: entry.markerY,
+                        });
                         return (
                             <SubmapMarker
                                 key={submap.provinceId}
                                 provinceId={submap.provinceId}
-                                markerX={entry.markerX}
-                                markerY={entry.markerY}
+                                markerX={position.x}
+                                markerY={position.y}
                                 title={submap.name}
                                 onSubmapChange={handleSubmapClick}
                                 onChooseEntrance={onChooseEntrance}
                                 markers={submap.regions}
                                 currentRegionOrExit={currentRegionOrExit}
+                                debugEnabled={ENABLE_MAP_LAYOUT_DEBUG}
+                                debugPath={submap.provinceId}
+                                onDebugMove={applyOverride}
                             />
                         );
                     })}
-                    {mapModel.regions.map((marker) => (
-                        <div key={marker.hintRegion}>
-                            <MapMarker
-                                markerX={marker.markerX}
-                                markerY={marker.markerY}
-                                title={marker.hintRegion!}
-                                onGlickGroup={handleGroupClick}
-                                submarkerPlacement="right"
-                                selected={
-                                    marker.hintRegion === currentRegionOrExit
-                                }
-                            />
-                        </div>
-                    ))}
-                    {hasOthers && (
-                        <MapMarker
-                            markerX={8}
-                            markerY={90}
-                            title={OTHERS_HINT_REGION}
-                            onGlickGroup={handleGroupClick}
-                            submarkerPlacement="right"
-                            selected={othersSelected}
-                        />
-                    )}
+                    {mapModel.regions.map((marker) => {
+                        const position =
+                            marker.debugPath === 'sky'
+                                ? {
+                                      x: marker.markerX,
+                                      y: marker.markerY,
+                                  }
+                                : getLayoutOverride(marker.debugPath, {
+                                      x: marker.markerX,
+                                      y: marker.markerY,
+                                  });
+                        return (
+                            <div key={marker.hintRegion}>
+                                <MapMarker
+                                    markerX={position.x}
+                                    markerY={position.y}
+                                    title={marker.hintRegion!}
+                                    onGlickGroup={handleGroupClick}
+                                    submarkerPlacement="right"
+                                    selected={
+                                        marker.hintRegion ===
+                                        currentRegionOrExit
+                                    }
+                                    debugEnabled={
+                                        ENABLE_MAP_LAYOUT_DEBUG &&
+                                        canDebugMove(marker.debugPath)
+                                    }
+                                    debugPath={marker.debugPath}
+                                    onDebugMove={applyOverride}
+                                />
+                            </div>
+                        );
+                    })}
+                    {hasOthers &&
+                        (() => {
+                            const position = getLayoutOverride('others', {
+                                x: mapData.others.markerX,
+                                y: mapData.others.markerY,
+                            });
+                            return (
+                                <MapMarker
+                                    markerX={position.x}
+                                    markerY={position.y}
+                                    title={OTHERS_HINT_REGION}
+                                    onGlickGroup={handleGroupClick}
+                                    submarkerPlacement="right"
+                                    selected={othersSelected}
+                                    debugEnabled={ENABLE_MAP_LAYOUT_DEBUG}
+                                    debugPath="others"
+                                    onDebugMove={applyOverride}
+                                />
+                            );
+                        })()}
                 </>
             )}
             {activeSubmap && (

@@ -37,6 +37,9 @@ function EntranceMarker({
     onGlickGroup,
     onChooseEntrance,
     selected,
+    debugEnabled,
+    debugPath,
+    onDebugMove,
 }: {
     markerX: number;
     markerY: number;
@@ -47,6 +50,9 @@ function EntranceMarker({
     onGlickGroup: (group: string) => void;
     onChooseEntrance: (exitId: string) => void;
     selected: boolean;
+    debugEnabled?: boolean;
+    debugPath?: string;
+    onDebugMove?: (debugPath: string, x: number, y: number) => void;
 }) {
     const exit = useSelector(
         (state: RootState) => exitsByIdSelector(state)[exitId],
@@ -212,6 +218,9 @@ function EntranceMarker({
             onClick={handleClick}
             onContextMenu={displayMenu}
             selected={selected}
+            debugEnabled={debugEnabled}
+            debugPath={debugPath}
+            onDebugMove={onDebugMove}
             previewStyle={
                 dragPreviewHint ? (isOver ? 'hover' : 'droppable') : undefined
             }

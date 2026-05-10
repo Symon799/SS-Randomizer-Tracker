@@ -11,6 +11,7 @@ export type MapHintRegion = {
     markerX: number;
     markerY: number;
     supmarkerPlacement: 'left' | 'right';
+    debugPath: string;
 } & (
     | { type: 'hint_region' }
     | {
@@ -59,12 +60,16 @@ const vanillaEntranceMarkerRegions: Record<string, string> = {
     'Lanayru Silent Realm': "Nayru's Silent Realm",
 };
 
-function getMarker(marker: StandaloneMapMarker): MapHintRegion {
+function getMarker(
+    marker: StandaloneMapMarker,
+    debugPath: string,
+): MapHintRegion {
     return {
         type: 'hint_region',
         markerX: marker.markerX,
         markerY: marker.markerY,
         hintRegion: marker.region,
+        debugPath,
         supmarkerPlacement:
             'submarkerPlacement' in marker &&
             marker.submarkerPlacement === 'left'
@@ -78,6 +83,7 @@ type MapDataEntranceMarker =
 
 function getEntranceMarker(
     marker: MapDataEntranceMarker,
+    debugPath: string,
     areaGraph: AreaGraph,
     exits: Record<string, ExitMapping>,
 ): MapHintRegion | undefined {
@@ -92,6 +98,7 @@ function getEntranceMarker(
                   markerX: marker.markerX,
                   markerY: marker.markerY,
                   hintRegion: vanillaRegion,
+                  debugPath,
                   supmarkerPlacement:
                       marker.submarkerPlacement === 'left' ? 'left' : 'right',
               }
@@ -104,6 +111,7 @@ function getEntranceMarker(
         exitId,
         markerX: marker.markerX,
         markerY: marker.markerY,
+        debugPath,
         supmarkerPlacement:
             marker.submarkerPlacement === 'left' ? 'left' : 'right',
         hintRegion: mapping?.entrance?.region,
@@ -116,15 +124,20 @@ function getProvince(
     exits: Record<string, ExitMapping>,
 ): MapProvince {
     const province = mapData[provinceId];
-    const getEntrance = (m: MapDataEntranceMarker) =>
-        getEntranceMarker(m, areaGraph, exits);
     return {
         provinceId,
         name: province.name,
         regions: [
-            ...province.markers.map(getMarker),
-            ...province.entranceMarkers.flatMap((marker) => {
-                const entrance = getEntrance(marker);
+            ...province.markers.map((marker, index) =>
+                getMarker(marker, `${provinceId}.markers[${index}]`),
+            ),
+            ...province.entranceMarkers.flatMap((marker, index) => {
+                const entrance = getEntranceMarker(
+                    marker,
+                    `${provinceId}.entranceMarkers[${index}]`,
+                    areaGraph,
+                    exits,
+                );
                 return entrance ? [entrance] : [];
             }),
         ],
@@ -174,9 +187,11 @@ export function getMapModel(
             getProvince('lanayruSubmap', areaGraph, exits),
         ],
         regions: [
-            getMarker(mapData.sky),
-            getMarker(mapData.thunderhead),
-            ...extraWorldMarkers.map(getMarker),
+            getMarker(mapData.sky, 'sky'),
+            getMarker(mapData.thunderhead, 'thunderhead'),
+            ...extraWorldMarkers.map((marker, index) =>
+                getMarker(marker, `extraWorldMarkers[${index}]`),
+            ),
         ],
     };
 }

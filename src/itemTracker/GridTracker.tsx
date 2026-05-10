@@ -50,6 +50,7 @@ export default function GridTracker({ width }: { width: number }) {
 
     const walletCount = useSelector(rawItemCountSelector('Extra Wallet')) ?? 0;
     const crystalCount = useSelector(totalGratitudeCrystalsSelector);
+    const swordCount = useSelector(rawItemCountSelector('Progressive Sword'));
     const tumbleweed = useSelector(tumbleweedSelector);
 
     const { listeners, setNodeRef } = useDraggable({
@@ -60,7 +61,11 @@ export default function GridTracker({ width }: { width: number }) {
     return (
         <div className={styles.itemGrid}>
             <div style={{ gridRow: '1 / span 2' }}>
-                <Item itemName="Progressive Sword" imgWidth={imgWidth} />
+                <Item
+                    itemName="Progressive Sword"
+                    imgWidth={imgWidth}
+                    tooltipLabel={`Progressive Sword (${swordCount}/6)`}
+                />
             </div>
             <div>
                 <Item itemName="Progressive Beetle" imgWidth={imgWidth} />

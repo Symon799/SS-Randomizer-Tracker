@@ -19,6 +19,7 @@ function Item({
     className,
     style,
     children,
+    tooltipLabel,
 }: {
     images?: string[];
     itemName: InventoryItem;
@@ -27,6 +28,7 @@ function Item({
     className?: string;
     style?: CSSProperties;
     children?: React.ReactNode;
+    tooltipLabel?: string;
 }) {
     // const dispatch = useDispatch();
     const count = useSelector(rawItemCountSelector(itemName));
@@ -47,7 +49,7 @@ function Item({
     };
 
     const relevantLocations = useSelector(locationsForItemSelector(itemName));
-    const tooltipLines: string[] = [itemName];
+    const tooltipLines: string[] = [tooltipLabel ?? itemName];
     if (relevantLocations.length) {
         tooltipLines.push('Found at:', ...relevantLocations);
     }
