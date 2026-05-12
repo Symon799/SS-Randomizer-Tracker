@@ -7,7 +7,9 @@ import {
     type ReactNode,
 } from 'react';
 import { noop } from '../utils/Function';
-import { APClientManager } from './Archipelago';
+import {
+    APClientManager,
+} from './Archipelago';
 
 export const ClientManagerContext = createContext<APClientManager | null>(null);
 
@@ -33,8 +35,6 @@ export const useApConnectionStatus = () =>
     useApManagerData((manager) => manager.getStatus());
 export const useApRequiredDungeonDiagnostic = () =>
     useApManagerData((manager) => manager.getRequiredDungeonDiagnostic());
-export const useApSwordDiagnostic = () =>
-    useApManagerData((manager) => manager.getSwordDiagnostic());
 
 export function useIsApConnected() {
     return useApConnectionStatus().state === 'loggedIn';

@@ -1,4 +1,5 @@
-export const ENABLE_MAP_LAYOUT_DEBUG = false;
+export const ENABLE_MAP_LAYOUT_DEBUG = true;
+export const MAP_LAYOUT_ROOT_ATTR = 'data-map-layout-root';
 
 const STORAGE_KEY = 'sshd-ap-tracker-map-layout-overrides-v1';
 
@@ -10,6 +11,9 @@ export type LayoutOverride = {
 type LayoutOverrides = Record<string, LayoutOverride>;
 
 const listeners = new Set<() => void>();
+const activeLayoutMoveListeners = new Set<() => void>();
+
+let activeLayoutMovePath: string | null = null;
 
 function clampPercent(value: number) {
     return Math.max(0, Math.min(100, value));
@@ -73,6 +77,37 @@ export function subscribeLayoutOverrides(listener: () => void) {
     return () => {
         listeners.delete(listener);
     };
+}
+
+export function getActiveLayoutMovePath() {
+    return activeLayoutMovePath;
+}
+
+export function setActiveLayoutMovePath(path: string | null) {
+    if (activeLayoutMovePath === path) {
+        return;
+    }
+    activeLayoutMovePath = path;
+    activeLayoutMoveListeners.forEach((listener) => listener());
+}
+
+export function toggleActiveLayoutMovePath(path: string) {
+    setActiveLayoutMovePath(activeLayoutMovePath === path ? null : path);
+}
+
+export function subscribeActiveLayoutMove(listener: () => void) {
+    activeLayoutMoveListeners.add(listener);
+    return () => {
+        activeLayoutMoveListeners.delete(listener);
+    };
+}
+
+export function getLayoutRootRect(element: HTMLElement): DOMRect | undefined {
+    const root = element.closest(`[${MAP_LAYOUT_ROOT_ATTR}]`);
+    if (root instanceof HTMLElement) {
+        return root.getBoundingClientRect();
+    }
+    return undefined;
 }
 
 export function registerLayoutDebugHelpers() {

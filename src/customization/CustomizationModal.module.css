@@ -3,6 +3,21 @@
     flex-flow: column nowrap;
     padding: 0 12px;
     overflow: auto;
+    max-height: min(80vh, 900px);
+}
+
+.colorCustomizationSection {
+    margin-top: auto;
+    padding-top: 16px;
+    border-top: 1px solid color-mix(in srgb, var(--scheme-text) 16%, transparent);
+}
+
+.colorCustomizationSection .setting {
+    margin-bottom: 10px;
+}
+
+.colorCustomizationSection .header {
+    font-size: 18px;
 }
 
 .colorPresets {

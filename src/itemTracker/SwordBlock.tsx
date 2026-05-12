@@ -7,6 +7,7 @@ import { rawItemCountSelector } from '../tracker/Selectors';
 import keyDownWrapper from '../utils/KeyDownWrapper';
 import allImages from './Images';
 import Item from './Item';
+import { ProgressiveItem } from './items/ProgressiveItem';
 
 export default function SwordBlock({ width }: { width: number }) {
     // const dispatch = useDispatch();
@@ -65,7 +66,10 @@ export default function SwordBlock({ width }: { width: number }) {
         <div>
             <img src={swordBlock} alt="" width={width} draggable={false} />
             <div style={swordStyle}>
-                <Item itemName="Progressive Sword" imgWidth={swordWidth} />
+                <ProgressiveItem
+                    itemName="Progressive Sword"
+                    imgWidth={swordWidth}
+                />
             </div>
             <div style={faroresFlameStyle}>
                 <Item
@@ -89,7 +93,10 @@ export default function SwordBlock({ width }: { width: number }) {
                 />
             </div>
             <div style={walletStyle}>
-                <Item itemName="Progressive Wallet" imgWidth={walletWidth} />
+                <ProgressiveItem
+                    itemName="Progressive Wallet"
+                    imgWidth={walletWidth}
+                />
             </div>
             <div
                 style={{ ...extraWalletStyle, fontSize: width * 0.12 }}

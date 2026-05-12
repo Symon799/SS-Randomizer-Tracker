@@ -2,7 +2,6 @@ import { compact, pick } from 'es-toolkit';
 import goddessCubeImg from '../../assets/sidequests/goddess_cube.png';
 import gossipStoneImg from '../../assets/sidequests/gossip_stone.png';
 import type { ColorScheme } from '../../customization/ColorScheme';
-import images from '../../itemTracker/Images';
 import type { CheckGroup, HintRegion } from '../../logic/Locations';
 import type { SubmarkerData } from './Marker';
 
@@ -28,7 +27,6 @@ export function initialRegionData(): RegionCounters {
         checks: initialCounters(),
         extraLocations: {
             gossip_stone: initialCounters(),
-            loose_crystal: initialCounters(),
             tr_cube: initialCounters(),
         },
     };
@@ -65,10 +63,6 @@ export function combineRegionCounters(
                 left.extraLocations.gossip_stone,
                 right.extraLocations.gossip_stone,
             ),
-            loose_crystal: combineCounters(
-                left.extraLocations.loose_crystal,
-                right.extraLocations.loose_crystal,
-            ),
         },
     };
 }
@@ -99,12 +93,11 @@ function getExtraMarkerColor(group: CheckGroup): keyof ColorScheme | undefined {
 const imageMap = {
     tr_cube: goddessCubeImg,
     gossip_stone: gossipStoneImg,
-    loose_crystal: images['Gratitude Crystals Grid'][1],
 };
 
 export function getSubmarkerData(counters: RegionCounters): SubmarkerData[] {
     return compact(
-        (['tr_cube', 'loose_crystal', 'gossip_stone'] as const).map((group) => {
+        (['tr_cube', 'gossip_stone'] as const).map((group) => {
             if (!counters.extraLocations[group]) {
                 return;
             }

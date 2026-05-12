@@ -1,10 +1,5 @@
-import { useDispatch, useSelector } from 'react-redux';
 import DiscordButton from '../additionalComponents/DiscordButton';
-import { hasCustomLayoutSelector } from '../customization/Selectors';
-import { setCustomLayout } from '../customization/Slice';
 import { ExportButton } from '../ImportExport';
-import { clearStoredRemote } from '../LocalStorage';
-import { convertError } from '../utils/Errors';
 
 export default function ErrorPage({
     error,
@@ -13,14 +8,12 @@ export default function ErrorPage({
     error: unknown;
     resetErrorBoundary: () => void;
 }) {
-    const errorMsg = convertError(error);
-    const hasCustomLayout = useSelector(hasCustomLayoutSelector);
-    const dispatch = useDispatch();
+    const errorMsg = error instanceof Error ? error.message : String(error);
     return (
         <div>
             <div>
-                Something went wrong. Try reloading the page, reset the tracker,
-                or load a different logic version:
+                Something went wrong. Try reloading the page, exporting your
+                tracker state, or resetting the tracker.
             </div>
             <pre style={{ color: 'red' }}>{errorMsg}</pre>
             <div>
@@ -41,38 +34,16 @@ export default function ErrorPage({
                 >
                     Reload Page
                 </button>
-                {hasCustomLayout && (
-                    <button
-                        type="button"
-                        className="tracker-button"
-                        onClick={() => {
-                            dispatch(setCustomLayout(undefined));
-                            resetErrorBoundary();
-                        }}
-                    >
-                        Remove Custom Layout
-                    </button>
-                )}
                 <button
                     type="button"
                     className="tracker-button"
-                    onClick={() => {
-                        clearStoredRemote();
-                        window.location.reload();
-                    }}
+                    onClick={() => resetErrorBoundary()}
                 >
-                    Choose a different release
+                    Try Again
                 </button>
             </div>
-            <div>
-                If the error persists, you may try clearing all cookies and site
-                data.{' '}
-                <strong>
-                    This will reset the tracker and revert all customization.
-                </strong>
-            </div>
-            {error && typeof error === 'object' && 'stack' in error ? (
-                <pre style={{ color: 'red' }}>{error.stack as string}</pre>
+            {error instanceof Error && error.stack ? (
+                <pre style={{ color: 'red' }}>{error.stack}</pre>
             ) : undefined}
         </div>
     );

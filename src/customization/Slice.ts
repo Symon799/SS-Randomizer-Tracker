@@ -15,8 +15,6 @@ export interface CustomizationState {
     enabledTrickLogicTricks: string[];
     counterBasis: CounterBasis;
     tumbleweed: boolean;
-    customLayout: string | undefined;
-    itemLocationAssignment: boolean;
     autoRegionLoading: boolean;
 }
 
@@ -29,8 +27,6 @@ const initialState: CustomizationState = {
     enabledTrickLogicTricks: [],
     counterBasis: 'logic',
     tumbleweed: false,
-    customLayout: undefined,
-    itemLocationAssignment: false,
     autoRegionLoading: false,
 };
 
@@ -40,6 +36,7 @@ export function preloadedCustomizationState(): CustomizationState {
     return {
         ...initialState,
         ...loadedState,
+        debugMode: false,
         colorScheme: { ...lightColorScheme, ...loadedState.colorScheme },
     };
 }
@@ -72,12 +69,6 @@ const customizationSlice = createSlice({
         setTrackTumbleweed: (state, action: PayloadAction<boolean>) => {
             state.tumbleweed = action.payload;
         },
-        setCustomLayout: (state, action: PayloadAction<string | undefined>) => {
-            state.customLayout = action.payload;
-        },
-        setAutoItemAssignment: (state, action: PayloadAction<boolean>) => {
-            state.itemLocationAssignment = action.payload;
-        },
         setAutoRegionLoading: (state, action: PayloadAction<boolean>) => {
             state.autoRegionLoading = action.payload;
         },
@@ -96,8 +87,6 @@ export const {
     setCounterBasis,
     setEnabledSemilogicTricks,
     setTrackTumbleweed,
-    setCustomLayout,
-    setAutoItemAssignment,
     setAutoRegionLoading,
     resetCustomizationForTest,
 } = customizationSlice.actions;

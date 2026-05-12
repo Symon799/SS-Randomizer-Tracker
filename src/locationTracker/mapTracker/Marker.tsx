@@ -1,10 +1,15 @@
 import clsx from 'clsx';
 import type React from 'react';
 import type { CSSProperties } from 'react';
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { TriggerEvent } from 'react-contexify';
 import Tooltip from '../../additionalComponents/Tooltip';
 import type { ColorScheme } from '../../customization/ColorScheme';
+import {
+    getActiveLayoutMovePath,
+    getLayoutRootRect,
+    subscribeActiveLayoutMove,
+} from './layoutDebug';
 import styles from './Marker.module.css';
 
 export type PreviewStyle = 'droppable' | 'hover';
@@ -60,7 +65,25 @@ export function Marker({
     const dragStateRef = useRef<{
         pointerId: number;
         parentRect: DOMRect;
+        moved: boolean;
     } | null>(null);
+    const suppressClickRef = useRef(false);
+    const [activeLayoutMovePath, setActiveLayoutMovePath] = useState(
+        getActiveLayoutMovePath,
+    );
+    const layoutMoveActive =
+        Boolean(debugEnabled) &&
+        debugPath !== undefined &&
+        activeLayoutMovePath === debugPath;
+
+    useEffect(
+        () =>
+            subscribeActiveLayoutMove(() =>
+                setActiveLayoutMovePath(getActiveLayoutMovePath()),
+            ),
+        [],
+    );
+
     const positionVars = {
         '--map-marker-y': `${y}%`,
         '--map-marker-x': `${x}%`,
@@ -73,15 +96,15 @@ export function Marker({
         markerStyle.boxShadow = `0 0 20px var(--scheme-${color})`;
     }
 
-    if (debugEnabled) {
-        markerStyle.cursor = 'move';
+    if (layoutMoveActive) {
+        markerStyle.cursor = 'grab';
     }
 
     const updateDebugPosition = (
         ev: React.PointerEvent<HTMLDivElement>,
         parentRect: DOMRect,
     ) => {
-        if (!debugPath || !onDebugMove) {
+        if (!debugPath || !onDebugMove || parentRect.width <= 0 || parentRect.height <= 0) {
             return;
         }
         const nextX = ((ev.clientX - parentRect.left) / parentRect.width) * 100;
@@ -89,12 +112,20 @@ export function Marker({
         onDebugMove(debugPath, nextX, nextY);
     };
 
+    const handleClick = (ev: TriggerEvent) => {
+        if (suppressClickRef.current) {
+            suppressClickRef.current = false;
+            return;
+        }
+        onClick(ev);
+    };
+
     return (
         <>
             <Tooltip content={tooltip} placement="bottom">
                 <div
-                    onClick={onClick}
-                    onKeyDown={onClick}
+                    onClick={handleClick}
+                    onKeyDown={handleClick}
                     role="button"
                     tabIndex={0}
                     onContextMenu={(ev) => {
@@ -106,15 +137,14 @@ export function Marker({
                     ref={ref}
                     onPointerDown={(ev) => {
                         if (
-                            !debugEnabled ||
+                            !layoutMoveActive ||
                             !debugPath ||
                             !onDebugMove ||
                             ev.button !== 0
                         ) {
                             return;
                         }
-                        const parentRect =
-                            ev.currentTarget.parentElement?.getBoundingClientRect();
+                        const parentRect = getLayoutRootRect(ev.currentTarget);
                         if (!parentRect) {
                             return;
                         }
@@ -123,13 +153,14 @@ export function Marker({
                         dragStateRef.current = {
                             pointerId: ev.pointerId,
                             parentRect,
+                            moved: false,
                         };
                         ev.currentTarget.setPointerCapture(ev.pointerId);
                         updateDebugPosition(ev, parentRect);
                     }}
                     onPointerMove={(ev) => {
                         if (
-                            !debugEnabled ||
+                            !layoutMoveActive ||
                             !dragStateRef.current ||
                             dragStateRef.current.pointerId !== ev.pointerId
                         ) {
@@ -137,6 +168,7 @@ export function Marker({
                         }
                         ev.preventDefault();
                         ev.stopPropagation();
+                        dragStateRef.current.moved = true;
                         updateDebugPosition(
                             ev,
                             dragStateRef.current.parentRect,
@@ -151,6 +183,7 @@ export function Marker({
                         }
                         ev.preventDefault();
                         ev.stopPropagation();
+                        suppressClickRef.current = dragStateRef.current.moved;
                         dragStateRef.current = null;
                         ev.currentTarget.releasePointerCapture(ev.pointerId);
                     }}
@@ -161,6 +194,7 @@ export function Marker({
                         ) {
                             return;
                         }
+                        suppressClickRef.current = dragStateRef.current.moved;
                         dragStateRef.current = null;
                         ev.currentTarget.releasePointerCapture(ev.pointerId);
                     }}

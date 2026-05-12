@@ -92,3 +92,21 @@ export function isDungeon(id: string): id is DungeonName {
 export function isRegularDungeon(id: string): id is RegularDungeon {
     return isDungeon(id) && id !== 'Sky Keep';
 }
+
+export function defaultRequiredDungeons(): RegularDungeon[] {
+    return dungeonNames.filter(isRegularDungeon);
+}
+
+export function parseRequiredDungeonsFromSlotData(
+    raw: unknown,
+): RegularDungeon[] {
+    if (
+        Array.isArray(raw) &&
+        raw.length > 0 &&
+        raw.every((entry) => typeof entry === 'string')
+    ) {
+        return raw.filter(isRegularDungeon);
+    }
+
+    return defaultRequiredDungeons();
+}

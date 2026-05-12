@@ -1,9 +1,11 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type Dispatch } from 'react';
 import { useSelector } from 'react-redux';
 import BasicCounters from '../BasicCounters';
 import {
+    getStoredTrackerListPanelHeight,
     getStoredTrackerMapHeight,
     getStoredTrackerSidebarWidth,
+    setStoredTrackerListPanelHeight,
     setStoredTrackerMapHeight,
     setStoredTrackerSidebarWidth,
 } from '../LocalStorage';
@@ -37,7 +39,7 @@ export function TrackerLayout({
     footerContent,
 }: {
     interfaceState: InterfaceState;
-    interfaceDispatch: React.Dispatch<InterfaceAction>;
+    interfaceDispatch: Dispatch<InterfaceAction>;
     footerContent?: React.ReactNode;
 }) {
     const itemLayout = useSelector(itemLayoutSelector);
@@ -140,8 +142,22 @@ export function TrackerLayout({
 
     if (locationLayout === 'list') {
         return (
-            <>
-                <div style={{ flex: '0 0 auto', width: '30%' }}>
+            <div
+                ref={containerRef}
+                style={{
+                    display: 'flex',
+                    width: '100%',
+                    height: '100%',
+                    minWidth: 0,
+                }}
+            >
+                <div
+                    style={{
+                        flex: `0 0 ${clampedSidebarWidth}px`,
+                        minWidth: minSidebarWidth,
+                        maxWidth: maxSidebarWidth,
+                    }}
+                >
                     <div
                         style={{
                             padding: '0.75rem',
@@ -173,37 +189,39 @@ export function TrackerLayout({
                         {footerBlock}
                     </div>
                 </div>
-                <div style={{ flex: '0 0 auto', width: '70%' }}>
+                <button
+                    type="button"
+                    style={{
+                        flex: '0 0 12px',
+                        cursor: 'col-resize',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'stretch',
+                        padding: '6px 0',
+                        border: 0,
+                        background: 'transparent',
+                    }}
+                    onMouseDown={() => setIsResizing(true)}
+                    role="separator"
+                    aria-orientation="vertical"
+                    aria-label="Resize tracker panels"
+                >
                     <div
                         style={{
-                            padding: '0 0.75rem',
-                            display: 'flex',
-                            flexFlow: 'column nowrap',
-                            height: '100%',
+                            width: 4,
+                            borderRadius: 999,
+                            background:
+                                'color-mix(in srgb, var(--scheme-text) 16%, transparent)',
                         }}
-                    >
-                        <div
-                            style={{
-                                flex: '1 1 0',
-                                minHeight: 0,
-                                overflow: 'visible auto',
-                            }}
-                        >
-                            <LocationGroupList
-                                interfaceState={interfaceState}
-                                interfaceDispatch={interfaceDispatch}
-                            />
-                        </div>
-                        <div style={{ flex: '1 1 0', minHeight: 0 }}>
-                            <LocationsEntrancesList
-                                wide={false}
-                                interfaceState={interfaceState}
-                                interfaceDispatch={interfaceDispatch}
-                            />
-                        </div>
-                    </div>
+                    />
+                </button>
+                <div style={{ flex: '1 1 auto', minWidth: 0 }}>
+                    <ListLayoutRightColumn
+                        interfaceState={interfaceState}
+                        interfaceDispatch={interfaceDispatch}
+                    />
                 </div>
-            </>
+            </div>
         );
     } else {
         return (
@@ -310,7 +328,7 @@ function MapLayoutCenterColumnContainer({
     interfaceDispatch,
 }: {
     interfaceState: InterfaceState;
-    interfaceDispatch: React.Dispatch<InterfaceAction>;
+    interfaceDispatch: Dispatch<InterfaceAction>;
 }) {
     const ref = useRef<HTMLDivElement | null>(null);
     const [mapPanelHeight, setMapPanelHeight] = useState<number | undefined>(
@@ -419,6 +437,114 @@ function MapLayoutCenterColumnContainer({
                         interfaceDispatch={interfaceDispatch}
                     />
                 </div>
+            </div>
+        </div>
+    );
+}
+
+function ListLayoutRightColumn({
+    interfaceState,
+    interfaceDispatch,
+}: {
+    interfaceState: InterfaceState;
+    interfaceDispatch: Dispatch<InterfaceAction>;
+}) {
+    const ref = useRef<HTMLDivElement | null>(null);
+    const [listPanelHeight, setListPanelHeight] = useState<number | undefined>(
+        () => getStoredTrackerListPanelHeight(),
+    );
+    const [isResizingList, setIsResizingList] = useState(false);
+    const { measuredHeight } = useElementSize(ref);
+    const minListPanelHeight = 220;
+    const maxListPanelHeight = Math.max(minListPanelHeight, measuredHeight - 240);
+    const defaultListPanelHeight = Math.min(
+        Math.max(minListPanelHeight, measuredHeight * 0.42),
+        maxListPanelHeight,
+    );
+    const clampedListPanelHeight = Math.min(
+        Math.max(listPanelHeight ?? defaultListPanelHeight, minListPanelHeight),
+        maxListPanelHeight,
+    );
+
+    useEffect(() => {
+        if (!isResizingList) {
+            return;
+        }
+        const onMove = (event: MouseEvent) => {
+            const bounds = ref.current?.getBoundingClientRect();
+            if (!bounds) {
+                return;
+            }
+            setListPanelHeight(event.clientY - bounds.top);
+        };
+        const onUp = () => setIsResizingList(false);
+        window.addEventListener('mousemove', onMove);
+        window.addEventListener('mouseup', onUp);
+        return () => {
+            window.removeEventListener('mousemove', onMove);
+            window.removeEventListener('mouseup', onUp);
+        };
+    }, [isResizingList]);
+
+    useEffect(() => {
+        setStoredTrackerListPanelHeight(clampedListPanelHeight);
+    }, [clampedListPanelHeight]);
+
+    return (
+        <div
+            ref={ref}
+            style={{
+                padding: '0 0.75rem',
+                display: 'flex',
+                flexFlow: 'column nowrap',
+                height: '100%',
+            }}
+        >
+            <div
+                style={{
+                    flex: `0 0 ${clampedListPanelHeight}px`,
+                    minHeight: 0,
+                    overflow: 'visible auto',
+                }}
+            >
+                <LocationGroupList
+                    interfaceState={interfaceState}
+                    interfaceDispatch={interfaceDispatch}
+                />
+            </div>
+            <button
+                type="button"
+                style={{
+                    flex: '0 0 10px',
+                    cursor: 'row-resize',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'stretch',
+                    padding: '0 6px',
+                    border: 0,
+                    background: 'transparent',
+                }}
+                onMouseDown={() => setIsResizingList(true)}
+                role="separator"
+                aria-orientation="horizontal"
+                aria-label="Resize location lists"
+            >
+                <div
+                    style={{
+                        height: 4,
+                        width: '100%',
+                        borderRadius: 999,
+                        background:
+                            'color-mix(in srgb, var(--scheme-text) 16%, transparent)',
+                    }}
+                />
+            </button>
+            <div style={{ flex: '1 1 0', minHeight: 0 }}>
+                <LocationsEntrancesList
+                    wide={false}
+                    interfaceState={interfaceState}
+                    interfaceDispatch={interfaceDispatch}
+                />
             </div>
         </div>
     );

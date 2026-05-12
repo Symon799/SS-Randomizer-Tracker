@@ -17,15 +17,18 @@ import { settingSelector } from '../tracker/Selectors';
 import { setHint } from '../tracker/Slice';
 import type { InterfaceAction } from '../tracker/TrackerInterfaceReducer';
 import { HintIcon, HintItem } from './LocationContextMenu';
+import { useMapLayoutDebugMenuElements } from './mapTracker/MapLayoutDebugMenuItems';
 
 export interface LocationGroupContextMenuProps {
     area: string;
+    layoutDebugPath?: string;
 }
 
 export interface MapExitContextMenuProps {
     exitMapping: ExitMapping;
     /** destination area! */
     area: string | undefined;
+    layoutDebugPath?: string;
 }
 
 type AreaCtxProps<T = void> = ItemParams<LocationGroupContextMenuProps, T>;
@@ -227,10 +230,14 @@ function LocationGroupContextMenu({
     const areDungeonEntrancesRandomized = dungeonEntranceSetting !== 'None';
 
     const areaMenuItems = useAreaContextMenuItems();
+    const mapLayoutDebugMenuElements = useMapLayoutDebugMenuElements();
 
     return (
         <>
-            <Menu id="group-context">{areaMenuItems}</Menu>
+            <Menu id="group-context">
+                {mapLayoutDebugMenuElements}
+                {areaMenuItems}
+            </Menu>
             <BoundEntranceMenu
                 menuId="dungeon-context"
                 pool="dungeons"
@@ -265,6 +272,7 @@ function BoundEntranceMenu({
     interfaceDispatch: React.Dispatch<InterfaceAction>;
 }) {
     const areaMenuItems = useAreaContextMenuItems();
+    const mapLayoutDebugMenuElements = useMapLayoutDebugMenuElements();
 
     const manageEntrance = useCallback(
         (params: ExitCtxProps) =>
@@ -279,6 +287,7 @@ function BoundEntranceMenu({
 
     return (
         <Menu id={menuId}>
+            {mapLayoutDebugMenuElements}
             {areaMenuItems}
             {canChooseEntrance && (
                 <Item key="manageEntrance" onClick={manageEntrance}>

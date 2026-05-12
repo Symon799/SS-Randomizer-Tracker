@@ -77,6 +77,18 @@
         width: 100%;
         min-height: 40px;
     }
+
+    > :global(.tracker-button):last-child:nth-child(odd) {
+        grid-column: 1 / -1;
+        justify-self: center;
+        width: calc((100% - 8px) / 2);
+    }
+
+    > .toolsDebugToggle {
+        grid-column: 1 / -1;
+        justify-self: center;
+        width: calc((100% - 8px) / 2);
+    }
 }
 
 .toolsLogPane {

@@ -1,5 +1,4 @@
 import {
-    setAutoItemAssignment,
     setCounterBasis,
     setEnabledSemilogicTricks,
     setTrickSemiLogic,
@@ -13,14 +12,12 @@ import { checkOrUncheckAll, clickCheck } from './tracker/Actions';
 import {
     allSettingsSelector,
     areasSelector,
-    checkHintSelector,
     checkSelector,
     rawItemCountSelector,
     totalCountersSelector,
 } from './tracker/Selectors';
 import {
     acceptSettings,
-    cancelItemAssignment,
     clickDungeonName,
     clickItem,
     mapEntrance,
@@ -210,106 +207,6 @@ describe('full logic tests', () => {
         expect(checkState(check)).toBe('outLogic');
         dispatch(clickItem({ item: 'Progressive Beetle', take: false }));
         expect(checkState(check)).toBe('inLogic');
-    });
-
-    it('does not assign items by default', () => {
-        const fledgesGiftId = tester.findCheckId(
-            'Upper Skyloft',
-            "Fledge's Gift",
-        );
-        dispatch(clickCheck({ checkId: fledgesGiftId }));
-        dispatch(clickItem({ item: 'Ruby Tablet', take: false }));
-        const hintedItem = readSelector(checkHintSelector(fledgesGiftId));
-        expect(hintedItem).toBeUndefined();
-    });
-
-    it('assigns items with the relevant setting', () => {
-        dispatch(setAutoItemAssignment(true));
-        const fledgesGiftId = tester.findCheckId(
-            'Upper Skyloft',
-            "Fledge's Gift",
-        );
-        dispatch(clickCheck({ checkId: fledgesGiftId }));
-        dispatch(clickItem({ item: 'Ruby Tablet', take: false }));
-        const hintedItem = readSelector(checkHintSelector(fledgesGiftId));
-        expect(hintedItem).toBe('Ruby Tablet');
-    });
-
-    it('undoes when taking the item', () => {
-        dispatch(setAutoItemAssignment(true));
-        const fledgesGiftId = tester.findCheckId(
-            'Upper Skyloft',
-            "Fledge's Gift",
-        );
-        dispatch(clickCheck({ checkId: fledgesGiftId }));
-        dispatch(clickItem({ item: 'Ruby Tablet', take: false }));
-        const hintedItem = readSelector(checkHintSelector(fledgesGiftId));
-        expect(hintedItem).toBe('Ruby Tablet');
-        dispatch(clickItem({ item: 'Ruby Tablet', take: true }));
-        const hintedItemAfterTaking = readSelector(
-            checkHintSelector(fledgesGiftId),
-        );
-        expect(hintedItemAfterTaking).toBeUndefined();
-    });
-
-    it('allows correcting the item in an overlapping order', () => {
-        dispatch(setAutoItemAssignment(true));
-        const fledgesGiftId = tester.findCheckId(
-            'Upper Skyloft',
-            "Fledge's Gift",
-        );
-        dispatch(clickCheck({ checkId: fledgesGiftId }));
-        dispatch(clickItem({ item: 'Ruby Tablet', take: false }));
-        const hintedItem = readSelector(checkHintSelector(fledgesGiftId));
-        expect(hintedItem).toBe('Ruby Tablet');
-        dispatch(clickItem({ item: 'Emerald Tablet', take: false }));
-        const hintedItemAfterGetting = readSelector(
-            checkHintSelector(fledgesGiftId),
-        );
-        expect(hintedItemAfterGetting).toBe('Emerald Tablet');
-        dispatch(clickItem({ item: 'Ruby Tablet', take: true }));
-        const hintedItemAfterTaking = readSelector(
-            checkHintSelector(fledgesGiftId),
-        );
-        expect(hintedItemAfterTaking).toBe('Emerald Tablet');
-    });
-
-    it('does not track gratitude crystals', () => {
-        dispatch(setAutoItemAssignment(true));
-        const crystalCheckId = tester.findCheckId(
-            'Upper Skyloft',
-            'Crystal in Knight Academy Plant',
-        );
-        dispatch(clickCheck({ checkId: crystalCheckId }));
-        dispatch(clickItem({ item: 'Ruby Tablet', take: false }));
-        const hintedItem = readSelector(checkHintSelector(crystalCheckId));
-        expect(hintedItem).toBeUndefined();
-    });
-
-    it('cancels tracking when unmarking', () => {
-        dispatch(setAutoItemAssignment(true));
-        const fledgesGiftId = tester.findCheckId(
-            'Upper Skyloft',
-            "Fledge's Gift",
-        );
-        dispatch(clickCheck({ checkId: fledgesGiftId }));
-        dispatch(clickCheck({ checkId: fledgesGiftId }));
-        dispatch(clickItem({ item: 'Ruby Tablet', take: false }));
-        const hintedItem = readSelector(checkHintSelector(fledgesGiftId));
-        expect(hintedItem).toBeUndefined();
-    });
-
-    it('cancels tracking when cancelling', () => {
-        dispatch(setAutoItemAssignment(true));
-        const fledgesGiftId = tester.findCheckId(
-            'Upper Skyloft',
-            "Fledge's Gift",
-        );
-        dispatch(clickCheck({ checkId: fledgesGiftId }));
-        dispatch(cancelItemAssignment());
-        dispatch(clickItem({ item: 'Ruby Tablet', take: false }));
-        const hintedItem = readSelector(checkHintSelector(fledgesGiftId));
-        expect(hintedItem).toBeUndefined();
     });
 
     it('can bulk mark / unmark', () => {

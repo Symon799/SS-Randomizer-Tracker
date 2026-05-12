@@ -1,7 +1,6 @@
-import { useCallback } from 'react';
-import { useApSwordDiagnostic } from './archipelago/ClientHooks';
-import type { RemoteReference } from './loader/LogicLoader';
-import { logicSelector } from './logic/Selectors';
+import { type ChangeEvent, useCallback, useContext, useRef } from 'react';
+import { ClientManagerContext } from './archipelago/ClientHooks';
+import type { ApServerDataExport, ApSnapshotArchipelagoData } from './archipelago/Archipelago';import { logicSelector } from './logic/Selectors';
 import { type ThunkResult, useAppDispatch } from './store/Store';
 import {
     apCountedCheckIdsSelector,
@@ -11,7 +10,7 @@ import {
     totalCountersSelector,
     totalGratitudeCrystalsSelector,
 } from './tracker/Selectors';
-import type { TrackerState } from './tracker/Slice';
+import { loadTracker, type TrackerState } from './tracker/Slice';
 
 const snapshotFocusChecks = [
     "Farore's Silent Realm - Collect all Tears Reward",
@@ -22,30 +21,87 @@ const snapshotFocusChecks = [
     'Lumpy Pumpkin - Harp Duet with Kina',
 ] as const;
 
-const version = 'SSRANDO-TRACKER-NG-V2';
+export const TRACKER_STATE_VERSION = 'SSHD-TRACKER-STATE-V1';
+const LEGACY_TRACKER_STATE_VERSION = 'SSRANDO-TRACKER-NG-V2';
 
-export interface ExportState {
-    version: string;
-    state: TrackerState;
-    logicBranch: RemoteReference | undefined;
+export type SavedTrackerState = Pick<
+    TrackerState,
+    | 'checkedChecks'
+    | 'apCheckedChecks'
+    | 'manualCheckedOverrides'
+    | 'inventory'
+    | 'mappedExits'
+    | 'requiredDungeons'
+    | 'apRequiredDungeons'
+    | 'manualRequiredDungeonOverrides'
+    | 'hints'
+    | 'checkHints'
+    | 'settings'
+    | 'userHintsText'
+    | 'hasBeenModified'
+>;
+
+export interface TrackerStateExport {
+    version: typeof TRACKER_STATE_VERSION;
+    generatedAt: string;
+    state: SavedTrackerState;
 }
 
-function doExport(): ThunkResult {
-    return (_dispatch, getState) => {
-        const state = getState().tracker;
-        const logicBranch = getState().logic.loaded?.remote;
+function pickSavedTrackerState(state: TrackerState): SavedTrackerState {
+    return {
+        checkedChecks: state.checkedChecks,
+        apCheckedChecks: state.apCheckedChecks,
+        manualCheckedOverrides: state.manualCheckedOverrides,
+        inventory: state.inventory,
+        mappedExits: state.mappedExits,
+        requiredDungeons: state.requiredDungeons,
+        apRequiredDungeons: state.apRequiredDungeons,
+        manualRequiredDungeonOverrides: state.manualRequiredDungeonOverrides,
+        hints: state.hints,
+        checkHints: state.checkHints,
+        settings: state.settings,
+        userHintsText: state.userHintsText,
+        hasBeenModified: state.hasBeenModified,
+    };
+}
 
-        const filename = `SS-Rando-Tracker${new Date().toISOString()}`;
-        const exportVal: ExportState = { state, version, logicBranch };
-        const exportstring = JSON.stringify(exportVal, undefined, '\t');
-        const blob = new Blob([exportstring], { type: 'json' });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.download = `${filename}.json`;
-        a.href = url;
-        a.dataset.downloadurl = ['json', a.download, a.href].join(':');
-        a.click();
-        window.URL.revokeObjectURL(url);
+function doExportTrackerState(): ThunkResult {
+    return (_dispatch, getState) => {
+        const exportVal: TrackerStateExport = {
+            version: TRACKER_STATE_VERSION,
+            generatedAt: new Date().toISOString(),
+            state: pickSavedTrackerState(getState().tracker),
+        };
+        downloadJson(
+            `SSHD-Tracker-State-${new Date().toISOString().replaceAll(':', '-')}.json`,
+            exportVal,
+        );
+    };
+}
+
+function doImportTrackerState(raw: unknown): ThunkResult {
+    return (dispatch) => {
+        if (!raw || typeof raw !== 'object') {
+            throw new Error('Invalid tracker state file.');
+        }
+
+        const payload = raw as {
+            version?: string;
+            state?: Partial<TrackerState>;
+        };
+        if (
+            payload.version !== TRACKER_STATE_VERSION &&
+            payload.version !== LEGACY_TRACKER_STATE_VERSION
+        ) {
+            throw new Error(
+                `Unsupported tracker state version: ${payload.version ?? 'missing'}`,
+            );
+        }
+        if (!payload.state || typeof payload.state !== 'object') {
+            throw new Error('Tracker state file is missing state data.');
+        }
+
+        dispatch(loadTracker(payload.state));
     };
 }
 
@@ -81,14 +137,7 @@ type TrackerSnapshot = {
         staticRequirementStates: string[];
         checkedRequirementBits: string[];
     }>;
-    swordDiagnostic?: {
-        startingSword: number;
-        selfProgressiveSwordChecksForSelf: number;
-        receivedProgressiveSwordsFromOthers: number;
-        totalExpectedSwordLevel: number;
-        trackerInventoryProgressiveSword: number;
-        scoutedCheckedLocations: number;
-    };
+    archipelago?: ApSnapshotArchipelagoData;
 };
 
 function summarizeRequirements(
@@ -163,9 +212,7 @@ function downloadJson(filename: string, value: unknown) {
     window.URL.revokeObjectURL(url);
 }
 
-function doExportUtSnapshot(
-    swordDiagnostic?: TrackerSnapshot['swordDiagnostic'],
-): ThunkResult {
+function doExportUtSnapshot(archipelago?: ApSnapshotArchipelagoData): ThunkResult {
     return (_dispatch, getState) => {
         const state = getState();
         const logic = logicSelector(state);
@@ -176,10 +223,7 @@ function doExportUtSnapshot(
         const getRequirementLogicalState =
             getRequirementLogicalStateSelector(state);
 
-        const allCheckIds = areas.flatMap((area) => [
-            ...area.checks.list,
-            ...(area.extraLocations.loose_crystal?.list ?? []),
-        ]);
+        const allCheckIds = areas.flatMap((area) => [...area.checks.list]);
 
         const snapshotChecks = allCheckIds
             .map((checkId) => checkSelector.selector(state, checkId))
@@ -220,14 +264,14 @@ function doExportUtSnapshot(
             },
             {},
         );
-        const looseCrystalChecksChecked = countedChecks.filter(
-            (check) => check.checked && check.type === 'loose_crystal',
-        ).length;
+        const looseCrystalChecksChecked = 0;
         const startingCrystalPacks = Number(
             state.tracker.settings['starting-crystal-packs'] ?? 0,
         );
         const inventoryCrystalPacks =
-            state.tracker.inventory['Gratitude Crystal Pack'] ?? 0;
+            state.tracker.apGratitudeCrystals?.packs ??
+            state.tracker.inventory['Gratitude Crystal Pack'] ??
+            0;
         const checkedVirtualLocations = state.tracker.checkedChecks
             .filter(
                 (checkId) =>
@@ -309,39 +353,117 @@ function doExportUtSnapshot(
             },
             checkedVirtualLocations,
             focusDebug,
-            swordDiagnostic,
+            archipelago,
         };
 
         downloadJson(
-            `SSHD-UT-Snapshot-${new Date().toISOString().replaceAll(':', '-')}.json`,
+            `SSHD-Snapshot-${new Date().toISOString().replaceAll(':', '-')}.json`,
             snapshot,
         );
     };
 }
 
-export function ExportButton() {
+function doExportApServerData(exportData: ApServerDataExport): ThunkResult {
+    return () => {
+        downloadJson(
+            `SSHD-AP-Server-Data-${new Date().toISOString().replaceAll(':', '-')}.json`,
+            exportData,
+        );
+    };
+}
+
+export function ExportTrackerStateButton() {
     const dispatch = useAppDispatch();
     const onClick = useCallback(() => {
-        dispatch(doExport());
+        dispatch(doExportTrackerState());
     }, [dispatch]);
 
     return (
         <button type="button" className="tracker-button" onClick={onClick}>
-            Export
+            Export State
         </button>
     );
 }
 
+export function ImportTrackerStateButton() {
+    const dispatch = useAppDispatch();
+    const inputRef = useRef<HTMLInputElement | null>(null);
+    const onClick = useCallback(() => {
+        inputRef.current?.click();
+    }, []);
+    const onChange = useCallback(
+        (event: ChangeEvent<HTMLInputElement>) => {
+            const file = event.target.files?.[0];
+            event.target.value = '';
+            if (!file) {
+                return;
+            }
+            void file
+                .text()
+                .then((text) => {
+                    const parsed = JSON.parse(text) as unknown;
+                    dispatch(doImportTrackerState(parsed));
+                })
+                .catch((error: unknown) => {
+                    window.alert(
+                        error instanceof Error
+                            ? error.message
+                            : 'Could not import tracker state.',
+                    );
+                });
+        },
+        [dispatch],
+    );
+
+    return (
+        <>
+            <input
+                ref={inputRef}
+                type="file"
+                accept="application/json,.json"
+                hidden
+                onChange={onChange}
+            />
+            <button type="button" className="tracker-button" onClick={onClick}>
+                Import State
+            </button>
+        </>
+    );
+}
+
+export function ExportButton() {
+    return <ExportTrackerStateButton />;
+}
+
 export function ExportUtSnapshotButton() {
     const dispatch = useAppDispatch();
-    const swordDiagnostic = useApSwordDiagnostic();
+    const clientManager = useContext(ClientManagerContext);
     const onClick = useCallback(() => {
-        dispatch(doExportUtSnapshot(swordDiagnostic));
-    }, [dispatch, swordDiagnostic]);
+        dispatch(
+            doExportUtSnapshot(clientManager?.getApSnapshotArchipelagoData()),
+        );
+    }, [clientManager, dispatch]);
 
     return (
         <button type="button" className="tracker-button" onClick={onClick}>
-            UT Snapshot
+            Snapshot
+        </button>
+    );
+}
+
+export function ExportApServerDataButton() {
+    const dispatch = useAppDispatch();
+    const clientManager = useContext(ClientManagerContext);
+    const onClick = useCallback(() => {
+        if (!clientManager) {
+            return;
+        }
+        dispatch(doExportApServerData(clientManager.getApServerDataExport()));
+    }, [clientManager, dispatch]);
+
+    return (
+        <button type="button" className="tracker-button" onClick={onClick}>
+            AP Server Data
         </button>
     );
 }

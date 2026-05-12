@@ -24,6 +24,7 @@ const archipelagoServerLocalStorageKey = 'archipelagoServer';
 const archipelagoSlotLocalStorageKey = 'archipelagoSlot';
 const trackerSidebarWidthLocalStorageKey = 'sshdTrackerSidebarWidth';
 const trackerMapHeightLocalStorageKey = 'sshdTrackerMapHeight';
+const trackerListPanelHeightLocalStorageKey = 'sshdTrackerListPanelHeight';
 const trackerLocationFilterLocalStorageKey = 'sshdTrackerLocationFilter';
 
 // Legacy
@@ -33,9 +34,42 @@ const locationLayoutLocalStorageKey = 'ssrTrackerLocationLayout';
 const trickSemilogicLocalStorageKey = 'ssrTrackerTrickLogic';
 const counterBasisLocalStorageKey = 'ssrTrackerCounterBasis';
 
+export type TrackerLaunchMode = 'continue' | 'new';
+
+const trackerLaunchModeSessionKey = 'sshdTrackerLaunchMode';
+
+export function setStoredTrackerLaunchMode(mode: TrackerLaunchMode) {
+    sessionStorage.setItem(trackerLaunchModeSessionKey, mode);
+}
+
+export function getStoredTrackerLaunchMode(): TrackerLaunchMode {
+    return sessionStorage.getItem(trackerLaunchModeSessionKey) === 'new'
+        ? 'new'
+        : 'continue';
+}
+
+export function persistRootStateToLocalStorage(state: RootState) {
+    localStorage.setItem(
+        trackerStateLocalStorageKey,
+        JSON.stringify(state.tracker),
+    );
+    const { debugMode: _debugMode, ...customizationToPersist } =
+        state.customization;
+    localStorage.setItem(
+        customizationStateLocalStorageKey,
+        JSON.stringify(customizationToPersist),
+    );
+    if (state.logic.loaded) {
+        localStorage.setItem(
+            remoteLogicLocalStorageKey,
+            JSON.stringify(state.logic.loaded.remote),
+        );
+    }
+}
+
 export function useSyncTrackerStateToLocalStorage() {
     const rawRemote = useSelector(
-        (state: RootState) => state.logic.loaded!.remote,
+        (state: RootState) => state.logic.loaded?.remote,
     );
     const trackerState = useSelector((state: RootState) => state.tracker);
     const customizationState = useSelector(
@@ -50,6 +84,9 @@ export function useSyncTrackerStateToLocalStorage() {
     }, [trackerState]);
 
     useEffect(() => {
+        if (rawRemote === undefined) {
+            return;
+        }
         localStorage.setItem(
             remoteLogicLocalStorageKey,
             JSON.stringify(rawRemote),
@@ -57,9 +94,11 @@ export function useSyncTrackerStateToLocalStorage() {
     }, [rawRemote]);
 
     useEffect(() => {
+        const { debugMode: _debugMode, ...customizationToPersist } =
+            customizationState;
         localStorage.setItem(
             customizationStateLocalStorageKey,
-            JSON.stringify(customizationState),
+            JSON.stringify(customizationToPersist),
         );
     }, [customizationState]);
 }
@@ -171,6 +210,15 @@ export function getStoredTrackerMapHeight(): number | undefined {
 
 export function setStoredTrackerMapHeight(height: number) {
     localStorage.setItem(trackerMapHeightLocalStorageKey, String(height));
+}
+
+export function getStoredTrackerListPanelHeight(): number | undefined {
+    const value = localStorage.getItem(trackerListPanelHeightLocalStorageKey);
+    return value ? Number(value) : undefined;
+}
+
+export function setStoredTrackerListPanelHeight(height: number) {
+    localStorage.setItem(trackerListPanelHeightLocalStorageKey, String(height));
 }
 
 export type TrackerLocationFilter = 'all' | 'accessible' | 'checked';

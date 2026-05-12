@@ -25,6 +25,7 @@ import type {
 } from '../LocationGroupContextMenu';
 import RequirementsTooltip from '../RequirementsTooltip';
 import { getMarkerColor, getRegionData, getSubmarkerData } from './MapUtils';
+import { useMapLayoutDebugEnabled } from './MapLayoutDebugMenuItems';
 import { Marker } from './Marker';
 
 function EntranceMarker({
@@ -98,6 +99,7 @@ function EntranceMarker({
     const showGroup = useContextMenu<LocationGroupContextMenuProps>({
         id: 'group-context',
     }).show;
+    const mapLayoutDebugEnabled = useMapLayoutDebugEnabled();
 
     const destinationRegionName =
         exit.entrance && logic.areaGraph.entranceHintRegions[exit.entrance.id];
@@ -105,23 +107,34 @@ function EntranceMarker({
     const displayMenu = useCallback(
         (e: TriggerEvent) => {
             e.preventDefault();
+            const layoutDebugPath =
+                mapLayoutDebugEnabled && debugPath ? debugPath : undefined;
             if (!exit.canAssign) {
                 if (exit.entrance) {
                     showGroup({
                         event: e,
-                        props: { area: exit.entrance?.region },
+                        props: {
+                            area: exit.entrance?.region,
+                            layoutDebugPath,
+                        },
                     });
                 }
             } else if (hasConnection) {
                 showBound({
                     event: e,
-                    props: { exitMapping: exit, area: destinationRegionName },
+                    props: {
+                        exitMapping: exit,
+                        area: destinationRegionName,
+                        layoutDebugPath,
+                    },
                 });
             } else {
                 onChooseEntrance(exitId);
             }
         },
         [
+            debugPath,
+            mapLayoutDebugEnabled,
             destinationRegionName,
             exit,
             exitId,

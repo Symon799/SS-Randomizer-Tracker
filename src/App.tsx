@@ -6,8 +6,8 @@ import { MakeClientAvailable } from './archipelago/ClientHooks';
 import type { ColorScheme } from './customization/ColorScheme';
 import { colorSchemeSelector } from './customization/Selectors';
 import ErrorPage from './miscPages/ErrorPage';
-import FullAcknowledgement from './miscPages/FullAcknowledgement';
 import Guide from './miscPages/guide/Guide';
+import { persistRootStateToLocalStorage, useSyncTrackerStateToLocalStorage } from './LocalStorage';
 import Options from './options/Options';
 import type { RootState } from './store/Store';
 import Tracker from './Tracker';
@@ -44,12 +44,14 @@ function createApplyColorSchemeListener() {
 
 function App() {
     const store = useStore<RootState>();
+    useSyncTrackerStateToLocalStorage();
     useLayoutEffect(() => {
         const listener = createApplyColorSchemeListener();
         listener(colorSchemeSelector(store.getState()));
-        return store.subscribe(() =>
-            listener(colorSchemeSelector(store.getState())),
-        );
+        return store.subscribe(() => {
+            listener(colorSchemeSelector(store.getState()));
+            persistRootStateToLocalStorage(store.getState());
+        });
     }, [store]);
 
     return (
@@ -59,10 +61,6 @@ function App() {
                     <Routes>
                         <Route path="/" element={<Options />} />
                         <Route path="/tracker" element={<Tracker />} />
-                        <Route
-                            path="/acknowledgement"
-                            element={<FullAcknowledgement />}
-                        />
                         <Route path="/guide" element={<Guide />} />
                     </Routes>
                 </Router>

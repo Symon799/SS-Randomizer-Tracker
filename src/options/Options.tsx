@@ -7,6 +7,7 @@ import {
     useState,
 } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useStore } from 'react-redux';
 import {
     ClientManagerContext,
     useApConnectionStatus,
@@ -16,11 +17,15 @@ import {
 import {
     getStoredArchipelagoServer,
     getStoredArchipelagoSlot,
+    getStoredTrackerState,
+    persistRootStateToLocalStorage,
+    setStoredTrackerLaunchMode,
 } from '../LocalStorage';
 import { loadLogic } from '../logic/Slice';
 import type { OptionDefs } from '../permalink/SettingsTypes';
 import { useAppDispatch } from '../store/Store';
-import { acceptSettings, reset } from '../tracker/Slice';
+import type { RootState } from '../store/Store';
+import { acceptSettings, loadTracker, reset } from '../tracker/Slice';
 import Acknowledgement from './Acknowledgment';
 import styles from './Options.module.css';
 import {
@@ -41,6 +46,8 @@ export default function Options() {
         selectedRemote,
     } = useOptionsState();
     const appDispatch = useAppDispatch();
+    const store = useStore<RootState>();
+    const clientManager = useContext(ClientManagerContext);
     const navigate = useNavigate();
     const isClientConnected = useIsApConnected();
 
@@ -55,15 +62,26 @@ export default function Options() {
             if (!loaded || !settings) {
                 return;
             }
+            if (!shouldReset && !isClientConnected) {
+                return;
+            }
             appDispatch(loadLogic(loaded));
             if (shouldReset) {
+                setStoredTrackerLaunchMode('new');
                 appDispatch(reset({ settings }));
+                clientManager?.redeliverTrackerState();
+                persistRootStateToLocalStorage(store.getState());
             } else {
+                setStoredTrackerLaunchMode('continue');
+                const stored = getStoredTrackerState();
+                if (stored) {
+                    appDispatch(loadTracker(stored));
+                }
                 appDispatch(acceptSettings({ settings }));
             }
             navigate('/tracker');
         },
-        [appDispatch, loaded, navigate, settings],
+        [appDispatch, clientManager, isClientConnected, loaded, navigate, settings, store],
     );
 
     return (
@@ -110,7 +128,7 @@ function LaunchButtons({
     clientConnected: boolean;
 }) {
     const canStart = loaded;
-    const canResume = loaded && Boolean(counters);
+    const canResume = loaded && Boolean(counters) && clientConnected;
 
     const confirmLaunch = useCallback(
         (shouldReset?: boolean) => {
@@ -133,7 +151,7 @@ function LaunchButtons({
             <button
                 type="button"
                 className="tracker-button"
-                disabled={!canResume || !clientConnected}
+                disabled={!canResume}
                 onClick={() => confirmLaunch()}
             >
                 <span className={styles.continueButton}>

@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux';
 import miscItemBlock from '../assets/misc_items_block.png';
 import { rawItemCountSelector } from '../tracker/Selectors';
 import Item from './Item';
+import { ProgressiveItem } from './items/ProgressiveItem';
 
 export default function AdditionalItems({ width }: { width: number }) {
     const pouchStyle: CSSProperties = {
@@ -61,7 +62,10 @@ export default function AdditionalItems({ width }: { width: number }) {
         <div id="misc-items" style={{ display: 'flex' }}>
             <img src={miscItemBlock} alt="" width={width} draggable={false} />
             <div style={pouchStyle}>
-                <Item itemName="Progressive Pouch" imgWidth={pouchWidth} />
+                <ProgressiveItem
+                    itemName="Progressive Pouch"
+                    imgWidth={pouchWidth}
+                />
             </div>
             <div style={bottleStyle}>
                 <Item itemName="Empty Bottle" imgWidth={bottleWidth} />

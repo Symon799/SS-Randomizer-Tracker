@@ -2,6 +2,7 @@ import { useSelector } from 'react-redux';
 import wheel from '../assets/b wheel.png';
 import { tumbleweedSelector } from '../customization/Selectors';
 import Item from './Item';
+import { ProgressiveItem } from './items/ProgressiveItem';
 
 export default function BWheel({ width }: { width: number }) {
     const beetleWidth = width / 5.2;
@@ -26,7 +27,10 @@ export default function BWheel({ width }: { width: number }) {
                     left: width / 1.33,
                 }}
             >
-                <Item itemName="Progressive Beetle" imgWidth={beetleWidth} />
+                <ProgressiveItem
+                    itemName="Progressive Beetle"
+                    imgWidth={beetleWidth}
+                />
             </div>
             <div
                 style={{
@@ -35,7 +39,7 @@ export default function BWheel({ width }: { width: number }) {
                     left: width / 2.3,
                 }}
             >
-                <Item
+                <ProgressiveItem
                     itemName="Progressive Slingshot"
                     imgWidth={slingshotWidth}
                 />
@@ -56,7 +60,10 @@ export default function BWheel({ width }: { width: number }) {
                     left: width / 1.51,
                 }}
             >
-                <Item itemName="Progressive Bug Net" imgWidth={bugNetWidth} />
+                <ProgressiveItem
+                    itemName="Progressive Bug Net"
+                    imgWidth={bugNetWidth}
+                />
             </div>
             <div
                 style={{
@@ -65,7 +72,7 @@ export default function BWheel({ width }: { width: number }) {
                     left: width / 2.4,
                 }}
             >
-                <Item itemName="Progressive Bow" imgWidth={bowWidth} />
+                <ProgressiveItem itemName="Progressive Bow" imgWidth={bowWidth} />
             </div>
             <div
                 style={{

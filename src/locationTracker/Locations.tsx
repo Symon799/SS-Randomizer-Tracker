@@ -34,23 +34,15 @@ export function Locations({
         return {
             primary: hintRegion.checks.list.filter(matchesFilter),
             extras: Object.fromEntries(
-                (
-                    [
-                        'loose_crystal',
-                        'tr_cube',
-                        'gossip_stone',
-                        'exits',
-                    ] as const
-                ).map((type) => [
-                    type,
-                    (hintRegion.extraLocations[type]?.list ?? []).filter(
-                        matchesFilter,
-                    ),
-                ]),
-            ) as Record<
-                'loose_crystal' | 'tr_cube' | 'gossip_stone' | 'exits',
-                string[]
-            >,
+                (['tr_cube', 'gossip_stone', 'exits'] as const).map(
+                    (type) => [
+                        type,
+                        (hintRegion.extraLocations[type]?.list ?? []).filter(
+                            matchesFilter,
+                        ),
+                    ],
+                ),
+            ) as Record<'tr_cube' | 'gossip_stone' | 'exits', string[]>,
         };
     });
     const forceFullName = hintRegion.name === OTHERS_HINT_REGION;
@@ -63,9 +55,7 @@ export function Locations({
                 onChooseEntrance={onChooseEntrance}
                 locations={filteredChecks.primary}
             />
-            {(
-                ['loose_crystal', 'tr_cube', 'gossip_stone', 'exits'] as const
-            ).map(
+            {(['tr_cube', 'gossip_stone', 'exits'] as const).map(
                 (type) =>
                     Boolean(filteredChecks.extras[type].length) && (
                         <React.Fragment key={type}>

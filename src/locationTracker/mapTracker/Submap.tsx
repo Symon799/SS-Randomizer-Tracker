@@ -1,5 +1,6 @@
 import type { TriggerEvent } from 'react-contexify';
 import { useSelector } from 'react-redux';
+import { debugModeSelector } from '../../customization/Selectors';
 import leaveEldin from '../../assets/maps/leaveEldin.png';
 import leaveFaron from '../../assets/maps/leaveFaron.png';
 import leaveLanayru from '../../assets/maps/leaveLanayru.png';
@@ -9,6 +10,7 @@ import keyDownWrapper from '../../utils/KeyDownWrapper';
 import EntranceMarker from './EntranceMarker';
 import {
     ENABLE_MAP_LAYOUT_DEBUG,
+    MAP_LAYOUT_ROOT_ATTR,
     getLayoutOverride,
     setLayoutOverride,
 } from './layoutDebug';
@@ -53,6 +55,8 @@ function Submap({
     currentRegionOrExit: string | undefined;
 }) {
     const areaGraph = useSelector(areaGraphSelector);
+    const mapLayoutDebugEnabled =
+        ENABLE_MAP_LAYOUT_DEBUG || useSelector(debugModeSelector);
     const applyOverride = (debugPath: string, x: number, y: number) =>
         setLayoutOverride(debugPath, { x, y });
 
@@ -66,7 +70,10 @@ function Submap({
     };
 
     return (
-        <div>
+        <div
+            {...{ [MAP_LAYOUT_ROOT_ATTR]: true }}
+            style={{ position: 'relative' }}
+        >
             {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions */}
             <img
                 src={map}
@@ -90,7 +97,7 @@ function Submap({
                             title={marker.hintRegion!}
                             submarkerPlacement={marker.supmarkerPlacement}
                             onGlickGroup={onGroupChange}
-                            debugEnabled={ENABLE_MAP_LAYOUT_DEBUG}
+                            debugEnabled={mapLayoutDebugEnabled}
                             debugPath={marker.debugPath}
                             onDebugMove={applyOverride}
                             selected={
@@ -120,7 +127,7 @@ function Submap({
                             submarkerPlacement={marker.supmarkerPlacement}
                             onGlickGroup={onGroupChange}
                             onChooseEntrance={onChooseEntrance}
-                            debugEnabled={ENABLE_MAP_LAYOUT_DEBUG}
+                            debugEnabled={mapLayoutDebugEnabled}
                             debugPath={marker.debugPath}
                             onDebugMove={applyOverride}
                         />

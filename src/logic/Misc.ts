@@ -5,20 +5,12 @@ import {
     dungeonCompletionItems,
 } from './TrackerModifications';
 
-export function getNumLooseGratitudeCrystals(
-    logic: Logic,
-    checkedChecks: Set<string>,
-) {
-    return [...checkedChecks].filter(
-        (check) => logic.checks[check]?.type === 'loose_crystal',
-    ).length;
-}
-
 export function getAdditionalItems(
     logic: Logic,
     inventory: Record<string, number>,
     checkedChecks: Set<string>,
     settings?: Partial<TypedOptions>,
+    apGratitudeCrystals?: { singles: number; packs: number },
 ) {
     const result: Record<string, number> = {};
     // Completed dungeons
@@ -51,9 +43,11 @@ export function getAdditionalItems(
         }
     }
 
-    const looseCrystals = getNumLooseGratitudeCrystals(logic, checkedChecks);
-    const packCrystals = (inventory['Gratitude Crystal Pack'] ?? 0) * 5;
-    result['Gratitude Crystal'] = looseCrystals + packCrystals;
+    const looseCrystals =
+        apGratitudeCrystals?.singles ?? inventory['Gratitude Crystal'] ?? 0;
+    const packCount =
+        apGratitudeCrystals?.packs ?? inventory['Gratitude Crystal Pack'] ?? 0;
+    result['Gratitude Crystal'] = looseCrystals + packCount * 5;
     if (settings?.['tadtone-shuffle'] === 'off') {
         result['Group of Tadtones'] = Math.max(
             inventory['Group of Tadtones'] ?? 0,

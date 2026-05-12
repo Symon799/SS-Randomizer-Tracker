@@ -29,12 +29,3 @@ export const tumbleweedSelector = (state: RootState) =>
 
 export const autoRegionLoadingSelector = (state: RootState) =>
     state.customization.autoRegionLoading;
-
-export const hasCustomLayoutSelector = (state: RootState) =>
-    Boolean(state.customization.customLayout);
-
-export const customLayoutSelector = (state: RootState) =>
-    state.customization.customLayout!;
-
-export const itemLocationAssignmentEnabledSelector = (state: RootState) =>
-    state.customization.itemLocationAssignment;

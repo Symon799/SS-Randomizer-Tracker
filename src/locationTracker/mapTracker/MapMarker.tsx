@@ -16,6 +16,7 @@ import HintDescription from '../HintsDescription';
 import type { LocationGroupContextMenuProps } from '../LocationGroupContextMenu';
 import { useContextMenu } from '../context-menu';
 import { getMarkerColor, getRegionData, getSubmarkerData } from './MapUtils';
+import { useMapLayoutDebugEnabled } from './MapLayoutDebugMenuItems';
 import { Marker } from './Marker';
 
 function MapMarker({
@@ -48,14 +49,24 @@ function MapMarker({
     const { show } = useContextMenu<LocationGroupContextMenuProps>({
         id: 'group-context',
     });
+    const mapLayoutDebugEnabled = useMapLayoutDebugEnabled();
 
     const displayMenu = useCallback(
         (e: MouseEvent) => {
             if (area) {
-                show({ event: e, props: { area: area.name } });
+                show({
+                    event: e,
+                    props: {
+                        area: area.name,
+                        layoutDebugPath:
+                            mapLayoutDebugEnabled && debugPath
+                                ? debugPath
+                                : undefined,
+                    },
+                });
             }
         },
-        [area, show],
+        [area, debugPath, mapLayoutDebugEnabled, show],
     );
 
     let hints = useSelector(areaHintSelector(title));

@@ -12,6 +12,9 @@ import {
     settingSelector,
 } from '../tracker/Selectors';
 import HintDescription from './HintsDescription';
+import { useContextMenu } from './context-menu';
+import type { MapLayoutDebugContextMenuProps } from './mapTracker/MapLayoutDebugMenuItems';
+import { useMapLayoutDebugEnabled } from './mapTracker/MapLayoutDebugMenuItems';
 import type { MapHintRegion } from './mapTracker/MapModel';
 import {
     combineRegionCounters,
@@ -110,6 +113,37 @@ export function SubmapMarker({
         </center>
     );
 
+    const birdStatueExitId = birdStatueSanityPool && birdStatueSanityPool.exit;
+
+    const { show: showLayoutDebugMenu } =
+        useContextMenu<MapLayoutDebugContextMenuProps>({
+            id: 'map-layout-debug',
+        });
+    const mapLayoutDebugEnabled = useMapLayoutDebugEnabled();
+
+    const displayMenu = useCallback(
+        (e: TriggerEvent) => {
+            e.preventDefault();
+            if (mapLayoutDebugEnabled && debugPath) {
+                showLayoutDebugMenu({
+                    event: e,
+                    props: { layoutDebugPath: debugPath },
+                });
+                return;
+            }
+            if (birdStatueExitId) {
+                onChooseEntrance(birdStatueExitId);
+            }
+        },
+        [
+            birdStatueExitId,
+            debugPath,
+            mapLayoutDebugEnabled,
+            onChooseEntrance,
+            showLayoutDebugMenu,
+        ],
+    );
+
     const handleClick = (e: TriggerEvent | React.UIEvent) => {
         if (e.type === 'contextmenu') {
             e.preventDefault();
@@ -117,18 +151,6 @@ export function SubmapMarker({
             onSubmapChange(provinceId);
         }
     };
-
-    const birdStatueExitId = birdStatueSanityPool && birdStatueSanityPool.exit;
-
-    const displayMenu = useCallback(
-        (e: React.UIEvent) => {
-            if (birdStatueExitId) {
-                onChooseEntrance(birdStatueExitId);
-            }
-            e.preventDefault();
-        },
-        [birdStatueExitId, onChooseEntrance],
-    );
 
     return (
         <Marker

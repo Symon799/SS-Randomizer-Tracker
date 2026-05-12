@@ -7,7 +7,7 @@ import exitImg from '../assets/dungeons/entrance.png';
 import goddessCubeImg from '../assets/sidequests/goddess_cube.png';
 import gossipStoneImg from '../assets/sidequests/gossip_stone.png';
 import { useDroppable } from '../dragAndDrop/DragAndDrop';
-import images, { findRepresentativeIcon } from '../itemTracker/Images';
+import { findRepresentativeIcon } from '../itemTracker/Images';
 import type { InventoryItem } from '../logic/Inventory';
 import type { Check } from '../logic/Locations';
 import { isRegularItemCheck } from '../logic/Logic';
@@ -236,6 +236,14 @@ function CheckLocation({
     );
 }
 
+function isGratitudeCrystalTrackerIcon(name: string) {
+    return (
+        name === 'Gratitude Crystal' ||
+        name === 'Gratitude Crystal Pack' ||
+        name === 'Gratitude Crystals'
+    );
+}
+
 function CheckIcon({
     check,
     overrideHint,
@@ -247,7 +255,6 @@ function CheckIcon({
 }) {
     let hintItem = useSelector(checkHintSelector(check.checkId));
     let preview = false;
-    const isCheckBanned = useSelector(isCheckBannedSelector);
     let name: string | undefined = undefined;
     let src: string | undefined = undefined;
     if (check.type === 'exit') {
@@ -259,13 +266,6 @@ function CheckIcon({
     } else if (check.type === 'tr_cube') {
         name = 'Goddess Cube';
         src = goddessCubeImg;
-    } else if (check.type === 'loose_crystal') {
-        name = 'Gratitude Crystal';
-        const banned = isCheckBanned(check.checkId);
-        if (banned) {
-            name += ' (not required)';
-        }
-        src = images['Gratitude Crystals Grid'][banned ? 0 : 1];
     } else {
         if (overrideHint) {
             hintItem = overrideHint;
@@ -273,7 +273,9 @@ function CheckIcon({
         }
         if (hintItem) {
             name = hintItem;
-            src = findRepresentativeIcon(hintItem);
+            if (!isGratitudeCrystalTrackerIcon(hintItem)) {
+                src = findRepresentativeIcon(hintItem);
+            }
         }
     }
 

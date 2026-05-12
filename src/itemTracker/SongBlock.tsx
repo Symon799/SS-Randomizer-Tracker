@@ -2,6 +2,7 @@ import type { CSSProperties } from 'react';
 import songBlock from '../assets/Song_Block.png';
 
 import Item from './Item';
+import { ProgressiveItem } from './items/ProgressiveItem';
 
 export default function SongBlock({ width: width }: { width: number }) {
     const sailclothStyle: CSSProperties = {
@@ -116,7 +117,10 @@ export default function SongBlock({ width: width }: { width: number }) {
                 <Item itemName="Water Dragon's Scale" imgWidth={scaleWidth} />
             </div>
             <div style={mittsStyle}>
-                <Item itemName="Progressive Mitts" imgWidth={mittsWidth} />
+                <ProgressiveItem
+                    itemName="Progressive Mitts"
+                    imgWidth={mittsWidth}
+                />
             </div>
             <div style={courageStyle}>
                 <Item itemName="Farore's Courage" imgWidth={courageWidth} />

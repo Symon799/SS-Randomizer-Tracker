@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
+import { debugModeSelector } from '../../customization/Selectors';
 import eldinMap from '../../assets/maps/Eldin.png';
 import faronMap from '../../assets/maps/Faron.png';
 import lanayruMap from '../../assets/maps/Lanayru.png';
@@ -19,6 +20,7 @@ import type {
 import { SubmapMarker } from '../SubmapMarker';
 import {
     ENABLE_MAP_LAYOUT_DEBUG,
+    MAP_LAYOUT_ROOT_ATTR,
     getLayoutOverride,
     registerLayoutDebugHelpers,
     setLayoutOverride,
@@ -75,6 +77,8 @@ function WorldMap({
     // same time
     usePrefetchImages(imagesToPrefetch);
 
+    const mapLayoutDebugEnabled =
+        ENABLE_MAP_LAYOUT_DEBUG || useSelector(debugModeSelector);
     const activeSubmap = interfaceState.mapView;
     const [, setLayoutVersion] = useState(0);
     useEffect(() => {
@@ -119,10 +123,10 @@ function WorldMap({
             unmappedAreaNames.has(currentRegionOrExit));
     const applyOverride = (debugPath: string, x: number, y: number) =>
         setLayoutOverride(debugPath, { x, y });
-    const canDebugMove = (debugPath: string) => debugPath !== 'sky';
 
     return (
         <div
+            {...{ [MAP_LAYOUT_ROOT_ATTR]: true }}
             style={{
                 position: 'relative',
                 userSelect: 'none',
@@ -169,23 +173,17 @@ function WorldMap({
                                 onChooseEntrance={onChooseEntrance}
                                 markers={submap.regions}
                                 currentRegionOrExit={currentRegionOrExit}
-                                debugEnabled={ENABLE_MAP_LAYOUT_DEBUG}
+                                debugEnabled={mapLayoutDebugEnabled}
                                 debugPath={submap.provinceId}
                                 onDebugMove={applyOverride}
                             />
                         );
                     })}
                     {mapModel.regions.map((marker) => {
-                        const position =
-                            marker.debugPath === 'sky'
-                                ? {
-                                      x: marker.markerX,
-                                      y: marker.markerY,
-                                  }
-                                : getLayoutOverride(marker.debugPath, {
-                                      x: marker.markerX,
-                                      y: marker.markerY,
-                                  });
+                        const position = getLayoutOverride(marker.debugPath, {
+                            x: marker.markerX,
+                            y: marker.markerY,
+                        });
                         return (
                             <div key={marker.hintRegion}>
                                 <MapMarker
@@ -198,10 +196,7 @@ function WorldMap({
                                         marker.hintRegion ===
                                         currentRegionOrExit
                                     }
-                                    debugEnabled={
-                                        ENABLE_MAP_LAYOUT_DEBUG &&
-                                        canDebugMove(marker.debugPath)
-                                    }
+                                    debugEnabled={mapLayoutDebugEnabled}
                                     debugPath={marker.debugPath}
                                     onDebugMove={applyOverride}
                                 />
@@ -222,7 +217,7 @@ function WorldMap({
                                     onGlickGroup={handleGroupClick}
                                     submarkerPlacement="right"
                                     selected={othersSelected}
-                                    debugEnabled={ENABLE_MAP_LAYOUT_DEBUG}
+                                    debugEnabled={mapLayoutDebugEnabled}
                                     debugPath="others"
                                     onDebugMove={applyOverride}
                                 />

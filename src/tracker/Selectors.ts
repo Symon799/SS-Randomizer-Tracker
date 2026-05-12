@@ -30,10 +30,7 @@ import {
 } from '../logic/Locations';
 import { isRegularItemCheck, type LogicalCheck } from '../logic/Logic';
 import { mapInventory, mapSettings } from '../logic/Mappers';
-import {
-    getAdditionalItems,
-    getNumLooseGratitudeCrystals,
-} from '../logic/Misc';
+import { getAdditionalItems } from '../logic/Misc';
 import { exploreAreaGraph } from '../logic/Pathfinding';
 import {
     areaGraphSelector,
@@ -185,23 +182,40 @@ const isUndergroundRupeeCheck = (check: LogicalCheck) =>
     check.type === 'rupee' && check.name.includes('Underground Rupee');
 
 const checkItemsSelector = createSelector(
-    [logicSelector, inventorySelector, checkedChecksSelector, settingsSelector],
-    getAdditionalItems,
+    [
+        logicSelector,
+        inventorySelector,
+        checkedChecksSelector,
+        settingsSelector,
+        (state: RootState) => state.tracker.apGratitudeCrystals,
+    ],
+    (logic, inventory, checkedChecks, settings, apGratitudeCrystals) =>
+        getAdditionalItems(
+            logic,
+            inventory,
+            checkedChecks,
+            settings,
+            apGratitudeCrystals,
+        ),
     { memoizeOptions: { resultEqualityCheck: isEqual } },
 );
 
 export const totalGratitudeCrystalsSelector = createSelector(
     [
-        logicSelector,
-        checkedChecksSelector,
+        rawItemCountsSelector,
         rawItemCountSelector('Gratitude Crystal Pack'),
+        (state: RootState) => state.tracker.apGratitudeCrystals,
     ],
-    (logic, checkedChecks, packCount) => {
-        const looseCrystalCount = getNumLooseGratitudeCrystals(
-            logic,
-            checkedChecks,
-        );
-        return packCount * 5 + looseCrystalCount;
+    (rawInventory, packCount, apGratitudeCrystals) => {
+        if (apGratitudeCrystals) {
+            return (
+                apGratitudeCrystals.singles + apGratitudeCrystals.packs * 5
+            );
+        }
+
+        const singles = rawInventory['Gratitude Crystal'] ?? 0;
+        const packs = rawInventory['Gratitude Crystal Pack'] ?? packCount;
+        return singles + packs * 5;
     },
 );
 
@@ -276,6 +290,11 @@ export const exitsSelector = createSelector(
 
 export const exitsByIdSelector = createSelector([exitsSelector], (exits) =>
     keyBy(exits, (e) => e.exit.id),
+);
+
+export const hasManualEntranceMappingSelector = createSelector(
+    [exitsSelector],
+    (exits) => exits.some((exit) => exit.canAssign),
 );
 
 /**
@@ -635,10 +654,7 @@ const isCheckCountedByApSelector = createSelector(
             if (!check || check.area === undefined) {
                 return false;
             }
-            if (
-                !isRegularItemCheck(check.type) &&
-                check.type !== 'loose_crystal'
-            ) {
+            if (!isRegularItemCheck(check.type)) {
                 return false;
             }
             const rupeeExcluded =
@@ -834,20 +850,15 @@ export const areasSelector = createSelector(
         return compact(
             logic.hintRegions.map((area): HintRegion | undefined => {
                 const checks = logic.checksByHintRegion[area];
-                // Loose crystal checks can be banned to not require picking them up
-                // in logic, but we want to allow marking them as collected.
                 const progressChecks = checks.filter(
-                    (check) =>
-                        !isCheckBanned(check) ||
-                        logic.checks[check].type === 'loose_crystal',
+                    (check) => !isCheckBanned(check),
                 );
 
                 const [extraChecks, regularChecks_] = partition(
                     progressChecks,
                     (check) =>
                         logic.checks[check].type === 'gossip_stone' ||
-                        logic.checks[check].type === 'tr_cube' ||
-                        logic.checks[check].type === 'loose_crystal',
+                        logic.checks[check].type === 'tr_cube',
                 );
 
                 const nonProgress = isAreaNonprogress(area);
@@ -971,10 +982,6 @@ export const displayAreasSelector = createSelector(
                         acc.extraLocations.tr_cube,
                         area.extraLocations.tr_cube,
                     ),
-                    loose_crystal: combineGroups(
-                        acc.extraLocations.loose_crystal,
-                        area.extraLocations.loose_crystal,
-                    ),
                     gossip_stone: combineGroups(
                         acc.extraLocations.gossip_stone,
                         area.extraLocations.gossip_stone,
@@ -1040,12 +1047,7 @@ export const totalCountersSelector = createSelector(
             checkedChecks.has(checkId) ? 1 : 0,
         );
         const numChecked = apCheckedLocationCount ?? localNumChecked;
-        const numAccessible = sumBy(
-            areas,
-            (a) =>
-                a.checks.numAccessible +
-                (a.extraLocations.loose_crystal?.numAccessible ?? 0),
-        );
+        const numAccessible = sumBy(areas, (a) => a.checks.numAccessible);
         const numRemaining =
             apLocationTotal !== undefined
                 ? Math.max(apLocationTotal - numChecked, 0)

@@ -4,8 +4,13 @@ import { migrateTrackerState } from '../TrackerStateMigrations';
 import type { Hint } from '../hints/Hints';
 import { type InventoryItem, isItem, itemMaxes } from '../logic/Inventory';
 import type { RegularDungeon } from '../logic/Locations';
+import { defaultRequiredDungeons } from '../logic/Locations';
 import { getInitialItems } from '../logic/TrackerModifications';
 import type { AllTypedOptions } from '../permalink/SettingsTypes';
+import {
+    mergeWithManualOverrides,
+    reconcileManualOverrides,
+} from './TrackerSync';
 
 export interface TrackerState {
     /**
@@ -13,6 +18,14 @@ export interface TrackerState {
      * Includes regular checks and fake checks for cubes/crystals.
      */
     checkedChecks: string[];
+    /**
+     * Checks last reported as checked by Archipelago.
+     */
+    apCheckedChecks: string[];
+    /**
+     * Manual check overrides that remain active until AP changes that check.
+     */
+    manualCheckedOverrides: Record<string, boolean>;
     /**
      * Items we've marked as acquired.
      */
@@ -29,6 +42,14 @@ export interface TrackerState {
      * Dungeons we've marked as required.
      */
     requiredDungeons: string[];
+    /**
+     * Dungeons last reported as required by Archipelago.
+     */
+    apRequiredDungeons: string[];
+    /**
+     * Manual required-dungeon overrides that remain active until AP changes that dungeon.
+     */
+    manualRequiredDungeonOverrides: Record<string, boolean>;
     /**
      * Hints by area
      */
@@ -47,10 +68,6 @@ export interface TrackerState {
      */
     userHintsText: string;
     /**
-     * The last tracked location, for auto item-at-location tracking.
-     */
-    lastCheckedLocation: string | undefined;
-    /**
      * Total number of AP locations for the currently connected slot, when known.
      */
     apLocationTotal?: number;
@@ -58,25 +75,57 @@ export interface TrackerState {
      * Number of AP locations already checked for the currently connected slot, when known.
      */
     apCheckedLocationCount?: number;
+    /**
+     * Gratitude crystal counts mirrored from Archipelago data storage.
+     */
+    apGratitudeCrystals?: {
+        singles: number;
+        packs: number;
+    };
 }
 
 const initialState: TrackerState = {
     checkedChecks: [],
+    apCheckedChecks: [],
+    manualCheckedOverrides: {},
     inventory: {},
     hasBeenModified: false,
     mappedExits: {},
-    requiredDungeons: [],
+    requiredDungeons: defaultRequiredDungeons(),
+    apRequiredDungeons: [],
+    manualRequiredDungeonOverrides: {},
     hints: {},
     checkHints: {},
     settings: {},
     userHintsText: '',
-    lastCheckedLocation: undefined,
     apLocationTotal: undefined,
     apCheckedLocationCount: undefined,
 };
 
+export function createResetTrackerState(
+    settings: AllTypedOptions,
+): TrackerState {
+    return migrateTrackerState(
+        {
+            ...initialState,
+            settings,
+            inventory: getInitialItems(settings),
+        },
+        { shouldDefaultRequiredDungeons: true },
+    );
+}
+
 export function preloadedTrackerState(): TrackerState {
-    return migrateTrackerState({ ...initialState, ...getStoredTrackerState() });
+    const stored = getStoredTrackerState();
+
+    return migrateTrackerState(
+        { ...initialState, ...stored },
+        {
+            shouldDefaultRequiredDungeons:
+                stored?.requiredDungeons === undefined,
+            preserveRequiredDungeonSelection: stored !== undefined,
+        },
+    );
 }
 
 const trackerSlice = createSlice({
@@ -105,43 +154,26 @@ const trackerSlice = createSlice({
             }
             state.hasBeenModified = true;
             state.inventory[item] = newCount;
-
-            if (state.lastCheckedLocation) {
-                if (newCount > count) {
-                    state.checkHints[state.lastCheckedLocation] = item;
-                } else if (
-                    newCount < count &&
-                    state.checkHints[state.lastCheckedLocation] === item
-                ) {
-                    delete state.checkHints[state.lastCheckedLocation];
-                }
-            }
         },
         clickCheckInternal: (
             state,
             action: PayloadAction<{
                 checkId: string;
-                canMarkForItemAssignment: boolean;
                 markChecked?: boolean;
             }>,
         ) => {
-            const { checkId, canMarkForItemAssignment } = action.payload;
+            const { checkId } = action.payload;
             const add =
                 action.payload.markChecked ??
                 !state.checkedChecks.includes(checkId);
-            if (add) {
-                state.checkedChecks.push(checkId);
-                if (canMarkForItemAssignment) {
-                    state.lastCheckedLocation = checkId;
-                }
-            } else {
-                state.checkedChecks = state.checkedChecks.filter(
-                    (c) => c !== checkId,
-                );
-                if (state.lastCheckedLocation === checkId) {
-                    state.lastCheckedLocation = undefined;
-                }
-            }
+            state.manualCheckedOverrides = {
+                ...state.manualCheckedOverrides,
+                [checkId]: add,
+            };
+            state.checkedChecks = mergeWithManualOverrides(
+                new Set(state.apCheckedChecks),
+                state.manualCheckedOverrides,
+            );
             state.hasBeenModified = true;
         },
         setItemCounts: (
@@ -163,8 +195,19 @@ const trackerSlice = createSlice({
             }
             state.hasBeenModified = true;
         },
-        replaceCheckedChecks: (state, action: PayloadAction<string[]>) => {
-            state.checkedChecks = [...new Set(action.payload)];
+        syncApCheckedChecks: (state, action: PayloadAction<string[]>) => {
+            const previousAp = new Set(state.apCheckedChecks);
+            const nextAp = new Set(action.payload);
+            state.manualCheckedOverrides = reconcileManualOverrides(
+                previousAp,
+                nextAp,
+                state.manualCheckedOverrides,
+            );
+            state.apCheckedChecks = [...nextAp];
+            state.checkedChecks = mergeWithManualOverrides(
+                nextAp,
+                state.manualCheckedOverrides,
+            );
             state.hasBeenModified = true;
         },
         setApLocationCounts: (
@@ -177,11 +220,34 @@ const trackerSlice = createSlice({
             state.apLocationTotal = action.payload.total;
             state.apCheckedLocationCount = action.payload.checked;
         },
-        setRequiredDungeons: (
+        setApGratitudeCrystalCounts: (
+            state,
+            action: PayloadAction<
+                | {
+                      singles: number;
+                      packs: number;
+                  }
+                | undefined
+            >,
+        ) => {
+            state.apGratitudeCrystals = action.payload;
+        },
+        syncApRequiredDungeons: (
             state,
             action: PayloadAction<{ dungeons: string[] }>,
         ) => {
-            state.requiredDungeons = [...new Set(action.payload.dungeons)];
+            const previousAp = new Set(state.apRequiredDungeons);
+            const nextAp = new Set(action.payload.dungeons);
+            state.manualRequiredDungeonOverrides = reconcileManualOverrides(
+                previousAp,
+                nextAp,
+                state.manualRequiredDungeonOverrides,
+            );
+            state.apRequiredDungeons = [...nextAp];
+            state.requiredDungeons = mergeWithManualOverrides(
+                nextAp,
+                state.manualRequiredDungeonOverrides,
+            );
             state.hasBeenModified = true;
         },
         clickDungeonName: (
@@ -189,13 +255,15 @@ const trackerSlice = createSlice({
             action: PayloadAction<{ dungeonName: RegularDungeon }>,
         ) => {
             const { dungeonName } = action.payload;
-            if (state.requiredDungeons.includes(dungeonName)) {
-                state.requiredDungeons = state.requiredDungeons.filter(
-                    (c) => c !== dungeonName,
-                );
-            } else {
-                state.requiredDungeons.push(dungeonName);
-            }
+            const required = state.requiredDungeons.includes(dungeonName);
+            state.manualRequiredDungeonOverrides = {
+                ...state.manualRequiredDungeonOverrides,
+                [dungeonName]: !required,
+            };
+            state.requiredDungeons = mergeWithManualOverrides(
+                new Set(state.apRequiredDungeons),
+                state.manualRequiredDungeonOverrides,
+            );
             state.hasBeenModified = true;
         },
         bulkEditChecks: (
@@ -203,17 +271,15 @@ const trackerSlice = createSlice({
             action: PayloadAction<{ checks: string[]; markChecked: boolean }>,
         ) => {
             const { checks, markChecked } = action.payload;
-            const oldChecks = new Set(state.checkedChecks);
-            if (markChecked) {
-                for (const check of checks) {
-                    oldChecks.add(check);
-                }
-            } else {
-                for (const check of checks) {
-                    oldChecks.delete(check);
-                }
+            const overrides = { ...state.manualCheckedOverrides };
+            for (const check of checks) {
+                overrides[check] = markChecked;
             }
-            state.checkedChecks = [...oldChecks];
+            state.manualCheckedOverrides = overrides;
+            state.checkedChecks = mergeWithManualOverrides(
+                new Set(state.apCheckedChecks),
+                state.manualCheckedOverrides,
+            );
             state.hasBeenModified = true;
         },
         mapEntrance: (
@@ -251,9 +317,6 @@ const trackerSlice = createSlice({
             state.userHintsText = action.payload;
             state.hasBeenModified ||= action.payload !== '';
         },
-        cancelItemAssignment: (state) => {
-            state.lastCheckedLocation = undefined;
-        },
         acceptSettings: (
             state,
             action: PayloadAction<{ settings: AllTypedOptions }>,
@@ -265,15 +328,17 @@ const trackerSlice = createSlice({
             _state,
             action: PayloadAction<{ settings: AllTypedOptions }>,
         ) => {
-            const { settings } = action.payload;
-            return {
-                ...initialState,
-                settings: settings,
-                inventory: getInitialItems(settings),
-            };
+            return createResetTrackerState(action.payload.settings);
         },
         loadTracker: (_state, action: PayloadAction<Partial<TrackerState>>) => {
-            return migrateTrackerState({ ...initialState, ...action.payload });
+            return migrateTrackerState(
+                { ...initialState, ...action.payload },
+                {
+                    shouldDefaultRequiredDungeons:
+                        action.payload.requiredDungeons === undefined,
+                    preserveRequiredDungeonSelection: true,
+                },
+            );
         },
     },
 });
@@ -283,13 +348,13 @@ export const {
     clickCheckInternal,
     setItemCounts,
     replaceItemCounts,
-    replaceCheckedChecks,
+    syncApCheckedChecks,
     setApLocationCounts,
-    setRequiredDungeons,
+    setApGratitudeCrystalCounts,
+    syncApRequiredDungeons,
     clickDungeonName,
     bulkEditChecks,
     mapEntrance,
-    cancelItemAssignment,
     acceptSettings,
     setCheckHint,
     reset,

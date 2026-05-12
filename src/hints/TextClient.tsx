@@ -6,15 +6,12 @@ import {
     useState,
     type FormEvent,
 } from 'react';
-import { useSelector } from 'react-redux';
 import Tooltip from '../additionalComponents/Tooltip';
 import type { ClientMessage, ColoredText } from '../archipelago/Archipelago';
 import {
     ClientManagerContext,
     useIsApConnected,
 } from '../archipelago/ClientHooks';
-import { itemLocationAssignmentEnabledSelector } from '../customization/Selectors';
-import { ItemAssignmentStatus } from './ItemAssignmentStatus';
 import styles from './TextClient.module.css';
 
 const getColorStyle = (ctxt: ColoredText) => {
@@ -98,9 +95,6 @@ export const CompactTextClient = memo(function CompactTextClient() {
 // Text client with color-coded nodes and tooltips to mirror that of the CommonClient
 export const TextClient = memo(function TextClient() {
     const inputRef = useRef<HTMLInputElement | null>(null);
-    const autoItemAssignemt = useSelector(
-        itemLocationAssignmentEnabledSelector,
-    );
     const clientManager = useContext(ClientManagerContext);
     const isConnected = useIsApConnected();
 
@@ -128,7 +122,6 @@ export const TextClient = memo(function TextClient() {
                     defaultValue=""
                 />
             </form>
-            {autoItemAssignemt && <ItemAssignmentStatus />}
         </div>
     );
 });

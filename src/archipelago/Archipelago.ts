@@ -13,6 +13,10 @@ import {
     setStoredArchipelagoSlot,
 } from '../LocalStorage';
 import {
+    parseRequiredDungeonsFromSlotData,
+    type RegularDungeon,
+} from '../logic/Locations';
+import {
     sothItemReplacement,
     triforceItemReplacement,
 } from '../logic/TrackerModifications';
@@ -48,6 +52,7 @@ const apProgressiveItemMinimums: Record<string, [item: string, count: number]> =
         'Tough Beetle': ['Progressive Beetle', 4],
         Scattershot: ['Progressive Slingshot', 2],
         'Big Bug Net': ['Progressive Bug Net', 2],
+        'Digging Mitts': ['Progressive Mitts', 1],
         'Mogma Mitts': ['Progressive Mitts', 2],
         'Iron Bow': ['Progressive Bow', 2],
         'Sacred Bow': ['Progressive Bow', 3],
@@ -58,8 +63,250 @@ export const apAbsoluteProgressiveInventoryItems = new Set(
     Object.values(apProgressiveItemMinimums).map(([item]) => item),
 );
 
+export const apAbsoluteInventoryMaximumItems = new Set<string>([
+    ...apAbsoluteProgressiveInventoryItems,
+    'Empty Bottle',
+    'Progressive Pouch',
+    'Progressive Wallet',
+]);
+
+export function mergeApInventoryWithSeedItems(
+    startingInventory: TrackerState['inventory'],
+    apInventory: TrackerState['inventory'],
+): TrackerState['inventory'] {
+    const merged: TrackerState['inventory'] = { ...startingInventory };
+
+    for (const [item, count] of Object.entries(apInventory)) {
+        if (isArchipelagoCrystalLogicItem(item)) {
+            continue;
+        }
+
+        const apCount = count ?? 0;
+        if (apAbsoluteInventoryMaximumItems.has(item)) {
+            merged[item] = Math.max(merged[item] ?? 0, apCount);
+            continue;
+        }
+
+        merged[item] = (startingInventory[item] ?? 0) + apCount;
+    }
+
+    return merged;
+}
+
 function isArchipelagoCrystalLogicItem(item: string): boolean {
     return item === 'Gratitude Crystal' || item === 'Gratitude Crystal Pack';
+}
+
+const GRATITUDE_CRYSTAL_DATA_STORAGE_KEY = 'Gratitude Crystal';
+const GRATITUDE_CRYSTAL_PACK_DATA_STORAGE_KEY = 'Gratitude Crystal Pack';
+const PROGRESSIVE_SWORD_DATA_STORAGE_KEY = 'Progressive Sword';
+
+function gratitudeCrystalDataStorageKeys(team: number, slot: number) {
+    return [
+        GRATITUDE_CRYSTAL_DATA_STORAGE_KEY,
+        GRATITUDE_CRYSTAL_PACK_DATA_STORAGE_KEY,
+        `${GRATITUDE_CRYSTAL_DATA_STORAGE_KEY}_${team}_${slot}`,
+        `${GRATITUDE_CRYSTAL_PACK_DATA_STORAGE_KEY}_${team}_${slot}`,
+        `gratitude_crystal_${team}_${slot}`,
+        `gratitude_crystal_pack_${team}_${slot}`,
+        `gratitude_crystals_${team}_${slot}`,
+        `gratitude_crystal_packs_${team}_${slot}`,
+    ];
+}
+
+function progressiveSwordDataStorageKeys(team: number, slot: number) {
+    return [
+        PROGRESSIVE_SWORD_DATA_STORAGE_KEY,
+        `${PROGRESSIVE_SWORD_DATA_STORAGE_KEY}_${team}_${slot}`,
+        `progressive_sword_${team}_${slot}`,
+    ];
+}
+
+function readDataStorageCount(value: unknown): number | undefined {
+    if (typeof value === 'number' && Number.isFinite(value)) {
+        return value;
+    }
+    if (typeof value === 'string' && value.trim() !== '') {
+        const parsed = Number(value);
+        return Number.isFinite(parsed) ? parsed : undefined;
+    }
+    if (value && typeof value === 'object' && !Array.isArray(value)) {
+        const record = value as Record<string, unknown>;
+        return (
+            readDataStorageCount(record.count) ??
+            readDataStorageCount(record.amount) ??
+            readDataStorageCount(record.value)
+        );
+    }
+    return undefined;
+}
+
+function isGratitudeCrystalPackStorageKey(key: string): boolean {
+    const normalized = key.toLowerCase();
+    return (
+        !normalized.startsWith('option_') &&
+        normalized.includes('gratitude') &&
+        normalized.includes('pack')
+    );
+}
+
+function isGratitudeCrystalSinglesStorageKey(key: string): boolean {
+    const normalized = key.toLowerCase();
+    return (
+        !normalized.startsWith('option_') &&
+        normalized.includes('gratitude') &&
+        normalized.includes('crystal') &&
+        !normalized.includes('pack')
+    );
+}
+
+function isProgressiveSwordStorageKey(key: string): boolean {
+    const normalized = key.toLowerCase();
+    return (
+        !normalized.startsWith('option_') &&
+        normalized.includes('progressive') &&
+        normalized.includes('sword')
+    );
+}
+
+function sumNumericLeaves(value: unknown): number {
+    const direct = readDataStorageCount(value);
+    if (direct !== undefined) {
+        return direct;
+    }
+
+    if (value && typeof value === 'object' && !Array.isArray(value)) {
+        return Object.values(value as Record<string, unknown>).reduce<number>(
+            (total, child) => total + sumNumericLeaves(child),
+            0,
+        );
+    }
+
+    return 0;
+}
+
+function addGratitudeCrystalCount(
+    singles: { value?: number },
+    packs: { value?: number },
+    nextSingles: number,
+    nextPacks: number,
+) {
+    if (nextSingles > 0) {
+        singles.value = (singles.value ?? 0) + nextSingles;
+    }
+    if (nextPacks > 0) {
+        packs.value = (packs.value ?? 0) + nextPacks;
+    }
+}
+
+function visitGratitudeCrystalDataStorage(
+    key: string,
+    value: unknown,
+    singles: { value?: number },
+    packs: { value?: number },
+) {
+    if (isGratitudeCrystalPackStorageKey(key)) {
+        addGratitudeCrystalCount(singles, packs, 0, sumNumericLeaves(value));
+        return;
+    }
+
+    if (isGratitudeCrystalSinglesStorageKey(key)) {
+        addGratitudeCrystalCount(singles, packs, sumNumericLeaves(value), 0);
+        return;
+    }
+
+    if (value && typeof value === 'object' && !Array.isArray(value)) {
+        for (const [nestedKey, nestedValue] of Object.entries(
+            value as Record<string, unknown>,
+        )) {
+            visitGratitudeCrystalDataStorage(
+                nestedKey,
+                nestedValue,
+                singles,
+                packs,
+            );
+        }
+    }
+}
+
+export type ApGratitudeCrystalCounts = {
+    singles: number;
+    packs: number;
+};
+
+export function parseGratitudeCrystalDataStorage(
+    ...sources: Record<string, unknown>[]
+): ApGratitudeCrystalCounts | undefined {
+    const singles = { value: undefined as number | undefined };
+    const packs = { value: undefined as number | undefined };
+
+    for (const source of sources) {
+        for (const [key, value] of Object.entries(source)) {
+            visitGratitudeCrystalDataStorage(key, value, singles, packs);
+        }
+    }
+
+    if (singles.value === undefined && packs.value === undefined) {
+        return undefined;
+    }
+
+    return {
+        singles: singles.value ?? 0,
+        packs: packs.value ?? 0,
+    };
+}
+
+export function parseProgressiveSwordDataStorage(
+    ...sources: Record<string, unknown>[]
+): number | undefined {
+    for (const source of sources) {
+        for (const [key, value] of Object.entries(source)) {
+            if (!isProgressiveSwordStorageKey(key)) {
+                continue;
+            }
+            const count = readDataStorageCount(value);
+            if (count !== undefined) {
+                return count;
+            }
+        }
+    }
+    return undefined;
+}
+
+export const AP_ITEM_ID_GRATITUDE_CRYSTAL = 2773048;
+export const AP_ITEM_ID_GRATITUDE_CRYSTAL_PACK = 2773035;
+
+export function parseGratitudeCrystalCountsFromReceivedItems(
+    receivedNetworkItems: readonly NetworkItem[],
+): ApGratitudeCrystalCounts | undefined {
+    let singles = 0;
+    let packs = 0;
+
+    for (const networkItem of receivedNetworkItems) {
+        if (networkItem.item === AP_ITEM_ID_GRATITUDE_CRYSTAL) {
+            singles++;
+        } else if (networkItem.item === AP_ITEM_ID_GRATITUDE_CRYSTAL_PACK) {
+            packs++;
+        }
+    }
+
+    if (singles === 0 && packs === 0) {
+        return undefined;
+    }
+
+    return { singles, packs };
+}
+
+function resolveApGratitudeCrystalCounts(
+    dataStorage: Record<string, unknown>,
+    receivedNetworkItems: readonly NetworkItem[],
+): ApGratitudeCrystalCounts | undefined {
+    const fromDataStorage = parseGratitudeCrystalDataStorage(dataStorage);
+    if (fromDataStorage !== undefined) {
+        return fromDataStorage;
+    }
+
+    return parseGratitudeCrystalCountsFromReceivedItems(receivedNetworkItems);
 }
 
 function optionIndicesToOptions(
@@ -130,32 +377,54 @@ export type RequiredDungeonDiagnostic = {
     verdict: string;
 };
 
-export type SwordDiagnostic = {
-    startingSword: number;
-    selfProgressiveSwordChecksForSelf: number;
-    receivedProgressiveSwordsFromOthers: number;
-    totalExpectedSwordLevel: number;
-    trackerInventoryProgressiveSword: number;
-    scoutedCheckedLocations: number;
-    receivedProgressiveSwordDetails: Array<{
-        itemId: number;
-        fromPlayerSlot: number;
+type SlotData = Record<string, unknown>;
+
+function cloneForExport<T>(value: T): T {
+    return JSON.parse(JSON.stringify(value)) as T;
+}
+
+export type ApSnapshotArchipelagoData = {
+    dataStorage: Record<string, unknown>;
+    slot_data?: unknown;
+    checked_locations?: number[];
+    slot?: number;
+    team?: number;
+    gratitudeCrystals?: ApGratitudeCrystalCounts;
+};
+
+export type ApServerDataExport = {
+    generatedAt: string;
+    connection?: {
+        server: string;
+        slot: string;
+    };
+    connectedPacket?: ConnectedPacket;
+    dataStorage: Record<string, unknown>;
+    syncDiagnostic?: ApSyncDiagnostic;
+    dataPackage?: unknown;
+    requiredDungeonDiagnostic?: RequiredDungeonDiagnostic;
+    checkedLocationIds: number[];
+    checkedLocations: string[];
+    receivedNetworkItems: NetworkItem[];
+    scoutedSelfItemsByLocation: Array<{
         locationId: number;
-        flags: number;
-    }>;
-    selfProgressiveSwordLocationDetails: Array<{
-        locationId: number;
-        receiverSlot: number;
+        name: string;
         game: string;
-        item: string;
+        receiverSlot: number;
     }>;
 };
 
-function isSyntheticStartingItem(networkItem: NetworkItem): boolean {
-    return networkItem.player === 0 && networkItem.location === -2;
-}
-
-type SlotData = Record<string, unknown>;
+export type ApSyncDiagnostic = {
+    subscribedDataStorageKeys: string[];
+    subscribedDataStorageValues: Record<string, unknown>;
+    gratitudeCrystalSource: 'dataStorage' | 'receivedNetworkItems' | 'none';
+    progressiveSwordSource: 'dataStorage' | 'inventoryReconstruction' | 'none';
+    trackerCounts: {
+        gratitudeCrystals?: ApGratitudeCrystalCounts;
+        progressiveSword?: number;
+        progressiveMitts?: number;
+    };
+};
 
 function getSlotDataLocationCount(slotData: SlotData): number | undefined {
     const locationToItemMap = slotData['location_to_item_map'];
@@ -185,11 +454,14 @@ export class APClientManager {
     checkedLocations: string[] = [];
     checkedCubes: number = 0;
     messages: ClientMessage[] = [];
-    requiredDungeons: string[] = [];
+    requiredDungeons: RegularDungeon[] = [];
+    private hasDeliveredRequiredDungeonsToTracker = false;
+    private requiredDungeonsAuthoritative = false;
     requiredDungeonDiagnostic?: RequiredDungeonDiagnostic;
-    swordDiagnostic?: SwordDiagnostic;
     totalLocationCount?: number;
     cubeDataKey?: string;
+    gratitudeDataStorageKeys: string[] = [];
+    progressiveSwordDataStorageKeys: string[] = [];
     scoutedCheckedLocationIds = new Set<number>();
     scoutedSelfItemsByLocation = new Map<
         number,
@@ -201,14 +473,33 @@ export class APClientManager {
     >();
     resolveLocations?: (locs: string[]) => void;
     resolveItems?: (items: TrackerState['inventory']) => void;
-    resolveRequiredDungeons?: (dungeons: string[]) => void;
+    resolveRequiredDungeons?: (dungeons: RegularDungeon[]) => void;
     resolveLocationStats?: (stats: { total?: number; checked: number }) => void;
     changeStage?: (stage: string) => void;
     resolveCubes?: (cubeflags: number) => void;
+    resolveGratitudeCrystalCounts?: (
+        counts: ApGratitudeCrystalCounts | undefined,
+    ) => void;
     onMessage?: (messages: ClientMessage[]) => void;
+    apDataPackage?: unknown;
+    apDataStorage: Record<string, unknown> = {};
+    private hasDeliveredCheckedLocationsToTracker = false;
 
     status: ClientConnectionState = { state: 'loggedOut' };
     statusSubscriptions: Set<() => void> = new Set();
+
+    private deliverRequiredDungeons() {
+        if (!this.resolveRequiredDungeons || !this.requiredDungeonsAuthoritative) {
+            return;
+        }
+
+        this.resolveRequiredDungeons(this.requiredDungeons);
+        this.hasDeliveredRequiredDungeonsToTracker = true;
+    }
+
+    private markRequiredDungeonsDeliveryHandled() {
+        this.hasDeliveredRequiredDungeonsToTracker = true;
+    }
 
     private syncCheckedLocations() {
         if (this.idToLocation === undefined) {
@@ -235,6 +526,9 @@ export class APClientManager {
         }
 
         this.resolveLocations?.(this.checkedLocations);
+        if (this.resolveLocations) {
+            this.hasDeliveredCheckedLocationsToTracker = true;
+        }
     }
 
     private setCheckedLocationIds(locationIds: number[]) {
@@ -361,83 +655,59 @@ export class APClientManager {
             this.applyApItemToInventory(nextInventory, scoutedItem.name);
         }
 
+        this.applyProgressiveSwordDataStorage(nextInventory);
+        this.applyGratitudeCrystalDataStorage(nextInventory);
+
         this.inventory = nextInventory;
-        this.recomputeSwordDiagnostic();
+        this.syncGratitudeCrystalCounts();
         this.resolveItems?.(this.inventory);
     }
 
-    private recomputeSwordDiagnostic() {
-        if (this.connectedData === undefined) {
-            this.swordDiagnostic = undefined;
+    private applyProgressiveSwordDataStorage(
+        inventory: TrackerState['inventory'],
+    ) {
+        const parsed = parseProgressiveSwordDataStorage(this.apDataStorage);
+        if (parsed === undefined) {
             return;
         }
 
-        const startingSword = Number(
-            (
-                this.connectedData.slot_data as
-                    | Record<string, unknown>
-                    | undefined
-            )?.option_starting_sword ?? 0,
+        this.setInventoryAtLeast(inventory, 'Progressive Sword', parsed);
+    }
+
+    private syncGratitudeCrystalCounts() {
+        if (this.connectedData === undefined) {
+            this.resolveGratitudeCrystalCounts?.(undefined);
+            return;
+        }
+
+        const parsed = resolveApGratitudeCrystalCounts(
+            this.apDataStorage,
+            this.receivedNetworkItems,
         );
+        if (parsed === undefined) {
+            return;
+        }
 
-        const selfProgressiveSwordChecksForSelf = [
-            ...this.scoutedSelfItemsByLocation.values(),
-        ].filter(
-            (item) =>
-                item.receiverSlot === this.connectedData!.slot &&
-                item.game === GAME_NAME &&
-                item.name === 'Progressive Sword',
-        ).length;
+        this.resolveGratitudeCrystalCounts?.(parsed);
+    }
 
-        const receivedProgressiveSwordItems =
-            this.idToItem === undefined
-                ? []
-                : this.receivedNetworkItems.filter(
-                      (networkItem) =>
-                          networkItem.player !== this.connectedData!.slot &&
-                          !isSyntheticStartingItem(networkItem) &&
-                          this.idToItem?.[networkItem.item] ===
-                              'Progressive Sword',
-                  );
-        const receivedProgressiveSwordsFromOthers =
-            receivedProgressiveSwordItems.length;
-        const receivedProgressiveSwordDetails =
-            receivedProgressiveSwordItems.map((networkItem) => ({
-                itemId: networkItem.item,
-                fromPlayerSlot: networkItem.player,
-                locationId: networkItem.location,
-                flags: networkItem.flags,
-            }));
-        const selfProgressiveSwordLocationDetails = [
-            ...this.scoutedSelfItemsByLocation.entries(),
-        ]
-            .filter(
-                ([, item]) =>
-                    item.receiverSlot === this.connectedData!.slot &&
-                    item.game === GAME_NAME &&
-                    item.name === 'Progressive Sword',
-            )
-            .map(([locationId, item]) => ({
-                locationId,
-                receiverSlot: item.receiverSlot,
-                game: item.game,
-                item: item.name,
-            }));
+    private applyGratitudeCrystalDataStorage(
+        inventory: TrackerState['inventory'],
+    ) {
+        if (this.connectedData === undefined) {
+            return;
+        }
 
-        this.swordDiagnostic = {
-            startingSword,
-            selfProgressiveSwordChecksForSelf,
-            receivedProgressiveSwordsFromOthers,
-            totalExpectedSwordLevel:
-                startingSword +
-                selfProgressiveSwordChecksForSelf +
-                receivedProgressiveSwordsFromOthers,
-            trackerInventoryProgressiveSword:
-                this.inventory['Progressive Sword'] ?? 0,
-            scoutedCheckedLocations: this.scoutedSelfItemsByLocation.size,
-            receivedProgressiveSwordDetails,
-            selfProgressiveSwordLocationDetails,
-        };
+        const parsed = resolveApGratitudeCrystalCounts(
+            this.apDataStorage,
+            this.receivedNetworkItems,
+        );
+        if (parsed === undefined) {
+            return;
+        }
+
+        inventory[GRATITUDE_CRYSTAL_DATA_STORAGE_KEY] = parsed.singles;
+        inventory[GRATITUDE_CRYSTAL_PACK_DATA_STORAGE_KEY] = parsed.packs;
     }
 
     private getSlotDataLocationToItemMap(): Record<number, number> {
@@ -521,13 +791,151 @@ export class APClientManager {
         return this.requiredDungeonDiagnostic;
     }
 
-    getSwordDiagnostic(): SwordDiagnostic | undefined {
-        return this.swordDiagnostic;
+    getApSnapshotArchipelagoData(): ApSnapshotArchipelagoData | undefined {
+        if (this.connectedData === undefined) {
+            return undefined;
+        }
+
+        const gratitudeCrystals = resolveApGratitudeCrystalCounts(
+            this.apDataStorage,
+            this.receivedNetworkItems,
+        );
+
+        return {
+            dataStorage: cloneForExport(this.apDataStorage),
+            slot_data: cloneForExport(this.connectedData.slot_data),
+            checked_locations: cloneForExport(
+                this.connectedData.checked_locations,
+            ),
+            slot: this.connectedData.slot,
+            team: this.connectedData.team,
+            gratitudeCrystals,
+        };
+    }
+
+    getApServerDataExport(): ApServerDataExport {
+        const connection =
+            this.status.state === 'loggedIn'
+                ? {
+                      server: this.status.serverName,
+                      slot: this.status.slotName,
+                  }
+                : undefined;
+
+        return {
+            generatedAt: new Date().toISOString(),
+            connection,
+            connectedPacket:
+                this.connectedData === undefined
+                    ? undefined
+                    : cloneForExport(this.connectedData),
+            dataStorage: cloneForExport(this.apDataStorage),
+            syncDiagnostic: this.getApSyncDiagnostic(),
+            dataPackage:
+                this.apDataPackage === undefined
+                    ? undefined
+                    : cloneForExport(this.apDataPackage),
+            requiredDungeonDiagnostic: this.requiredDungeonDiagnostic
+                ? cloneForExport(this.requiredDungeonDiagnostic)
+                : undefined,
+            checkedLocationIds: [...this.checkedLocationIds],
+            checkedLocations: [...this.checkedLocations],
+            receivedNetworkItems: cloneForExport(this.receivedNetworkItems),
+            scoutedSelfItemsByLocation: [
+                ...this.scoutedSelfItemsByLocation.entries(),
+            ].map(([locationId, item]) => ({
+                locationId,
+                ...item,
+            })),
+        };
+    }
+
+    private getApSyncDiagnostic(): ApSyncDiagnostic | undefined {
+        if (this.connectedData === undefined) {
+            return undefined;
+        }
+
+        const subscribedDataStorageKeys = [
+            ...(this.cubeDataKey === undefined ? [] : [this.cubeDataKey]),
+            ...this.gratitudeDataStorageKeys,
+            ...this.progressiveSwordDataStorageKeys,
+        ];
+        const subscribedDataStorageValues = Object.fromEntries(
+            subscribedDataStorageKeys.map((key) => [
+                key,
+                this.apDataStorage[key] ?? null,
+            ]),
+        );
+
+        const gratitudeFromDataStorage = parseGratitudeCrystalDataStorage(
+            this.apDataStorage,
+        );
+        const gratitudeFromReceivedItems =
+            parseGratitudeCrystalCountsFromReceivedItems(
+                this.receivedNetworkItems,
+            );
+        const gratitudeCrystalSource =
+            gratitudeFromDataStorage !== undefined
+                ? 'dataStorage'
+                : gratitudeFromReceivedItems !== undefined
+                  ? 'receivedNetworkItems'
+                  : 'none';
+
+        const progressiveSwordFromDataStorage = parseProgressiveSwordDataStorage(
+            this.apDataStorage,
+        );
+        const progressiveSwordSource =
+            progressiveSwordFromDataStorage !== undefined
+                ? 'dataStorage'
+                : (this.inventory['Progressive Sword'] ?? 0) > 0
+                  ? 'inventoryReconstruction'
+                  : 'none';
+
+        return {
+            subscribedDataStorageKeys,
+            subscribedDataStorageValues,
+            gratitudeCrystalSource,
+            progressiveSwordSource,
+            trackerCounts: {
+                gratitudeCrystals: resolveApGratitudeCrystalCounts(
+                    this.apDataStorage,
+                    this.receivedNetworkItems,
+                ),
+                progressiveSword: this.inventory['Progressive Sword'],
+                progressiveMitts: this.inventory['Progressive Mitts'],
+            },
+        };
+    }
+
+    private clearApServerExportData() {
+        this.apDataPackage = undefined;
+        this.apDataStorage = {};
+        this.gratitudeDataStorageKeys = [];
+        this.progressiveSwordDataStorageKeys = [];
+    }
+
+    private recordApDataStorage(key: string, value: unknown) {
+        this.apDataStorage[key] = value;
+        this.notifyStatusSubscribers();
+        this.rebuildInventory();
+    }
+
+    private recordApDataStorageKeys(keys: Record<string, unknown>) {
+        for (const [key, value] of Object.entries(keys)) {
+            this.apDataStorage[key] = value;
+        }
+        this.notifyStatusSubscribers();
+        this.rebuildInventory();
     }
 
     setLocationCallback(func: (locs: string[]) => void) {
         this.resolveLocations = func;
-        this.resolveLocations(this.checkedLocations);
+        if (
+            !this.hasDeliveredCheckedLocationsToTracker &&
+            this.checkedLocations.length > 0
+        ) {
+            this.syncCheckedLocations();
+        }
     }
 
     setItemCallback(func: (items: TrackerState['inventory']) => void) {
@@ -539,9 +947,15 @@ export class APClientManager {
         this.changeStage = func;
     }
 
-    setRequiredDungeonsCallback(func: (dungeons: string[]) => void) {
+    setRequiredDungeonsCallback(func: (dungeons: RegularDungeon[]) => void) {
         this.resolveRequiredDungeons = func;
-        this.resolveRequiredDungeons(this.requiredDungeons);
+        if (!this.hasDeliveredRequiredDungeonsToTracker) {
+            if (this.requiredDungeonsAuthoritative) {
+                this.deliverRequiredDungeons();
+            } else {
+                this.markRequiredDungeonsDeliveryHandled();
+            }
+        }
     }
 
     setLocationStatsCallback(
@@ -559,9 +973,27 @@ export class APClientManager {
         this.resolveCubes(this.checkedCubes);
     }
 
+    setGratitudeCrystalCountsCallback(
+        func: (counts: ApGratitudeCrystalCounts | undefined) => void,
+    ) {
+        this.resolveGratitudeCrystalCounts = func;
+        this.syncGratitudeCrystalCounts();
+    }
+
     setOnMessage(func: (messages: ClientMessage[]) => void) {
         this.onMessage = func;
         this.onMessage(this.messages);
+    }
+
+    redeliverTrackerState() {
+        this.hasDeliveredRequiredDungeonsToTracker = false;
+        this.hasDeliveredCheckedLocationsToTracker = false;
+        if (this.requiredDungeonsAuthoritative) {
+            this.deliverRequiredDungeons();
+        } else {
+            this.markRequiredDungeonsDeliveryHandled();
+        }
+        this.syncCheckedLocations();
     }
 
     sendMessage(message: string) {
@@ -584,17 +1016,24 @@ export class APClientManager {
             this.checkedCubes = 0;
             this.messages = [];
             this.cubeDataKey = undefined;
+            this.gratitudeDataStorageKeys = [];
+            this.progressiveSwordDataStorageKeys = [];
             this.scoutedCheckedLocationIds.clear();
             this.scoutedSelfItemsByLocation.clear();
             this.requiredDungeonDiagnostic = undefined;
-            this.swordDiagnostic = undefined;
             this.totalLocationCount = undefined;
             this.resolveLocations = undefined;
+            this.hasDeliveredCheckedLocationsToTracker = false;
             this.resolveItems = undefined;
             this.changeStage = undefined;
             this.resolveRequiredDungeons = undefined;
+            this.hasDeliveredRequiredDungeonsToTracker = false;
+            this.requiredDungeonsAuthoritative = false;
             this.resolveLocationStats = undefined;
             this.resolveCubes = undefined;
+            this.resolveGratitudeCrystalCounts?.(undefined);
+            this.resolveGratitudeCrystalCounts = undefined;
+            this.clearApServerExportData();
 
             this.status = { state: 'loggedOut' };
             this.notifyStatusSubscribers();
@@ -645,12 +1084,16 @@ export class APClientManager {
             this.resetClient();
         }
 
+        this.clearApServerExportData();
+
         const client = new Client();
         let connectSetupError: unknown;
 
         client.socket.on('connected', (content) => {
             try {
                 this.connectedData = content;
+                this.hasDeliveredRequiredDungeonsToTracker = false;
+                this.hasDeliveredCheckedLocationsToTracker = false;
                 setStoredArchipelagoServer(server);
                 setStoredArchipelagoSlot(slot);
                 const slotData = content.slot_data as Record<string, unknown>;
@@ -660,12 +1103,15 @@ export class APClientManager {
                 );
                 const requiredDungeonsRaw = slotData['required_dungeons'];
                 this.requiredDungeons =
+                    parseRequiredDungeonsFromSlotData(requiredDungeonsRaw);
+                const usedSlotDataRequiredDungeons =
                     Array.isArray(requiredDungeonsRaw) &&
+                    requiredDungeonsRaw.length > 0 &&
                     requiredDungeonsRaw.every(
                         (entry) => typeof entry === 'string',
-                    )
-                        ? requiredDungeonsRaw
-                        : [];
+                    );
+                this.requiredDungeonsAuthoritative =
+                    usedSlotDataRequiredDungeons;
                 this.requiredDungeonDiagnostic = {
                     slotDataKeys: Object.keys(slotData).sort((left, right) =>
                         left.localeCompare(right),
@@ -675,12 +1121,11 @@ export class APClientManager {
                         .sort((left, right) => left.localeCompare(right)),
                     requiredDungeonsRaw,
                     requiredDungeons: this.requiredDungeons,
-                    verdict:
-                        requiredDungeonsRaw === undefined
-                            ? 'slot_data does not contain required_dungeons'
-                            : this.requiredDungeons.length > 0
-                              ? 'slot_data contains required_dungeons'
-                              : 'slot_data contains required_dungeons but not as a string[]',
+                    verdict: usedSlotDataRequiredDungeons
+                        ? 'slot_data.required_dungeons applied'
+                        : requiredDungeonsRaw === undefined
+                          ? 'slot_data missing required_dungeons; defaulted to all surface dungeons'
+                          : 'slot_data.required_dungeons missing or invalid; defaulted to all surface dungeons',
                 };
                 console.info('AP slot_data:', slotData);
                 console.info(
@@ -688,8 +1133,11 @@ export class APClientManager {
                     this.requiredDungeonDiagnostic,
                 );
                 this.totalLocationCount = getSlotDataLocationCount(slotData);
-                this.recomputeSwordDiagnostic();
-                this.resolveRequiredDungeons?.(this.requiredDungeons);
+                if (this.requiredDungeonsAuthoritative) {
+                    this.deliverRequiredDungeons();
+                } else {
+                    this.markRequiredDungeonsDeliveryHandled();
+                }
                 this.setCheckedLocationIds(
                     this.connectedData.checked_locations,
                 );
@@ -699,13 +1147,27 @@ export class APClientManager {
                     games: [GAME_NAME],
                 });
                 this.cubeDataKey = `skyward_sword_cubes_${content.team}_${content.slot}`;
+                this.gratitudeDataStorageKeys = gratitudeCrystalDataStorageKeys(
+                    content.team,
+                    content.slot,
+                );
+                this.progressiveSwordDataStorageKeys =
+                    progressiveSwordDataStorageKeys(
+                        content.team,
+                        content.slot,
+                    );
+                const dataStorageKeys = [
+                    this.cubeDataKey,
+                    ...this.gratitudeDataStorageKeys,
+                    ...this.progressiveSwordDataStorageKeys,
+                ];
                 client.socket.send({
                     cmd: 'SetNotify',
-                    keys: [this.cubeDataKey],
+                    keys: dataStorageKeys,
                 });
                 client.socket.send({
                     cmd: 'Get',
-                    keys: [this.cubeDataKey],
+                    keys: dataStorageKeys,
                 });
             } catch (error) {
                 connectSetupError = error;
@@ -718,6 +1180,8 @@ export class APClientManager {
         });
 
         client.socket.on('dataPackage', (content) => {
+            this.apDataPackage = content;
+            this.notifyStatusSubscribers();
             const ssData = content.data.games[GAME_NAME];
             console.log(
                 'AP DataPackage games:',
@@ -854,6 +1318,9 @@ export class APClientManager {
         });
 
         client.socket.on('retrieved', (content) => {
+            this.recordApDataStorageKeys(
+                content.keys as Record<string, unknown>,
+            );
             if (this.cubeDataKey !== undefined) {
                 const new_cubes = content.keys[this.cubeDataKey];
                 if (new_cubes !== undefined) {
@@ -864,6 +1331,7 @@ export class APClientManager {
         });
 
         client.socket.on('setReply', (content) => {
+            this.recordApDataStorage(content.key, content.value);
             if (this.cubeDataKey === content.key) {
                 const new_cubes = content.value;
                 if (new_cubes !== undefined) {

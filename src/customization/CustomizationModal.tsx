@@ -9,7 +9,7 @@ import {
 } from '../additionalComponents/Select';
 import Tooltip from '../additionalComponents/Tooltip';
 import { isLogicLoadedSelector, optionsSelector } from '../logic/Selectors';
-import { type ThunkResult, useAppDispatch } from '../store/Store';
+import { useAppDispatch } from '../store/Store';
 import ColorBlock from './ColorBlock';
 import {
     type ColorScheme,
@@ -21,9 +21,7 @@ import {
     autoRegionLoadingSelector,
     colorSchemeSelector,
     counterBasisSelector,
-    hasCustomLayoutSelector,
     itemLayoutSelector,
-    itemLocationAssignmentEnabledSelector,
     locationLayoutSelector,
     trickSemiLogicSelector,
     trickSemiLogicTrickListSelector,
@@ -33,11 +31,9 @@ import {
     type CounterBasis,
     type ItemLayout,
     type LocationLayout,
-    setAutoItemAssignment,
     setAutoRegionLoading,
     setColorScheme,
     setCounterBasis,
-    setCustomLayout,
     setEnabledSemilogicTricks,
     setItemLayout,
     setLocationLayout,
@@ -84,18 +80,6 @@ const colors: { key: keyof ColorScheme; name: string }[] = [
     { key: 'apOtherPlayer', name: 'Archipelago Other Player Slot' },
 ];
 
-function importCustomLayout(): ThunkResult {
-    return (dispatch, getState) => {
-        const existingLayout = getState().customization.customLayout;
-        const newLayout =
-            window.prompt(
-                'Paste custom layout here (empty to clear)',
-                existingLayout,
-            ) || undefined;
-        dispatch(setCustomLayout(newLayout));
-    };
-}
-
 function Setting({
     name,
     tooltip,
@@ -129,9 +113,6 @@ export default function CustomizationModal({
     const trickSemiLogic = useSelector(trickSemiLogicSelector);
     const counterBasis = useSelector(counterBasisSelector);
     const tumbleweed = useSelector(tumbleweedSelector);
-    const itemLocationAssignment = useSelector(
-        itemLocationAssignmentEnabledSelector,
-    );
     const autoRegionLoading = useSelector(autoRegionLoadingSelector);
     const isLogicLoaded = useSelector(isLogicLoadedSelector);
 
@@ -140,8 +121,6 @@ export default function CustomizationModal({
         [dispatch],
     );
 
-    const hasCustomLayout = useSelector(hasCustomLayoutSelector);
-
     return (
         <Dialog
             open={open}
@@ -149,43 +128,8 @@ export default function CustomizationModal({
             title="Tracker Customization"
             className={styles.modal}
         >
-            <Setting name="Presets">
-                <div className={styles.colorPresets}>
-                    {Object.entries(defaultColorSchemes).map(
-                        ([key, scheme]) => (
-                            <div key={key}>
-                                <button
-                                    type="button"
-                                    className="tracker-button"
-                                    style={{
-                                        background: scheme.background,
-                                        color: scheme.text,
-                                        border: '1px solid var(--scheme-text)',
-                                    }}
-                                    onClick={() => updateColorScheme(scheme)}
-                                >
-                                    {key}
-                                </button>
-                            </div>
-                        ),
-                    )}
-                </div>
-            </Setting>
-            <Setting name="Colors">
-                {colors.map(({ key, name }) => (
-                    <ColorBlock
-                        key={key}
-                        colorName={name}
-                        schemeKey={key}
-                        colorScheme={colorScheme}
-                        updateColorScheme={updateColorScheme}
-                    />
-                ))}
-            </Setting>
-
             <Setting name="Item Tracker Settings">
                 <Select
-                    disabled={hasCustomLayout}
                     selectedValue={itemLayouts.find((l) => l.value === layout)}
                     onValueChange={(e) => e && dispatch(setItemLayout(e))}
                     options={itemLayouts}
@@ -194,7 +138,6 @@ export default function CustomizationModal({
             </Setting>
             <Setting name="Location Tracker Settings">
                 <Select
-                    disabled={hasCustomLayout}
                     selectedValue={locationLayouts.find(
                         (l) => l.value === locationLayout,
                     )}
@@ -245,18 +188,6 @@ export default function CustomizationModal({
                 </div>
                 <div className={styles.labeledCheckbox}>
                     <Checkbox
-                        id="autoItemAssignemt"
-                        checked={itemLocationAssignment}
-                        onCheckedChange={(e) =>
-                            dispatch(setAutoItemAssignment(e))
-                        }
-                    />
-                    <label htmlFor="autoItemAssignemt">
-                        Assign Items to locations while tracking
-                    </label>
-                </div>
-                <div className={styles.labeledCheckbox}>
-                    <Checkbox
                         id="autoRegionChange"
                         checked={autoRegionLoading}
                         onCheckedChange={(e) =>
@@ -268,19 +199,41 @@ export default function CustomizationModal({
                     </label>
                 </div>
             </Setting>
-            <Setting name="Custom Layout (experimental!)">
-                <div>
-                    <button
-                        type="button"
-                        className="tracker-button"
-                        onClick={() => {
-                            dispatch(importCustomLayout());
-                        }}
-                    >
-                        Import custom layout
-                    </button>
+            <div className={styles.colorCustomizationSection}>
+                <Setting name="Presets">
+                <div className={styles.colorPresets}>
+                    {Object.entries(defaultColorSchemes).map(
+                        ([key, scheme]) => (
+                            <div key={key}>
+                                <button
+                                    type="button"
+                                    className="tracker-button"
+                                    style={{
+                                        background: scheme.background,
+                                        color: scheme.text,
+                                        border: '1px solid var(--scheme-text)',
+                                    }}
+                                    onClick={() => updateColorScheme(scheme)}
+                                >
+                                    {key}
+                                </button>
+                            </div>
+                        ),
+                    )}
                 </div>
             </Setting>
+            <Setting name="Colors">
+                {colors.map(({ key, name }) => (
+                    <ColorBlock
+                        key={key}
+                        colorName={name}
+                        schemeKey={key}
+                        colorScheme={colorScheme}
+                        updateColorScheme={updateColorScheme}
+                    />
+                ))}
+            </Setting>
+            </div>
         </Dialog>
     );
 }

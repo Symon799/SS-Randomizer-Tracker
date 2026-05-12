@@ -1,7 +1,8 @@
+import clsx from 'clsx';
 import { useContext, useEffect, useRef, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector, useStore } from 'react-redux';
 import { Link, Navigate } from 'react-router-dom';
-import { apAbsoluteProgressiveInventoryItems } from './archipelago/Archipelago';
+import { mergeApInventoryWithSeedItems } from './archipelago/Archipelago';
 import {
     ClientManagerContext,
     useApConnectionStatus,
@@ -13,30 +14,30 @@ import CustomizationModal from './customization/CustomizationModal';
 import {
     autoRegionLoadingSelector,
     debugModeSelector,
-    hasCustomLayoutSelector,
 } from './customization/Selectors';
 import { setDebugMode } from './customization/Slice';
 import stageToRegion from './data/stageToRegion.json';
 import { DragAndDropContext } from './dragAndDrop/DragAndDrop';
 import EntranceTracker from './entranceTracker/EntranceTracker';
 import { TextClient } from './hints/TextClient';
-import { ExportUtSnapshotButton } from './ImportExport';
-import { TrackerLayoutCustom } from './layouts/TrackerLayoutCustom';
+import { ExportApServerDataButton, ExportUtSnapshotButton, ImportTrackerStateButton, ExportTrackerStateButton } from './ImportExport';
 import { TrackerLayout } from './layouts/TrackerLayouts';
-import { useSyncTrackerStateToLocalStorage } from './LocalStorage';
 import LocationContextMenu from './locationTracker/LocationContextMenu';
 import LocationGroupContextMenu from './locationTracker/LocationGroupContextMenu';
+import MapLayoutDebugContextMenu from './locationTracker/mapTracker/MapLayoutDebugContextMenu';
 import { isLogicLoadedSelector, logicSelector } from './logic/Selectors';
 import { getInitialItems } from './logic/TrackerModifications';
 import { MakeTooltipsAvailable } from './tooltips/TooltipHooks';
 import styles from './Tracker.module.css';
-import { settingsSelector, totalCountersSelector } from './tracker/Selectors';
+import type { RootState } from './store/Store';
+import { totalCountersSelector } from './tracker/Selectors';
 import {
-    replaceCheckedChecks,
+    syncApCheckedChecks,
     replaceItemCounts,
     // clickDungeonName,
+    setApGratitudeCrystalCounts,
     setApLocationCounts,
-    setRequiredDungeons,
+    syncApRequiredDungeons,
     type TrackerState,
 } from './tracker/Slice';
 import { useTrackerInterfaceReducer } from './tracker/TrackerInterfaceReducer';
@@ -57,15 +58,8 @@ export default function TrackerContainer() {
             <DragAndDropContext>
                 <Tracker />
             </DragAndDropContext>
-            <TrackerStateSaver />
         </MakeTooltipsAvailable>
     );
-}
-
-// Split out into separate component to optimize rerenders
-function TrackerStateSaver() {
-    useSyncTrackerStateToLocalStorage();
-    return null;
 }
 
 function Tracker() {
@@ -112,13 +106,14 @@ function TrackerContents({ openTools }: { openTools: () => void }) {
     const [trackerInterfaceState, trackerInterfaceDispatch] =
         useTrackerInterfaceReducer();
 
-    const hasCustomLayout = useSelector(hasCustomLayoutSelector);
-    const dispatch = useDispatch();
-    const clientManager = useContext(ClientManagerContext);
     const autoRegionLoading = useSelector(autoRegionLoadingSelector);
-    const trackerSettings = useSelector((state: { tracker: TrackerState }) => {
-        return state.tracker.settings;
-    });
+    const dispatch = useDispatch();
+    const store = useStore<RootState>();
+    const clientManager = useContext(ClientManagerContext);
+    const autoRegionLoadingRef = useRef(autoRegionLoading);
+    autoRegionLoadingRef.current = autoRegionLoading;
+    const logicRef = useRef(logic);
+    logicRef.current = logic;
     const seenUnmappedApLocations = useRef<Set<string>>(new Set());
     const autotrackedChecks = useRef<{
         locations: Set<string>;
@@ -129,9 +124,14 @@ function TrackerContents({ openTools }: { openTools: () => void }) {
 
     // Configure the AP client for auto-tracking
     useEffect(() => {
-        const resolveApLocation = buildSshdApLocationResolver(logic);
+        if (clientManager === null) {
+            return;
+        }
+
+        const apClient = clientManager;
 
         const clientLocationCallback = (locs: string[]) => {
+            const resolveApLocation = buildSshdApLocationResolver(logicRef.current);
             const mappedChecks: string[] = [];
             const newlyUnmappedLocations: string[] = [];
 
@@ -152,9 +152,7 @@ function TrackerContents({ openTools }: { openTools: () => void }) {
                 );
             }
             autotrackedChecks.current.locations = new Set(mappedChecks);
-            dispatch(
-                replaceCheckedChecks([...autotrackedChecks.current.locations]),
-            );
+            dispatch(syncApCheckedChecks(mappedChecks));
         };
 
         const clientCubeCallback = (cubeflags: number) => {
@@ -166,20 +164,13 @@ function TrackerContents({ openTools }: { openTools: () => void }) {
         };
 
         const clientItemCallback = (inv: TrackerState['inventory']) => {
-            const mergedInventory = getInitialItems(
-                trackerSettings as Parameters<typeof getInitialItems>[0],
+            const mergedInventory = mergeApInventoryWithSeedItems(
+                getInitialItems(
+                    store.getState().tracker
+                        .settings as Parameters<typeof getInitialItems>[0],
+                ),
+                inv,
             );
-            for (const [item, count] of Object.entries(inv)) {
-                if (apAbsoluteProgressiveInventoryItems.has(item)) {
-                    mergedInventory[item] = Math.max(
-                        mergedInventory[item] ?? 0,
-                        count ?? 0,
-                    );
-                } else {
-                    mergedInventory[item] =
-                        (mergedInventory[item] ?? 0) + (count ?? 0);
-                }
-            }
             dispatch(
                 replaceItemCounts(
                     Object.entries(mergedInventory).map(([item, count]) => ({
@@ -191,20 +182,22 @@ function TrackerContents({ openTools }: { openTools: () => void }) {
         };
 
         const stageCallback = (stage: string) => {
-            if (autoRegionLoading) {
-                const region =
-                    stageToRegion[stage as keyof typeof stageToRegion];
-                if (region !== undefined) {
-                    trackerInterfaceDispatch({
-                        type: 'selectHintRegion',
-                        hintRegion: region,
-                    });
-                }
+            if (!autoRegionLoadingRef.current) {
+                return;
+            }
+
+            const region =
+                stageToRegion[stage as keyof typeof stageToRegion];
+            if (region !== undefined) {
+                trackerInterfaceDispatch({
+                    type: 'selectHintRegion',
+                    hintRegion: region,
+                });
             }
         };
 
         const requiredDungeonsCallback = (dungeons: string[]) => {
-            dispatch(setRequiredDungeons({ dungeons }));
+            dispatch(syncApRequiredDungeons({ dungeons }));
         };
 
         const locationStatsCallback = (stats: {
@@ -219,12 +212,21 @@ function TrackerContents({ openTools }: { openTools: () => void }) {
             );
         };
 
-        clientManager?.setLocationCallback(clientLocationCallback);
-        clientManager?.setItemCallback(clientItemCallback);
-        clientManager?.setNewStageCallback(stageCallback);
-        clientManager?.setRequiredDungeonsCallback(requiredDungeonsCallback);
-        clientManager?.setLocationStatsCallback(locationStatsCallback);
-        clientManager?.setCubeCallback(clientCubeCallback);
+        const gratitudeCrystalCountsCallback = (
+            counts: { singles: number; packs: number } | undefined,
+        ) => {
+            dispatch(setApGratitudeCrystalCounts(counts));
+        };
+
+        apClient.setLocationCallback(clientLocationCallback);
+        apClient.setItemCallback(clientItemCallback);
+        apClient.setNewStageCallback(stageCallback);
+        apClient.setRequiredDungeonsCallback(requiredDungeonsCallback);
+        apClient.setLocationStatsCallback(locationStatsCallback);
+        apClient.setCubeCallback(clientCubeCallback);
+        apClient.setGratitudeCrystalCountsCallback(
+            gratitudeCrystalCountsCallback,
+        );
         /* This will have to happen somewhere else to work properly
         if (clientManager !== undefined) {
             for (const dungeonName of clientManager!.requiredDungeons) {
@@ -234,14 +236,7 @@ function TrackerContents({ openTools }: { openTools: () => void }) {
                 }
             }
         } */
-    }, [
-        dispatch,
-        logic,
-        clientManager,
-        autoRegionLoading,
-        trackerInterfaceDispatch,
-        trackerSettings,
-    ]);
+    }, [clientManager, dispatch, store, trackerInterfaceDispatch]);
 
     return (
         <>
@@ -249,19 +244,12 @@ function TrackerContents({ openTools }: { openTools: () => void }) {
             <LocationGroupContextMenu
                 interfaceDispatch={trackerInterfaceDispatch}
             />
-            {hasCustomLayout ? (
-                <TrackerLayoutCustom
-                    footerContent={<TrackerFooterNav openTools={openTools} />}
-                    interfaceDispatch={trackerInterfaceDispatch}
-                    interfaceState={trackerInterfaceState}
-                />
-            ) : (
-                <TrackerLayout
-                    footerContent={<TrackerFooterNav openTools={openTools} />}
-                    interfaceDispatch={trackerInterfaceDispatch}
-                    interfaceState={trackerInterfaceState}
-                />
-            )}
+            <MapLayoutDebugContextMenu />
+            <TrackerLayout
+                footerContent={<TrackerFooterNav openTools={openTools} />}
+                interfaceDispatch={trackerInterfaceDispatch}
+                interfaceState={trackerInterfaceState}
+            />
         </>
     );
 }
@@ -281,10 +269,6 @@ function TrackerToolsView({
     const apLocationTotal = useSelector(
         (state: { tracker: TrackerState }) => state.tracker.apLocationTotal,
     );
-    const settings = useSelector(settingsSelector) as Record<
-        string,
-        string | number | boolean | string[] | undefined
-    >;
     const requiredDungeonDiagnostic = useApRequiredDungeonDiagnostic();
     const locationTotal =
         apLocationTotal ?? counters.numChecked + counters.numRemaining;
@@ -292,23 +276,6 @@ function TrackerToolsView({
         locationTotal > 0
             ? ((counters.numChecked / locationTotal) * 100).toFixed(1)
             : '0.0';
-
-    const canUseEntrances = [
-        settings['randomize-entrances'],
-        settings['randomize-dungeon-entrances'],
-        settings['randomize-interior-entrances'],
-        settings['randomize-overworld-entrances'],
-        settings['randomize-trials'],
-        settings['random-start-entrance'],
-        settings['random-start-statues'],
-    ].some(
-        (value) =>
-            value !== undefined &&
-            value !== false &&
-            value !== 'off' &&
-            value !== 'None' &&
-            value !== 'vanilla',
-    );
 
     return (
         <div className={styles.toolsLayout}>
@@ -339,16 +306,15 @@ function TrackerToolsView({
                     <div className={styles.toolsSection}>
                         <div className={styles.toolsTitle}>Tools</div>
                         <div className={styles.toolsButtons}>
-                            <ExportUtSnapshotButton />
-                            {canUseEntrances && (
-                                <button
-                                    type="button"
-                                    className="tracker-button"
-                                    onClick={openEntrances}
-                                >
-                                    Entrances
-                                </button>
-                            )}
+                            <ExportTrackerStateButton />
+                            <ImportTrackerStateButton />
+                            <button
+                                type="button"
+                                className="tracker-button"
+                                onClick={openEntrances}
+                            >
+                                Entrances
+                            </button>
                             <button
                                 type="button"
                                 className="tracker-button"
@@ -356,9 +322,18 @@ function TrackerToolsView({
                             >
                                 Customization
                             </button>
+                            {debugMode && (
+                                <>
+                                    <ExportUtSnapshotButton />
+                                    <ExportApServerDataButton />
+                                </>
+                            )}
                             <button
                                 type="button"
-                                className="tracker-button"
+                                className={clsx(
+                                    'tracker-button',
+                                    styles.toolsDebugToggle,
+                                )}
                                 onClick={() =>
                                     dispatch(setDebugMode(!debugMode))
                                 }
