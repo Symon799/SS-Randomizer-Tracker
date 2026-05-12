@@ -11,7 +11,7 @@ if (
     navigator.userAgent.includes('OBS/')
 ) {
     window.alert(
-        'Skyward Sword Randomizer Tracker: You seem to be using an old version of OBS Studio. ' +
+        'Skyward Sword HD Randomizer Tracker: You seem to be using an old version of OBS Studio. ' +
             'Please update OBS Studio to at least 31.0 to continue.',
     );
 }

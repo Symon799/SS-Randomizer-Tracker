@@ -1,7 +1,7 @@
 export default function (startUrl = '/') {
     return {
-        short_name: 'SS Rando Tracker',
-        name: 'Skyward Sword Randomizer Tracker',
+        short_name: 'SS HD Rando Tracker',
+        name: 'Skyward Sword HD Randomizer Tracker',
         icons: [
             {
                 src: 'favicon.ico',
