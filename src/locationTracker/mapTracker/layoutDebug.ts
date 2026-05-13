@@ -1,7 +1,8 @@
-export const ENABLE_MAP_LAYOUT_DEBUG = true;
+export const ENABLE_MAP_LAYOUT_DEBUG = false;
 export const MAP_LAYOUT_ROOT_ATTR = 'data-map-layout-root';
 
 const STORAGE_KEY = 'sshd-ap-tracker-map-layout-overrides-v1';
+const EXPORT_FILENAME = 'sshd-map-layout-overrides.json';
 
 export type LayoutOverride = {
     x: number;
@@ -50,6 +51,22 @@ function saveOverrides(overrides: LayoutOverrides) {
         STORAGE_KEY,
         JSON.stringify(overrides, null, 2),
     );
+}
+
+export function downloadLayoutOverrides() {
+    if (typeof window === 'undefined') {
+        return;
+    }
+    const overrides = loadOverrides();
+    const blob = new Blob([JSON.stringify(overrides, null, 2)], {
+        type: 'application/json',
+    });
+    const url = window.URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = EXPORT_FILENAME;
+    anchor.click();
+    window.URL.revokeObjectURL(url);
 }
 
 export function getLayoutOverride(
@@ -121,6 +138,7 @@ export function registerLayoutDebugHelpers() {
                 getOverrides: () => LayoutOverrides;
                 clearOverrides: () => void;
                 printOverrides: () => void;
+                downloadOverrides: () => void;
             };
         };
     w.__sshdMapLayoutDebug = {
@@ -134,8 +152,9 @@ export function registerLayoutDebugHelpers() {
             const overrides = loadOverrides();
             console.log('Map layout overrides:', overrides);
             console.log(
-                'Copy these values into src/data/mapData.json or keep them in localStorage.',
+                'Run `window.__sshdMapLayoutDebug?.downloadOverrides()` to save them as a JSON file, then apply them with `npm run apply:mapLayout -- <file>`.',
             );
         },
+        downloadOverrides: () => downloadLayoutOverrides(),
     };
 }

@@ -20,23 +20,32 @@ import stageToRegion from './data/stageToRegion.json';
 import { DragAndDropContext } from './dragAndDrop/DragAndDrop';
 import EntranceTracker from './entranceTracker/EntranceTracker';
 import { TextClient } from './hints/TextClient';
-import { ExportApServerDataButton, ExportUtSnapshotButton, ImportTrackerStateButton, ExportTrackerStateButton } from './ImportExport';
+import {
+    ExportApServerDataButton,
+    ExportTrackerStateButton,
+    ExportUtSnapshotButton,
+    ImportTrackerStateButton,
+} from './ImportExport';
 import { TrackerLayout } from './layouts/TrackerLayouts';
 import LocationContextMenu from './locationTracker/LocationContextMenu';
 import LocationGroupContextMenu from './locationTracker/LocationGroupContextMenu';
+import {
+    downloadLayoutOverrides,
+    ENABLE_MAP_LAYOUT_DEBUG,
+} from './locationTracker/mapTracker/layoutDebug';
 import MapLayoutDebugContextMenu from './locationTracker/mapTracker/MapLayoutDebugContextMenu';
 import { isLogicLoadedSelector, logicSelector } from './logic/Selectors';
 import { getInitialItems } from './logic/TrackerModifications';
+import type { RootState } from './store/Store';
 import { MakeTooltipsAvailable } from './tooltips/TooltipHooks';
 import styles from './Tracker.module.css';
-import type { RootState } from './store/Store';
 import { totalCountersSelector } from './tracker/Selectors';
 import {
-    syncApCheckedChecks,
     replaceItemCounts,
     // clickDungeonName,
     setApGratitudeCrystalCounts,
     setApLocationCounts,
+    syncApCheckedChecks,
     syncApRequiredDungeons,
     type TrackerState,
 } from './tracker/Slice';
@@ -131,7 +140,9 @@ function TrackerContents({ openTools }: { openTools: () => void }) {
         const apClient = clientManager;
 
         const clientLocationCallback = (locs: string[]) => {
-            const resolveApLocation = buildSshdApLocationResolver(logicRef.current);
+            const resolveApLocation = buildSshdApLocationResolver(
+                logicRef.current,
+            );
             const mappedChecks: string[] = [];
             const newlyUnmappedLocations: string[] = [];
 
@@ -166,8 +177,9 @@ function TrackerContents({ openTools }: { openTools: () => void }) {
         const clientItemCallback = (inv: TrackerState['inventory']) => {
             const mergedInventory = mergeApInventoryWithSeedItems(
                 getInitialItems(
-                    store.getState().tracker
-                        .settings as Parameters<typeof getInitialItems>[0],
+                    store.getState().tracker.settings as Parameters<
+                        typeof getInitialItems
+                    >[0],
                 ),
                 inv,
             );
@@ -186,8 +198,7 @@ function TrackerContents({ openTools }: { openTools: () => void }) {
                 return;
             }
 
-            const region =
-                stageToRegion[stage as keyof typeof stageToRegion];
+            const region = stageToRegion[stage as keyof typeof stageToRegion];
             if (region !== undefined) {
                 trackerInterfaceDispatch({
                     type: 'selectHintRegion',
@@ -327,6 +338,15 @@ function TrackerToolsView({
                                     <ExportUtSnapshotButton />
                                     <ExportApServerDataButton />
                                 </>
+                            )}
+                            {ENABLE_MAP_LAYOUT_DEBUG && (
+                                <button
+                                    type="button"
+                                    className="tracker-button"
+                                    onClick={downloadLayoutOverrides}
+                                >
+                                    Export Map Layout
+                                </button>
                             )}
                             <button
                                 type="button"

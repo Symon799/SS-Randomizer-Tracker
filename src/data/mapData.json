@@ -13,24 +13,24 @@
         "markers": [
             {
                 "region": "Upper Skyloft",
-                "markerX": 38,
-                "markerY": 35,
+                "markerX": 36.112044989150036,
+                "markerY": 38.121623493558666,
                 "submarkerPlacement": "left"
             },
             {
                 "region": "Central Skyloft",
-                "markerX": 43.5,
-                "markerY": 57.5
+                "markerX": 44.914269996026775,
+                "markerY": 58.68956919240892
             },
             {
                 "region": "Skyloft Village",
-                "markerX": 63.5,
-                "markerY": 70
+                "markerX": 65.06158501176687,
+                "markerY": 70.92395068569054
             },
             {
                 "region": "Batreaux's House",
-                "markerX": 58,
-                "markerY": 85
+                "markerX": 60.269262508022855,
+                "markerY": 84.22219143925751
             },
             {
                 "region": "Beedle's Shop",
@@ -42,22 +42,22 @@
             {
                 "exitPool": "dungeons",
                 "entryName": "Sky Keep",
-                "markerX": 43.45923127108562,
-                "markerY": 1.3691237283547422
+                "markerX": 45.40328249640881,
+                "markerY": 5.673916054855243
             },
             {
                 "exitPool": "silent_realms",
                 "entryName": "Skyloft Silent Realm",
-                "markerX": 45,
-                "markerY": 85,
+                "markerX": 46.576912497325715,
+                "markerY": 84.93143094611442,
                 "submarkerPlacement": "left"
             }
         ]
     },
     "faronSubmap": {
         "name": "Faron Province",
-        "markerX": 69.90198540720979,
-        "markerY": 60.57449191976835,
+        "markerX": 67.8978575139827,
+        "markerY": 63.297872340425535,
         "map": "faronMap",
         "exitParams": {
             "image": "leaveFaron",
@@ -68,24 +68,24 @@
         "markers": [
             {
                 "region": "Sealed Grounds",
-                "markerX": 23,
-                "markerY": 62
+                "markerX": 24.082337479751825,
+                "markerY": 62.41307660340767
             },
             {
                 "region": "Faron Woods",
-                "markerX": 45,
-                "markerY": 49,
+                "markerX": 46.96812249763135,
+                "markerY": 50.71062474026874,
                 "submarkerPlacement": "left"
             },
             {
                 "region": "Deep Woods",
-                "markerX": 53,
-                "markerY": 27
+                "markerX": 62.225312509551024,
+                "markerY": 30.319988918132708
             },
             {
                 "region": "Lake Floria",
-                "markerX": 58,
-                "markerY": 77
+                "markerX": 55.18353250404964,
+                "markerY": 75.53400748026043
             },
             {
                 "region": "Flooded Faron Woods",
@@ -97,15 +97,15 @@
             {
                 "exitPool": "dungeons",
                 "entryName": "Skyview",
-                "markerX": 58.5,
-                "markerY": 14,
+                "markerX": 60.269262508022855,
+                "markerY": 12.057071616567391,
                 "submarkerPlacement": "left"
             },
             {
                 "exitPool": "dungeons",
                 "entryName": "Ancient Cistern",
-                "markerX": 71.81234388166541,
-                "markerY": 83.37767170017,
+                "markerX": 45.207677496256,
+                "markerY": 71.81050006926168,
                 "submarkerPlacement": "left"
             },
             {
@@ -141,8 +141,8 @@
             },
             {
                 "region": "Volcano Summit",
-                "markerX": 42.06196162984206,
-                "markerY": 39.59663850260663,
+                "markerX": 42.8604174944222,
+                "markerY": 45.21401856212772,
                 "submarkerPlacement": "left"
             },
             {
@@ -156,14 +156,14 @@
             {
                 "exitPool": "dungeons",
                 "entryName": "Earth Temple",
-                "markerX": 55.39953040341348,
-                "markerY": 37.52406241348585
+                "markerX": 56.35716250496653,
+                "markerY": 37.0577642332733
             },
             {
                 "exitPool": "dungeons",
                 "entryName": "Fire Sanctuary",
-                "markerX": 72,
-                "markerY": 30
+                "markerX": 73.37479751826156,
+                "markerY": 36.171214849702174
             },
             {
                 "exitPool": "silent_realms",
@@ -188,24 +188,24 @@
         "markers": [
             {
                 "region": "Lanayru Mine",
-                "markerX": 72,
-                "markerY": 61.5
+                "markerX": 73.17919251810875,
+                "markerY": 64.89541487740684
             },
             {
                 "region": "Lanayru Desert",
-                "markerX": 66.64119122628904,
-                "markerY": 37.754349348388196
+                "markerX": 67.21324001344784,
+                "markerY": 34.575425959274135
             },
             {
                 "region": "Lanayru Caves",
-                "markerX": 53.430650771554866,
-                "markerY": 42.12978846153207,
+                "markerX": 60.17146000794645,
+                "markerY": 50.533314863554516,
                 "submarkerPlacement": "left"
             },
             {
                 "region": "Lanayru Sand Sea",
-                "markerX": 37.8701596837724,
-                "markerY": 52.03209819983139
+                "markerX": 42.56700999419298,
+                "markerY": 52.48372350741099
             },
             {
                 "region": "Lanayru Gorge",
@@ -218,8 +218,8 @@
             {
                 "exitPool": "dungeons",
                 "entryName": "Lanayru Mining Facility",
-                "markerX": 39.775521667381874,
-                "markerY": 19.33144989995352,
+                "markerX": 61.931905009321795,
+                "markerY": 22.8729740961352,
                 "submarkerPlacement": "left"
             },
             {
@@ -232,8 +232,8 @@
             {
                 "exitPool": "silent_realms",
                 "entryName": "Lanayru Silent Realm",
-                "markerX": 64,
-                "markerY": 14
+                "markerX": 66.33301751276018,
+                "markerY": 50.17869511012606
             }
         ]
     },

@@ -44,6 +44,8 @@
     "generate:options": "node ./scripts/generateOptions.mjs",
     "generate:sshdDump": "node ./scripts/generateSshdDump.mjs",
     "generate:sshdLogicAudit": "node ./scripts/generateSshdLogicAudit.mjs",
+    "apply:mapLayout": "node ./scripts/applyMapLayoutOverrides.mjs",
+    "finalize:mapLayout": "node ./scripts/applyMapLayoutOverrides.mjs --disable-debug",
     "lint:eslint": "eslint --max-warnings 0 \"src/**/*.ts\" \"src/**/*.tsx\"",
     "lint:ts": "tsc --noEmit",
     "lint:prettier": "prettier \"src/**/*.{js,ts,tsx,cjs,mjs,cts,mts,css}\" --check",
