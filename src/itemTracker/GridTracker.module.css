@@ -9,18 +9,54 @@
 
     :global(.item-container) {
         margin: auto;
+        height: var(--grid-item-size);
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
+
+    :global(.item-container) > img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+}
+
+.swordCell :global(.item-container) {
+    height: var(--grid-item-tall-size);
+}
+
+.tabletBlock :global(.item-container) {
+    height: auto;
+    display: block;
+}
+
+.tabletBlock :global(.item-container) > img {
+    width: 100%;
+    height: auto;
+    object-fit: initial;
 }
 
 .cavesKey {
     position: relative;
     container-type: inline-size;
+    overflow: visible;
 }
 
 .cavesKeyLabel {
     position: absolute;
-    width: 100%;
+    left: 0;
+    right: 0;
+    bottom: 0;
     text-align: center;
-    font-size: 20cqw;
-    top: 75%;
+    font-size: 25cqw;
+    font-weight: 700;
+    line-height: 1.15;
+    color: #fff;
+    pointer-events: none;
+    text-shadow:
+        0 0 2px #000,
+        0 1px 2px rgba(0, 0, 0, 0.9),
+        1px 0 1px rgba(0, 0, 0, 0.75),
+        -1px 0 1px rgba(0, 0, 0, 0.75);
 }

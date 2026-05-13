@@ -1,5 +1,5 @@
 import type { OptionDefs, TypedOptions } from '../permalink/SettingsTypes';
-import { type InventoryItem, isItem, itemMaxes } from './Inventory';
+import { type InventoryItem, inventoryItemFromCheckHint, itemMaxes } from './Inventory';
 import { type PotentialLocations, getSemiLogicKeys } from './KeyLogic';
 import { type Logic, isRegularItemCheck } from './Logic';
 import { LogicBuilder } from './LogicBuilder';
@@ -166,11 +166,12 @@ function semiLogicStep(
                 changed = true;
             }
 
-            const hintedItem = checkHints[checkId];
+            const hintedItem = inventoryItemFromCheckHint(
+                checkHints[checkId] ?? '',
+            );
             if (
                 isRegularItemCheck(logic.checks[checkId].type) &&
                 hintedItem !== undefined &&
-                isItem(hintedItem) &&
                 !state.assumedChecks.has(checkId)
             ) {
                 state.assumedChecks.add(checkId);

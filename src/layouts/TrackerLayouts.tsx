@@ -15,9 +15,7 @@ import {
 } from '../customization/Selectors';
 import { CompactTextClient } from '../hints/TextClient';
 import DungeonTracker from '../itemTracker/DungeonTracker';
-import GridTracker, {
-    GRID_TRACKER_ASPECT_RATIO,
-} from '../itemTracker/GridTracker';
+import GridTracker from '../itemTracker/GridTracker';
 import ItemTracker, {
     ITEM_TRACKER_ASPECT_RATIO,
 } from '../itemTracker/ItemTracker';
@@ -108,10 +106,9 @@ export function TrackerLayout({
             />
         );
     } else if (itemLayout === 'grid') {
-        itemTrackerAspectRatio = GRID_TRACKER_ASPECT_RATIO;
         itemTracker = (
             <ItemTrackerContainer
-                aspectRatio={GRID_TRACKER_ASPECT_RATIO}
+                widthOnly
                 itemTracker={(width) => <GridTracker width={width} />}
             />
         );
@@ -121,11 +118,15 @@ export function TrackerLayout({
             style={{
                 flex: '0 0 auto',
                 width: '100%',
-                aspectRatio: itemTrackerAspectRatio
-                    ? String(itemTrackerAspectRatio)
-                    : undefined,
-                minHeight: 0,
-                position: 'relative',
+                ...(showCompactApLog
+                    ? {}
+                    : {
+                          aspectRatio: itemTrackerAspectRatio
+                              ? String(itemTrackerAspectRatio)
+                              : undefined,
+                          minHeight: 0,
+                          position: 'relative',
+                      }),
             }}
         >
             {itemTracker}
@@ -136,6 +137,22 @@ export function TrackerLayout({
             <CompactTextClient />
         </div>
     ) : null;
+    const itemTrackerWithLogBlock = showCompactApLog ? (
+        <div
+            style={{
+                flex: '1 1 0',
+                minHeight: 0,
+                display: 'flex',
+                flexFlow: 'column nowrap',
+                gap: '14px',
+            }}
+        >
+            {itemTrackerBlock}
+            {compactApLogBlock}
+        </div>
+    ) : (
+        itemTrackerBlock
+    );
     const footerBlock = footerContent ? (
         <div style={{ flex: '0 0 auto' }}>{footerContent}</div>
     ) : null;
@@ -183,8 +200,7 @@ export function TrackerLayout({
                                 interfaceDispatch={interfaceDispatch}
                                 compact
                             />
-                            {itemTrackerBlock}
-                            {compactApLogBlock}
+                            {itemTrackerWithLogBlock}
                         </div>
                         {footerBlock}
                     </div>
@@ -266,8 +282,7 @@ export function TrackerLayout({
                                 interfaceDispatch={interfaceDispatch}
                                 compact
                             />
-                            {itemTrackerBlock}
-                            {compactApLogBlock}
+                            {itemTrackerWithLogBlock}
                         </div>
                         {footerBlock}
                     </div>

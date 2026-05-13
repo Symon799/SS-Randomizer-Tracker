@@ -71,6 +71,19 @@ export function isItem(id: string): id is InventoryItem {
     return id in itemMaxes;
 }
 
+export function inventoryItemFromCheckHint(
+    hint: string,
+): InventoryItem | undefined {
+    if (
+        hint === 'Gratitude Crystals' ||
+        hint === 'Gratitude Crystal' ||
+        hint === 'Gratitude Crystal Pack'
+    ) {
+        return 'Gratitude Crystal Pack';
+    }
+    return isItem(hint) ? hint : undefined;
+}
+
 export function itemName(item: string, amount: number) {
     return amount > 1 ? `${item} x ${amount}` : item;
 }

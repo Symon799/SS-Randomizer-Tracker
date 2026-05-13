@@ -5,12 +5,12 @@ import { tumbleweedSelector } from '../customization/Selectors';
 import { useDraggable } from '../dragAndDrop/DragAndDrop';
 import {
     rawItemCountSelector,
-    totalGratitudeCrystalsSelector,
 } from '../tracker/Selectors';
 // import { clickItem } from '../tracker/Slice';
 import styles from './GridTracker.module.css';
 import Item from './Item';
 import { CounterItem } from './items/CounterItem';
+import counterStyles from './items/CounterItem.module.css';
 import { GratitudeCrystals } from './items/sidequest/GratitudeCrystals';
 import { ProgressiveItem } from './items/ProgressiveItem';
 
@@ -50,7 +50,6 @@ export default function GridTracker({ width }: { width: number }) {
     const amberWidth = emptyTabWidth * 0.505;
 
     const walletCount = useSelector(rawItemCountSelector('Extra Wallet')) ?? 0;
-    const crystalCount = useSelector(totalGratitudeCrystalsSelector);
     const tumbleweed = useSelector(tumbleweedSelector);
 
     const { listeners, setNodeRef } = useDraggable({
@@ -59,8 +58,16 @@ export default function GridTracker({ width }: { width: number }) {
     });
 
     return (
-        <div className={styles.itemGrid}>
-            <div style={{ gridRow: '1 / span 2' }}>
+        <div
+            className={styles.itemGrid}
+            style={
+                {
+                    '--grid-item-size': `${imgWidth}px`,
+                    '--grid-item-tall-size': `${imgWidth * 2 + 2}px`,
+                } as CSSProperties
+            }
+        >
+            <div className={styles.swordCell} style={{ gridRow: '1 / span 2' }}>
                 <ProgressiveItem
                     itemName="Progressive Sword"
                     imgWidth={imgWidth}
@@ -88,6 +95,7 @@ export default function GridTracker({ width }: { width: number }) {
                 />
             </div>
             <div
+                className={styles.tabletBlock}
                 style={{
                     position: 'relative',
                     gridRow: '1 / span 2',
@@ -132,29 +140,26 @@ export default function GridTracker({ width }: { width: number }) {
                 </Item>
             </div>
             <div>
-                <Item itemName="Sea Chart" imgWidth={(imgWidth * 2) / 3} />
+                <Item itemName="Sea Chart" imgWidth={imgWidth} />
             </div>
             <div>
                 <Item itemName="Spiral Charge" imgWidth={imgWidth} />
             </div>
             <div>
-                <ProgressiveItem
-                    itemName="Progressive Pouch"
-                    imgWidth={imgWidth}
-                />
+                <CounterItem itemName="Progressive Pouch" imgWidth={imgWidth} />
             </div>
             <div>
                 <CounterItem itemName="Empty Bottle" imgWidth={imgWidth} />
             </div>
             <div style={{ position: 'relative' }}>
                 <div
+                    className={counterStyles.overlayText}
                     style={{
                         position: 'absolute',
                         left: 0,
                         width: '100%',
                         textAlign: 'right',
                         bottom: '10%',
-                        lineHeight: 1,
                         fontSize: imgWidth * 0.4,
                     }}
                     onClick={handleExtraWalletClick}
@@ -237,21 +242,7 @@ export default function GridTracker({ width }: { width: number }) {
             <div>
                 <Item itemName="Baby Rattle" imgWidth={imgWidth} grid />
             </div>
-            <div style={{ position: 'relative' }}>
-                <div
-                    style={{
-                        position: 'absolute',
-                        left: 0,
-                        width: '100%',
-                        textAlign: 'right',
-                        bottom: 0,
-                        lineHeight: 1,
-                        pointerEvents: 'none',
-                        fontSize: imgWidth * 0.5,
-                    }}
-                >
-                    {crystalCount}
-                </div>
+            <div>
                 <GratitudeCrystals imgWidth={imgWidth} grid />
             </div>
             <div>

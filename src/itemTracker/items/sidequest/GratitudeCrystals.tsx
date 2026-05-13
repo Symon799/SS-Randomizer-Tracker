@@ -1,8 +1,12 @@
+import clsx from 'clsx';
 import { useSelector } from 'react-redux';
 import { totalGratitudeCrystalsSelector } from '../../../tracker/Selectors';
-// import { clickItem } from '../../../tracker/Slice';
 import { BasicItem } from '../../BasicItem';
 import allImages from '../../Images';
+import counterStyles from '../CounterItem.module.css';
+import { ItemCounterOverlay } from '../ItemCounterOverlay';
+import inGameStyles from '../../inGame/InGameInventoryOverlay.module.css';
+import { InGameItemSlot } from '../../inGame/InGameItemSlot';
 
 export function GratitudeCrystals({
     className,
@@ -13,7 +17,6 @@ export function GratitudeCrystals({
     imgWidth?: number;
     grid?: boolean;
 }) {
-    // const dispatch = useDispatch();
     const handleClick = () => {
         // dispatch(clickItem({ item: 'Gratitude Crystal Pack', take }));
     };
@@ -22,15 +25,40 @@ export function GratitudeCrystals({
 
     const itemImages =
         allImages[grid ? 'Gratitude Crystals Grid' : 'Gratitude Crystals'];
+
+    if (grid) {
+        return (
+            <BasicItem
+                className={clsx(className, counterStyles.counterItemContainer)}
+                itemName="Gratitude Crystals"
+                images={itemImages}
+                count={count > 0 ? 1 : 0}
+                imgWidth={imgWidth}
+                onGiveOrTake={handleClick}
+                dragItemName="Gratitude Crystal Pack"
+            >
+                <ItemCounterOverlay count={count} hideWhenZero={false} />
+            </BasicItem>
+        );
+    }
+
     return (
-        <BasicItem
-            className={className}
-            itemName="Gratitude Crystals"
-            images={itemImages}
-            count={count}
-            imgWidth={imgWidth}
-            onGiveOrTake={handleClick}
-            dragItemName="Gratitude Crystal Pack"
-        />
+        <InGameItemSlot size={imgWidth ?? 0}>
+            <BasicItem
+                className={clsx(className, inGameStyles.counterItemContainer)}
+                itemName="Gratitude Crystals"
+                images={itemImages}
+                count={count > 0 ? 1 : 0}
+                imgWidth="100%"
+                onGiveOrTake={handleClick}
+                dragItemName="Gratitude Crystal Pack"
+            >
+                <ItemCounterOverlay
+                    count={count}
+                    hideWhenZero={false}
+                    className={inGameStyles.counter}
+                />
+            </BasicItem>
+        </InGameItemSlot>
     );
 }

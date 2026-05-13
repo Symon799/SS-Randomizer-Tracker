@@ -1,0 +1,111 @@
+.itemSlot {
+    position: relative;
+    flex: none;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+}
+
+.itemSlot :global(.item-container) {
+    position: relative;
+    width: 100%;
+    max-height: 100%;
+    height: auto;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+}
+
+.itemSlot :global(.item-container) > img {
+    width: 100%;
+    height: auto;
+    max-height: 100%;
+    object-fit: contain;
+    object-position: top center;
+}
+
+.counterItemContainer {
+    container-type: inline-size;
+    position: relative;
+}
+
+.overlayText {
+    font-weight: 700;
+    line-height: 1;
+    color: #fff;
+    text-shadow:
+        -1px -1px 0 #000,
+        1px -1px 0 #000,
+        -1px 1px 0 #000,
+        1px 1px 0 #000,
+        0 0 4px rgba(0, 0, 0, 0.85);
+}
+
+.counter {
+    composes: overlayText;
+    position: absolute;
+    right: 6%;
+    bottom: 4%;
+    font-size: 55cqw;
+    pointer-events: none;
+}
+
+.itemSlot :global(.item-container).scaledItem {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    --item-image-scale: 1;
+}
+
+.itemSlot :global(.item-container).scaledItem > img {
+    width: calc(100% * var(--item-image-scale));
+    height: auto;
+    object-fit: contain;
+    object-position: top center;
+}
+
+.bottleCounter {
+    composes: counter;
+    right: 17%;
+    bottom: 6%;
+}
+
+.walletSlot {
+    composes: itemSlot;
+    container-type: inline-size;
+}
+
+.walletExtraOverlay {
+    composes: overlayText;
+    position: absolute;
+    right: 8%;
+    bottom: 12%;
+    z-index: 2;
+    user-select: none;
+    line-height: 1;
+    pointer-events: auto;
+}
+
+.labelSlot {
+    composes: itemSlot;
+    container-type: inline-size;
+}
+
+.label {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    text-align: center;
+    font-size: 22cqw;
+    font-weight: 700;
+    line-height: 1.15;
+    color: #fff;
+    pointer-events: none;
+    text-shadow:
+        0 0 2px #000,
+        0 1px 2px rgba(0, 0, 0, 0.9),
+        1px 0 1px rgba(0, 0, 0, 0.75),
+        -1px 0 1px rgba(0, 0, 0, 0.75);
+}

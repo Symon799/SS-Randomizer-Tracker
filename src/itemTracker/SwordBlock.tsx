@@ -8,6 +8,8 @@ import keyDownWrapper from '../utils/KeyDownWrapper';
 import allImages from './Images';
 import Item from './Item';
 import { ProgressiveItem } from './items/ProgressiveItem';
+import inGameStyles from './inGame/InGameInventoryOverlay.module.css';
+import { InGameItemSlot } from './inGame/InGameItemSlot';
 
 export default function SwordBlock({ width }: { width: number }) {
     // const dispatch = useDispatch();
@@ -43,12 +45,6 @@ export default function SwordBlock({ width }: { width: number }) {
         position: 'relative',
         bottom: width / 2.46,
         left: width / 1.6,
-    };
-    const extraWalletStyle: CSSProperties = {
-        userSelect: 'none',
-        position: 'relative',
-        bottom: width / 4.6,
-        left: width / 1.2,
     };
 
     const swordWidth = width / 3.1;
@@ -93,22 +89,34 @@ export default function SwordBlock({ width }: { width: number }) {
                 />
             </div>
             <div style={walletStyle}>
-                <ProgressiveItem
-                    itemName="Progressive Wallet"
-                    imgWidth={walletWidth}
-                />
-            </div>
-            <div
-                style={{ ...extraWalletStyle, fontSize: width * 0.12 }}
-                onClick={handleExtraWalletClick}
-                onKeyDown={keyDownWrapper(handleExtraWalletClick)}
-                tabIndex={0}
-                role="button"
-                draggable
-                ref={setNodeRef}
-                {...listeners}
-            >
-                {`+${extraWalletCount * 300}`}
+                <InGameItemSlot
+                    size={walletWidth}
+                    className={inGameStyles.walletSlot}
+                >
+                    <ProgressiveItem
+                        itemName="Progressive Wallet"
+                        className={inGameStyles.scaledItem}
+                        style={
+                            {
+                                '--item-image-scale': 0.8,
+                            } as CSSProperties
+                        }
+                        imgWidth="100%"
+                    />
+                    <div
+                        className={inGameStyles.walletExtraOverlay}
+                        style={{ fontSize: walletWidth * 0.38 }}
+                        onClick={handleExtraWalletClick}
+                        onKeyDown={keyDownWrapper(handleExtraWalletClick)}
+                        tabIndex={0}
+                        role="button"
+                        draggable
+                        ref={setNodeRef}
+                        {...listeners}
+                    >
+                        {`+${extraWalletCount * 300}`}
+                    </div>
+                </InGameItemSlot>
             </div>
         </div>
     );

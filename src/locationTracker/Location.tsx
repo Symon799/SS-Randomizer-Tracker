@@ -244,6 +244,24 @@ function isGratitudeCrystalTrackerIcon(name: string) {
     );
 }
 
+function gratitudeCrystalHintIcon() {
+    return findRepresentativeIcon('Gratitude Crystals');
+}
+
+function hintIconForItem(hintItem: string) {
+    if (isGratitudeCrystalTrackerIcon(hintItem)) {
+        return gratitudeCrystalHintIcon();
+    }
+    return findRepresentativeIcon(hintItem);
+}
+
+function hintLabelForItem(hintItem: string) {
+    if (isGratitudeCrystalTrackerIcon(hintItem)) {
+        return 'Gratitude Crystals';
+    }
+    return hintItem;
+}
+
 function CheckIcon({
     check,
     overrideHint,
@@ -272,10 +290,8 @@ function CheckIcon({
             preview = true;
         }
         if (hintItem) {
-            name = hintItem;
-            if (!isGratitudeCrystalTrackerIcon(hintItem)) {
-                src = findRepresentativeIcon(hintItem);
-            }
+            name = hintLabelForItem(hintItem);
+            src = hintIconForItem(hintItem);
         }
     }
 

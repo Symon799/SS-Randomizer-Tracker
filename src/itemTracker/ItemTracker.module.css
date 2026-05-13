@@ -1,6 +1,11 @@
 .inGameTracker {
     user-select: none;
+
     :global(.item-container) {
         position: absolute;
+    }
+
+    :global(.in-game-item-slot) :global(.item-container) {
+        position: relative;
     }
 }

@@ -5,14 +5,25 @@ import { useElementSize } from '../utils/React';
 export function ItemTrackerContainer({
     itemTracker,
     aspectRatio,
+    widthOnly = false,
 }: {
     itemTracker: (width: number) => React.ReactNode;
-    aspectRatio: number;
+    aspectRatio?: number;
+    widthOnly?: boolean;
 }) {
     const ref = useRef<HTMLDivElement | null>(null);
 
     const { measuredWidth, measuredHeight } = useElementSize(ref);
-    const targetWidth = Math.min(measuredWidth, measuredHeight * aspectRatio);
+
+    if (widthOnly) {
+        return (
+            <div style={{ width: '100%' }} ref={ref}>
+                {measuredWidth > 0 ? itemTracker(measuredWidth) : null}
+            </div>
+        );
+    }
+
+    const targetWidth = Math.min(measuredWidth, measuredHeight * aspectRatio!);
     return (
         <div style={{ width: '100%', height: '100%' }} ref={ref}>
             {/* placed absolutely in here so that we don't end up influencing our measurement */}

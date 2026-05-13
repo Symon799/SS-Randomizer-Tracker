@@ -2,7 +2,8 @@ import { useSelector } from 'react-redux';
 import type { InventoryItem } from '../../logic/Inventory';
 import { rawItemCountSelector } from '../../tracker/Selectors';
 import Item from '../Item';
-import styles from './CounterItem.module.css';
+import counterStyles from './CounterItem.module.css';
+import { ItemCounterOverlay } from './ItemCounterOverlay';
 
 export function CounterItem({
     itemName,
@@ -16,16 +17,12 @@ export function CounterItem({
     const current = useSelector(rawItemCountSelector(itemName));
     return (
         <Item
-            className={styles.counterItemContainer}
+            className={counterStyles.counterItemContainer}
             itemName={itemName}
             grid={grid}
             imgWidth={imgWidth}
         >
-            {current > 0 && (
-                <div className={styles.counter}>
-                    <span>{current}</span>
-                </div>
-            )}
+            <ItemCounterOverlay count={current} />
         </Item>
     );
 }
