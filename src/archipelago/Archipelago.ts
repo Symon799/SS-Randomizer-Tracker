@@ -489,7 +489,10 @@ export class APClientManager {
     statusSubscriptions: Set<() => void> = new Set();
 
     private deliverRequiredDungeons() {
-        if (!this.resolveRequiredDungeons || !this.requiredDungeonsAuthoritative) {
+        if (
+            !this.resolveRequiredDungeons ||
+            !this.requiredDungeonsAuthoritative
+        ) {
             return;
         }
 
@@ -590,10 +593,11 @@ export class APClientManager {
             this.addToInventory(inventory, triforceItemReplacement);
         } else {
             const normalizedItem = apItemAliases[item] ?? item;
-            if (
+            const canAddDirectly =
+                normalizedItem === 'Progressive Pouch' ||
                 !normalizedItem.includes('Pouch') ||
-                !inventory['Progressive Pouch']
-            ) {
+                !inventory['Progressive Pouch'];
+            if (canAddDirectly) {
                 this.addToInventory(inventory, normalizedItem);
             }
         }
@@ -881,9 +885,8 @@ export class APClientManager {
                   ? 'receivedNetworkItems'
                   : 'none';
 
-        const progressiveSwordFromDataStorage = parseProgressiveSwordDataStorage(
-            this.apDataStorage,
-        );
+        const progressiveSwordFromDataStorage =
+            parseProgressiveSwordDataStorage(this.apDataStorage);
         const progressiveSwordSource =
             progressiveSwordFromDataStorage !== undefined
                 ? 'dataStorage'
@@ -1152,10 +1155,7 @@ export class APClientManager {
                     content.slot,
                 );
                 this.progressiveSwordDataStorageKeys =
-                    progressiveSwordDataStorageKeys(
-                        content.team,
-                        content.slot,
-                    );
+                    progressiveSwordDataStorageKeys(content.team, content.slot);
                 const dataStorageKeys = [
                     this.cubeDataKey,
                     ...this.gratitudeDataStorageKeys,

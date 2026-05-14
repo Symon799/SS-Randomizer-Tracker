@@ -177,7 +177,7 @@ const images: Images = {
     'Lanayru Caves Small Key': [noSmallKey, oneSmallKey],
     'Sea Chart': [noSeaChart, seaChart],
     'Spiral Charge': [noSpiralCharge, spiralCharge],
-    'Progressive Pouch': [noPouch, pouch],
+    'Progressive Pouch': [noPouch, pouch, pouch, pouch, pouch, pouch],
     'Empty Bottle': [noBottle, bottle, bottle, bottle, bottle, bottle],
     'Key Piece': [
         noKeyPiece,

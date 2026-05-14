@@ -11,7 +11,7 @@ export const itemMaxes = {
     'Stone of Trials': 1,
 
     'Empty Bottle': 5,
-    'Progressive Pouch': 1,
+    'Progressive Pouch': 5,
     'Progressive Wallet': 4,
     'Extra Wallet': 3,
 
