@@ -82,7 +82,7 @@ export function getInitialItems(
 
     add(
         'Progressive Sword',
-        swordsToAdd[settings['starting-sword'] ?? 'Swordless'],
+        swordsToAdd[settings['starting-sword'] ?? 'Swordless'] ?? 0,
     );
     const startingItems = settings['starting-items'] ?? [];
     for (const item of startingItems) {

@@ -175,12 +175,13 @@ function TrackerContents({ openTools }: { openTools: () => void }) {
         };
 
         const clientItemCallback = (inv: TrackerState['inventory']) => {
+            const settings =
+                apClient.getLoadedSettings() ??
+                (store.getState().tracker.settings as Parameters<
+                    typeof getInitialItems
+                >[0]);
             const mergedInventory = mergeApInventoryWithSeedItems(
-                getInitialItems(
-                    store.getState().tracker.settings as Parameters<
-                        typeof getInitialItems
-                    >[0],
-                ),
+                getInitialItems(settings),
                 inv,
             );
             dispatch(

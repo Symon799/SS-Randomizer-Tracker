@@ -69,14 +69,21 @@ export const impaSongCheck =
     '\\Faron\\Sealed Grounds\\Sealed Temple\\Song from Impa';
 export const completeTriforceReq = '\\Complete Triforce';
 
-export const swordsToAdd = {
+export const swordsToAdd: Record<string, number> = {
     Swordless: 0,
+    no_sword: 0,
     'Practice Sword': 1,
+    practice_sword: 1,
     'Goddess Sword': 2,
+    goddess_sword: 2,
     'Goddess Longsword': 3,
+    goddess_longsword: 3,
     'Goddess White Sword': 4,
+    goddess_white_sword: 4,
     'Master Sword': 5,
+    master_sword: 5,
     'True Master Sword': 6,
+    true_master_sword: 6,
 };
 
 const s3RacingBannedGossipStones = [

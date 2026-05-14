@@ -38,6 +38,7 @@ const apItemAliases: Record<string, string> = {
     Rattle: 'Baby Rattle',
     'Skyview Temple Boss Key': 'Skyview Boss Key',
     'Skyview Temple Small Key': 'Skyview Small Key',
+    'Skyview Temple Map': 'Skyview Map',
 };
 
 const apProgressiveItemMinimums: Record<string, [item: string, count: number]> =
@@ -309,6 +310,29 @@ function resolveApGratitudeCrystalCounts(
     return parseGratitudeCrystalCountsFromReceivedItems(receivedNetworkItems);
 }
 
+export function parseApCustomStartingItems(
+    customStartingItems: unknown,
+): string[] | undefined {
+    if (
+        customStartingItems === undefined ||
+        typeof customStartingItems !== 'object' ||
+        customStartingItems === null ||
+        Array.isArray(customStartingItems)
+    ) {
+        return undefined;
+    }
+
+    const items: string[] = [];
+    for (const [item, count] of Object.entries(customStartingItems)) {
+        const normalizedItem = apItemAliases[item] ?? item;
+        const copies = typeof count === 'number' && count > 0 ? count : 1;
+        for (let i = 0; i < copies; i++) {
+            items.push(normalizedItem);
+        }
+    }
+    return items;
+}
+
 function optionIndicesToOptions(
     optionDefs: OptionDefs,
     loadedOptions: Record<string, number | string | string[]>,
@@ -339,6 +363,13 @@ function optionIndicesToOptions(
                         : option.choices[loadedVal as number];
             }
         }
+    }
+    const customStartingItems =
+        loadedOptions.custom_starting_items ??
+        loadedOptions.option_custom_starting_items;
+    const parsedStartingItems = parseApCustomStartingItems(customStartingItems);
+    if (parsedStartingItems !== undefined) {
+        settings['starting-items'] = parsedStartingItems;
     }
     // console.log(settings);
     return settings as AllTypedOptions;

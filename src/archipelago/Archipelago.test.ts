@@ -3,10 +3,22 @@ import {
     AP_ITEM_ID_GRATITUDE_CRYSTAL,
     AP_ITEM_ID_GRATITUDE_CRYSTAL_PACK,
     mergeApInventoryWithSeedItems,
+    parseApCustomStartingItems,
     parseGratitudeCrystalCountsFromReceivedItems,
     parseGratitudeCrystalDataStorage,
     parseProgressiveSwordDataStorage,
 } from './Archipelago';
+
+describe('parseApCustomStartingItems', () => {
+    it('expands AP custom starting items without the default progressive pouch', () => {
+        expect(
+            parseApCustomStartingItems({
+                'Skyview Temple Map': 1,
+                'Earth Temple Map': 1,
+            }),
+        ).toEqual(['Skyview Map', 'Earth Temple Map']);
+    });
+});
 
 describe('parseGratitudeCrystalDataStorage', () => {
     it('reads flat gratitude crystal keys', () => {
