@@ -103,9 +103,9 @@ export default function Options() {
             <div className={clsx(styles.optionsCategory, styles.infoCard)}>
                 <legend>About This Tracker</legend>
                 <div className={styles.connectionNote}>
-                    This is a map tracker for Skyward Sword HD Archipelago only.
-                    Required dungeons still need to be selected manually for
-                    now.
+                    This is an auto map tracker for Skyward Sword HD Archipelago
+                    only. Required dungeons sync automatically from the server
+                    on SSHD AP versions above 0.7.3
                 </div>
             </div>
             <hr />
