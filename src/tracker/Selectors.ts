@@ -235,16 +235,27 @@ const skyKeepRequiredSelector = (state: RootState) => {
 export const requiredDungeonsSelector = createSelector(
     [
         (state: RootState) => state.tracker.requiredDungeons,
+        (state: RootState) => state.tracker.apRequiredDungeons,
         settingSelector('required-dungeon-count'),
         skyKeepRequiredSelector,
     ],
-    (selectedRequiredDungeons, numRequiredDungeons, skyKeepRequired) => {
-        // Enforce consistent order
+    (
+        selectedRequiredDungeons,
+        apRequiredDungeons,
+        numRequiredDungeons,
+        skyKeepRequired,
+    ) => {
+        // When AP sent an explicit dungeon list (goal_dungeon_location_codes), honor
+        // tracker toggles instead of expanding back to all six surface dungeons.
+        const useExplicitApDungeonList = apRequiredDungeons.length > 0;
+
         return dungeonNames.filter((d) =>
             d === 'Sky Keep'
                 ? skyKeepRequired
-                : numRequiredDungeons === 6 ||
-                  selectedRequiredDungeons.includes(d),
+                : useExplicitApDungeonList
+                  ? selectedRequiredDungeons.includes(d)
+                  : numRequiredDungeons === 6 ||
+                    selectedRequiredDungeons.includes(d),
         );
     },
 );

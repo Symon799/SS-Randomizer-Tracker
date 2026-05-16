@@ -2,12 +2,53 @@ import { describe, expect, it } from 'vitest';
 import {
     AP_ITEM_ID_GRATITUDE_CRYSTAL,
     AP_ITEM_ID_GRATITUDE_CRYSTAL_PACK,
+    formatRequiredDungeonsDebugSummary,
     mergeApInventoryWithSeedItems,
     parseApCustomStartingItems,
     parseGratitudeCrystalCountsFromReceivedItems,
     parseGratitudeCrystalDataStorage,
     parseProgressiveSwordDataStorage,
+    type RequiredDungeonDiagnostic,
 } from './Archipelago';
+
+describe('formatRequiredDungeonsDebugSummary', () => {
+    const baseDiagnostic = {
+        slotDataKeys: [],
+        keysContainingRequired: [],
+        requiredDungeonsRaw: undefined,
+        goalDungeonLocationCodesRaw: undefined,
+        requiredDungeons: ['Skyview', 'Sandship'],
+        source: 'goal_dungeon_location_codes',
+        hasSpecificRequiredDungeons: true,
+        pendingGoalLocationCodes: false,
+        verdict: '',
+    } satisfies RequiredDungeonDiagnostic;
+
+    it('lists AP-required dungeons from server data when present', () => {
+        expect(formatRequiredDungeonsDebugSummary(baseDiagnostic)).toBe(
+            'Skyview, Sandship',
+        );
+    });
+
+    it('does not change when the player toggles dungeons in the tracker', () => {
+        expect(
+            formatRequiredDungeonsDebugSummary({
+                ...baseDiagnostic,
+                requiredDungeons: ['Skyview', 'Sandship'],
+            }),
+        ).toBe('Skyview, Sandship');
+    });
+
+    it('reports when no specific dungeons came from AP', () => {
+        expect(
+            formatRequiredDungeonsDebugSummary({
+                ...baseDiagnostic,
+                hasSpecificRequiredDungeons: false,
+                source: 'default',
+            }),
+        ).toBe('No specific required dungeon found');
+    });
+});
 
 describe('parseApCustomStartingItems', () => {
     it('expands AP custom starting items without the default progressive pouch', () => {

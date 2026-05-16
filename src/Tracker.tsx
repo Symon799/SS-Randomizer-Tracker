@@ -2,7 +2,10 @@ import clsx from 'clsx';
 import { useContext, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector, useStore } from 'react-redux';
 import { Link, Navigate } from 'react-router-dom';
-import { mergeApInventoryWithSeedItems } from './archipelago/Archipelago';
+import {
+    formatRequiredDungeonsDebugSummary,
+    mergeApInventoryWithSeedItems,
+} from './archipelago/Archipelago';
 import {
     ClientManagerContext,
     useApConnectionStatus,
@@ -370,33 +373,10 @@ function TrackerToolsView({
                             <div className={styles.toolsTitle}>Debug</div>
                             <div className={styles.debugStack}>
                                 <div className={styles.debugLine}>
-                                    <strong>
-                                        Required dungeons diagnostic:
-                                    </strong>{' '}
-                                    {requiredDungeonDiagnostic.verdict}
-                                </div>
-                                <div className={styles.debugLine}>
-                                    <strong>
-                                        `required_dungeons` raw value:
-                                    </strong>{' '}
-                                    <code>
-                                        {JSON.stringify(
-                                            requiredDungeonDiagnostic.requiredDungeonsRaw,
-                                        )}
-                                    </code>
-                                </div>
-                                <div className={styles.debugLine}>
-                                    <strong>
-                                        Matching keys in `slot_data`:
-                                    </strong>{' '}
-                                    <code>
-                                        {requiredDungeonDiagnostic
-                                            .keysContainingRequired.length > 0
-                                            ? requiredDungeonDiagnostic.keysContainingRequired.join(
-                                                  ', ',
-                                              )
-                                            : '(none)'}
-                                    </code>
+                                    <strong>Required dungeons:</strong>{' '}
+                                    {formatRequiredDungeonsDebugSummary(
+                                        requiredDungeonDiagnostic,
+                                    )}
                                 </div>
                             </div>
                         </div>

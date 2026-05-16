@@ -5,6 +5,7 @@ import {
     useRef,
     useState,
     type FormEvent,
+    type UIEvent,
 } from 'react';
 import Tooltip from '../additionalComponents/Tooltip';
 import type { ClientMessage, ColoredText } from '../archipelago/Archipelago';
@@ -55,31 +56,47 @@ function useApMessages() {
     return messages;
 }
 
+/** Pixels from the bottom still treated as "following" new messages. */
+const LOG_SCROLL_STICK_THRESHOLD_PX = 32;
+
+function isLogScrolledToBottom(element: HTMLElement) {
+    return (
+        element.scrollHeight - element.scrollTop - element.clientHeight <=
+        LOG_SCROLL_STICK_THRESHOLD_PX
+    );
+}
+
 // separate the list of messages so it only re-renders when new messages come in
 const MessageList = memo(function MessageList({
     compact = false,
 }: {
     compact?: boolean;
 }) {
-    const lastItem = useRef<HTMLLIElement>(null);
+    const listRef = useRef<HTMLUListElement>(null);
+    const stickToBottomRef = useRef(true);
     const messages = useApMessages();
 
+    const handleScroll = (event: UIEvent<HTMLUListElement>) => {
+        stickToBottomRef.current = isLogScrolledToBottom(event.currentTarget);
+    };
+
     useEffect(() => {
-        lastItem.current?.scrollIntoView({ behavior: 'smooth' });
+        const list = listRef.current;
+        if (!list || !stickToBottomRef.current) {
+            return;
+        }
+        list.scrollTo({ top: list.scrollHeight, behavior: 'smooth' });
     }, [messages]);
 
     return (
         <ul
+            ref={listRef}
+            onScroll={handleScroll}
             className={`${styles.apMessages} ${compact ? styles.apMessagesCompact : ''}`}
         >
-            {messages.map((msg, idx) => {
-                const isLast = idx === messages.length - 1;
-                return (
-                    <li key={idx} ref={isLast ? lastItem : undefined}>
-                        {renderMessage(msg)}
-                    </li>
-                );
-            })}
+            {messages.map((msg, idx) => (
+                <li key={idx}>{renderMessage(msg)}</li>
+            ))}
         </ul>
     );
 });

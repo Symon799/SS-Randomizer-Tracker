@@ -230,11 +230,23 @@ function ConnectionCard({
     return (
         <div className={clsx(styles.optionsCategory, styles.permalinkChooser)}>
             <legend>Connect</legend>
-            <div className={styles.permalinkInput}>
+            <div
+                className={clsx(
+                    styles.permalinkInput,
+                    isConnected && styles.permalinkInputLocked,
+                )}
+            >
                 <input
                     type="text"
                     className="tracker-input"
                     disabled={isConnected}
+                    readOnly={isConnected}
+                    aria-readonly={isConnected}
+                    title={
+                        isConnected
+                            ? 'Disconnect to edit the server address'
+                            : undefined
+                    }
                     placeholder="archipelago.gg:XXXXX"
                     value={server ?? ''}
                     onChange={(e) => setServer(e.target.value)}
@@ -244,6 +256,11 @@ function ConnectionCard({
                     className="tracker-input"
                     placeholder="Slot name"
                     disabled={isConnected}
+                    readOnly={isConnected}
+                    aria-readonly={isConnected}
+                    title={
+                        isConnected ? 'Disconnect to edit the slot name' : undefined
+                    }
                     value={
                         apStatus.state === 'loggedIn'
                             ? apStatus.slotName
@@ -256,6 +273,13 @@ function ConnectionCard({
                     className="tracker-input"
                     placeholder="Password (optional)"
                     disabled={isConnected}
+                    readOnly={isConnected}
+                    aria-readonly={isConnected}
+                    title={
+                        isConnected
+                            ? 'Disconnect to change the password'
+                            : undefined
+                    }
                     value={inputPassword}
                     onChange={(e) => setInputPassword(e.target.value)}
                 />

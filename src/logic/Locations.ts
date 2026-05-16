@@ -110,3 +110,121 @@ export function parseRequiredDungeonsFromSlotData(
 
     return defaultRequiredDungeons();
 }
+
+/** AP boss location short names from the data package → tracker dungeon names. */
+const AP_GOAL_BOSS_LOCATION_TO_DUNGEON: Record<string, RegularDungeon> = {
+    'Skyview Temple - Defeat Boss': 'Skyview',
+    'Earth Temple - Defeat Boss': 'Earth Temple',
+    'Lanayru Mining Facility - Defeat Boss': 'Lanayru Mining Facility',
+    'Ancient Cistern - Defeat Boss': 'Ancient Cistern',
+    'Sandship - Defeat Boss': 'Sandship',
+    'Fire Sanctuary - Defeat Boss': 'Fire Sanctuary',
+};
+
+export function dungeonFromApGoalLocationName(
+    locationName: string,
+): RegularDungeon | undefined {
+    return AP_GOAL_BOSS_LOCATION_TO_DUNGEON[locationName];
+}
+
+export function isGoalDungeonLocationCodes(
+    raw: unknown,
+): raw is number[] {
+    return (
+        Array.isArray(raw) &&
+        raw.length > 0 &&
+        raw.every((entry) => typeof entry === 'number')
+    );
+}
+
+/**
+ * Maps AP `goal_dungeon_location_codes` entries to tracker required dungeons.
+ * Returns `undefined` when the list is empty/missing (use all dungeons) or when
+ * location names are not available yet (wait for the data package).
+ */
+export function parseRequiredDungeonsFromGoalDungeonLocationCodes(
+    raw: unknown,
+    idToLocation?: Record<number, string>,
+): RegularDungeon[] | undefined {
+    if (!isGoalDungeonLocationCodes(raw)) {
+        return undefined;
+    }
+    if (idToLocation === undefined) {
+        return undefined;
+    }
+
+    const dungeons: RegularDungeon[] = [];
+    const seen = new Set<RegularDungeon>();
+    for (const locationId of raw) {
+        const locationName = idToLocation[locationId];
+        if (locationName === undefined) {
+            continue;
+        }
+        const dungeon = dungeonFromApGoalLocationName(locationName);
+        if (dungeon !== undefined && !seen.has(dungeon)) {
+            seen.add(dungeon);
+            dungeons.push(dungeon);
+        }
+    }
+
+    return dungeons.length > 0 ? dungeons : undefined;
+}
+
+export type RequiredDungeonsSlotDataResolution = {
+    dungeons: RegularDungeon[];
+    authoritative: boolean;
+    source: 'goal_dungeon_location_codes' | 'required_dungeons' | 'default';
+    pendingGoalLocationCodes: boolean;
+};
+
+export function resolveRequiredDungeonsFromSlotData(
+    slotData: Record<string, unknown>,
+    idToLocation?: Record<number, string>,
+): RequiredDungeonsSlotDataResolution {
+    const goalCodesRaw = slotData['goal_dungeon_location_codes'];
+    const fromGoalCodes = parseRequiredDungeonsFromGoalDungeonLocationCodes(
+        goalCodesRaw,
+        idToLocation,
+    );
+    if (fromGoalCodes !== undefined) {
+        return {
+            dungeons: fromGoalCodes,
+            authoritative: true,
+            source: 'goal_dungeon_location_codes',
+            pendingGoalLocationCodes: false,
+        };
+    }
+
+    if (isGoalDungeonLocationCodes(goalCodesRaw)) {
+        return {
+            dungeons: defaultRequiredDungeons(),
+            authoritative: false,
+            source: 'default',
+            pendingGoalLocationCodes: true,
+        };
+    }
+
+    const requiredDungeonsRaw = slotData['required_dungeons'];
+    if (
+        Array.isArray(requiredDungeonsRaw) &&
+        requiredDungeonsRaw.length > 0 &&
+        requiredDungeonsRaw.every((entry) => typeof entry === 'string')
+    ) {
+        const dungeons = requiredDungeonsRaw.filter(isRegularDungeon);
+        if (dungeons.length > 0) {
+            return {
+                dungeons,
+                authoritative: true,
+                source: 'required_dungeons',
+                pendingGoalLocationCodes: false,
+            };
+        }
+    }
+
+    return {
+        dungeons: defaultRequiredDungeons(),
+        authoritative: false,
+        source: 'default',
+        pendingGoalLocationCodes: false,
+    };
+}

@@ -1,5 +1,6 @@
 declare const classNames: {
     readonly permalinkInput: 'permalinkInput';
+    readonly permalinkInputLocked: 'permalinkInputLocked';
     readonly optionsPage: 'optionsPage';
     readonly plaintextLogicInput: 'plaintextLogicInput';
     readonly permalinkChooser: 'permalinkChooser';

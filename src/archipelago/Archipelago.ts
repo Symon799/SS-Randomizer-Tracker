@@ -13,7 +13,7 @@ import {
     setStoredArchipelagoSlot,
 } from '../LocalStorage';
 import {
-    parseRequiredDungeonsFromSlotData,
+    resolveRequiredDungeonsFromSlotData,
     type RegularDungeon,
 } from '../logic/Locations';
 import {
@@ -404,9 +404,25 @@ export type RequiredDungeonDiagnostic = {
     slotDataKeys: string[];
     keysContainingRequired: string[];
     requiredDungeonsRaw: unknown;
+    goalDungeonLocationCodesRaw: unknown;
     requiredDungeons: string[];
+    source: 'goal_dungeon_location_codes' | 'required_dungeons' | 'default';
+    hasSpecificRequiredDungeons: boolean;
+    pendingGoalLocationCodes: boolean;
     verdict: string;
 };
+
+export function formatRequiredDungeonsDebugSummary(
+    diagnostic: RequiredDungeonDiagnostic,
+): string {
+    if (diagnostic.pendingGoalLocationCodes) {
+        return 'Resolving required dungeons from AP (waiting for data package)…';
+    }
+    if (diagnostic.hasSpecificRequiredDungeons) {
+        return diagnostic.requiredDungeons.join(', ');
+    }
+    return 'No specific required dungeon found';
+}
 
 type SlotData = Record<string, unknown>;
 
@@ -533,6 +549,47 @@ export class APClientManager {
 
     private markRequiredDungeonsDeliveryHandled() {
         this.hasDeliveredRequiredDungeonsToTracker = true;
+    }
+
+    private applyRequiredDungeonsFromSlotData(slotData: SlotData) {
+        const resolution = resolveRequiredDungeonsFromSlotData(
+            slotData,
+            this.idToLocation,
+        );
+        this.requiredDungeons = resolution.dungeons;
+        this.requiredDungeonsAuthoritative = resolution.authoritative;
+        const requiredDungeonsRaw = slotData['required_dungeons'];
+        const goalDungeonLocationCodesRaw =
+            slotData['goal_dungeon_location_codes'];
+        this.requiredDungeonDiagnostic = {
+            slotDataKeys: Object.keys(slotData).sort((left, right) =>
+                left.localeCompare(right),
+            ),
+            keysContainingRequired: Object.keys(slotData)
+                .filter((key) => key.toLowerCase().includes('required'))
+                .sort((left, right) => left.localeCompare(right)),
+            requiredDungeonsRaw,
+            goalDungeonLocationCodesRaw,
+            requiredDungeons: this.requiredDungeons,
+            source: resolution.source,
+            hasSpecificRequiredDungeons: resolution.authoritative,
+            pendingGoalLocationCodes: resolution.pendingGoalLocationCodes,
+            verdict:
+                resolution.source === 'goal_dungeon_location_codes'
+                    ? 'slot_data.goal_dungeon_location_codes applied'
+                    : resolution.source === 'required_dungeons'
+                      ? 'slot_data.required_dungeons applied'
+                      : resolution.pendingGoalLocationCodes
+                        ? 'slot_data.goal_dungeon_location_codes pending data package'
+                        : goalDungeonLocationCodesRaw === undefined &&
+                            requiredDungeonsRaw === undefined
+                          ? 'slot_data missing goal_dungeon_location_codes and required_dungeons; defaulted to all surface dungeons'
+                          : 'slot_data goal/required dungeon lists empty or invalid; defaulted to all surface dungeons',
+        };
+        console.info(
+            'AP required dungeon diagnostic:',
+            this.requiredDungeonDiagnostic,
+        );
     }
 
     private syncCheckedLocations() {
@@ -1135,37 +1192,8 @@ export class APClientManager {
                     optionDefs,
                     slotData as Record<string, number | string | string[]>,
                 );
-                const requiredDungeonsRaw = slotData['required_dungeons'];
-                this.requiredDungeons =
-                    parseRequiredDungeonsFromSlotData(requiredDungeonsRaw);
-                const usedSlotDataRequiredDungeons =
-                    Array.isArray(requiredDungeonsRaw) &&
-                    requiredDungeonsRaw.length > 0 &&
-                    requiredDungeonsRaw.every(
-                        (entry) => typeof entry === 'string',
-                    );
-                this.requiredDungeonsAuthoritative =
-                    usedSlotDataRequiredDungeons;
-                this.requiredDungeonDiagnostic = {
-                    slotDataKeys: Object.keys(slotData).sort((left, right) =>
-                        left.localeCompare(right),
-                    ),
-                    keysContainingRequired: Object.keys(slotData)
-                        .filter((key) => key.toLowerCase().includes('required'))
-                        .sort((left, right) => left.localeCompare(right)),
-                    requiredDungeonsRaw,
-                    requiredDungeons: this.requiredDungeons,
-                    verdict: usedSlotDataRequiredDungeons
-                        ? 'slot_data.required_dungeons applied'
-                        : requiredDungeonsRaw === undefined
-                          ? 'slot_data missing required_dungeons; defaulted to all surface dungeons'
-                          : 'slot_data.required_dungeons missing or invalid; defaulted to all surface dungeons',
-                };
+                this.applyRequiredDungeonsFromSlotData(slotData);
                 console.info('AP slot_data:', slotData);
-                console.info(
-                    'AP required dungeon diagnostic:',
-                    this.requiredDungeonDiagnostic,
-                );
                 this.totalLocationCount = getSlotDataLocationCount(slotData);
                 if (this.requiredDungeonsAuthoritative) {
                     this.deliverRequiredDungeons();
@@ -1241,6 +1269,23 @@ export class APClientManager {
                     total: this.totalLocationCount,
                     checked: this.checkedLocationIds.length,
                 });
+                if (this.connectedData?.slot_data !== undefined) {
+                    const hadAuthoritativeRequiredDungeons =
+                        this.requiredDungeonsAuthoritative;
+                    this.applyRequiredDungeonsFromSlotData(
+                        this.connectedData.slot_data as SlotData,
+                    );
+                    if (
+                        this.requiredDungeonsAuthoritative &&
+                        (!hadAuthoritativeRequiredDungeons ||
+                            !this.hasDeliveredRequiredDungeonsToTracker)
+                    ) {
+                        this.hasDeliveredRequiredDungeonsToTracker = false;
+                        if (this.resolveRequiredDungeons) {
+                            this.deliverRequiredDungeons();
+                        }
+                    }
+                }
                 if (this.pendingReceivedItems.length > 0) {
                     this.processReceivedItems(this.pendingReceivedItems);
                     this.pendingReceivedItems = [];

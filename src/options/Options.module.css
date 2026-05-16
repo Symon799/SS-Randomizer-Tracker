@@ -18,6 +18,17 @@
     }
 }
 
+.permalinkInputLocked {
+    input:disabled {
+        color: color-mix(in srgb, var(--scheme-text) 42%, transparent);
+        background-color: color-mix(
+            in srgb,
+            var(--scheme-text) 9%,
+            var(--scheme-background)
+        );
+    }
+}
+
 .optionsPage {
     width: min(1120px, calc(100% - 32px));
     margin: 24px auto 0;
