@@ -18,6 +18,7 @@ import {
 } from './ThingsThatWouldBeNiceToHaveInTheDump';
 import {
     dungeonCompletionItems,
+    fullSongOfTheHeroRequirement,
     sothItemReplacement,
     sothItems,
     triforceItemReplacement,
@@ -259,6 +260,9 @@ export function mapInventory(logic: Logic, itemCounts: Record<string, number>) {
         if (item === sothItemReplacement) {
             for (let i = 1; i <= count; i++) {
                 trySet(sothItems[i - 1]);
+            }
+            if (count >= sothItems.length) {
+                trySet(fullSongOfTheHeroRequirement);
             }
         } else if (item === triforceItemReplacement) {
             for (let i = 1; i <= count; i++) {

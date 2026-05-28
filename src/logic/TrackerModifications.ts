@@ -40,6 +40,9 @@ export const sothItems = [
 
 export const sothItemReplacement = 'Song of the Hero';
 
+/** Virtual requirement bit used by the SSHD dump for the Skyloft trial gate. */
+export const fullSongOfTheHeroRequirement = '\\Full Song of the Hero';
+
 export const triforceItems = [
     'Triforce of Power',
     'Triforce of Wisdom',
@@ -164,6 +167,8 @@ export function getTooltipOpaqueBits(
     for (const fakeItem of Object.values(dungeonCompletionItems)) {
         set(fakeItem);
     }
+
+    set(fullSongOfTheHeroRequirement);
 
     // Goddess chest tooltips should show the corresponding goddess cube.
     for (const cubeItem of Object.values(cubeCheckToCubeCollected)) {

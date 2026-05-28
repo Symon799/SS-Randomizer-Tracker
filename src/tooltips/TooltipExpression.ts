@@ -139,6 +139,10 @@ export function booleanExprToTooltipExpr(
 const itemCountPat = /^(.+) x (\d+)$/;
 
 function getReadableItemName(logic: Logic, item: string) {
+    if (item === '\\Full Song of the Hero') {
+        return 'Full Song of the Hero';
+    }
+
     if (item in prettyItemNames) {
         return prettyItemNames[item][1];
     }

@@ -1,8 +1,10 @@
 import { load } from 'js-yaml';
 import fs from 'node:fs';
 import { describe, expect, it } from 'vitest';
+import { computeLeastFixedPoint, mergeRequirements } from './bitlogic/BitLogic';
 import type { LogicalExpression } from './bitlogic/LogicalExpression';
 import { parseLogic } from './Logic';
+import { mapInventory } from './Mappers';
 import type { RawLogic } from './UpstreamTypes';
 
 function formatExpr(
@@ -126,6 +128,7 @@ describe('SSHD generated dump', () => {
 
         const suspects = [
             "\\Faron\\Farore's Silent Realm",
+            "\\Skyloft\\The Goddess's Silent Realm",
             '\\Pumpkin Carrying',
             '\\Complete Hot Soup Delivery',
             '\\Delivered Hot Soup',
@@ -142,17 +145,57 @@ describe('SSHD generated dump', () => {
         expect(inspect("\\Faron\\Farore's Silent Realm").simplified).not.toBe(
             'false',
         );
+        expect(
+            inspect("\\Skyloft\\The Goddess's Silent Realm").simplified,
+        ).not.toBe('false');
         expect(inspect('\\Pumpkin Carrying').simplified).not.toBe('false');
         expect(inspect('\\Complete Hot Soup Delivery').simplified).not.toBe(
             'false',
         );
         expect(inspect('\\Delivered Hot Soup').simplified).not.toBe('false');
         expect(inspect("\\Goddess's Harp").simplified).not.toBe('false');
+        expect(inspect('\\Full Song of the Hero').simplified).not.toBe('false');
         expect(
             inspect('Deep Woods Goddess Cube near Goron').simplified,
         ).not.toBe('false');
         expect(
             inspect('Deep Woods Goddess Cube in front of Temple').simplified,
         ).not.toBe('false');
+    });
+
+    it('opens Goddess Silent Realm when harp, sword, and full song are owned', () => {
+        const raw = load(
+            fs.readFileSync('testData/sshd-dump.yaml', 'utf8'),
+        ) as RawLogic;
+        const logic = parseLogic(raw);
+        const inventoryRequirements = mapInventory(logic, {
+            "Goddess's Harp": 1,
+            'Progressive Sword': 1,
+            'Song of the Hero': 3,
+        });
+        const bits = mergeRequirements(
+            logic.numRequirements,
+            logic.staticRequirements,
+            inventoryRequirements,
+        );
+        const reachable = computeLeastFixedPoint('test', bits);
+
+        const fullSongBit = logic.itemBits['\\Full Song of the Hero'];
+        expect(reachable.test(fullSongBit)).toBe(true);
+
+        const withoutSong = mapInventory(logic, {
+            "Goddess's Harp": 1,
+            'Progressive Sword': 1,
+            'Song of the Hero': 2,
+        });
+        const unreachable = computeLeastFixedPoint(
+            'test',
+            mergeRequirements(
+                logic.numRequirements,
+                logic.staticRequirements,
+                withoutSong,
+            ),
+        );
+        expect(unreachable.test(fullSongBit)).toBe(false);
     });
 });
