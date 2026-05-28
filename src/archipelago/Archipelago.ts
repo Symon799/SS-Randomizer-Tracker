@@ -39,7 +39,99 @@ const apItemAliases: Record<string, string> = {
     'Skyview Temple Boss Key': 'Skyview Boss Key',
     'Skyview Temple Small Key': 'Skyview Small Key',
     'Skyview Temple Map': 'Skyview Map',
+    'Bottle of Mushroom Spores': 'Mushroom Spores',
 };
+
+/**
+ * AP item names that fill a bottle slot (SSHD logic `\filledbottletypes`).
+ * Receiving any of these grants an Empty Bottle in the tracker inventory.
+ */
+export const FILLED_BOTTLE_AP_ITEMS = new Set([
+    'Fairy in a Bottle',
+    'Guardian Potion',
+    'Guardian Potion Plus',
+    'Heart Potion',
+    'Heart Potion Plus',
+    'Heart Potion Plus Plus',
+    'Stamina Potion',
+    'Stamina Potion Plus',
+    'Air Potion',
+    'Air Potion Plus',
+    'Revitalizing Potion',
+    'Revitalizing Potion Plus',
+    'Revitalizing Potion Plus Plus',
+    'Hot Pumpkin Soup',
+    'Cold Pumpkin Soup',
+    'Bottle of Water',
+    'Sacred Water',
+    'Glittering Spores',
+    'Mushroom Spores',
+]);
+
+const EMPTY_BOTTLE_AP_ITEM_PATTERN = /^Empty Bottle(?: #\d+)?$/;
+
+export function isApBottleSlotItem(item: string): boolean {
+    const normalized = apItemAliases[item] ?? item;
+    if (EMPTY_BOTTLE_AP_ITEM_PATTERN.test(normalized)) {
+        return true;
+    }
+    return FILLED_BOTTLE_AP_ITEMS.has(normalized);
+}
+
+function addToTrackerInventory(
+    inventory: TrackerState['inventory'],
+    item: string,
+    count: number = 1,
+) {
+    inventory[item] ??= 0;
+    inventory[item] += count;
+}
+
+function setTrackerInventoryAtLeast(
+    inventory: TrackerState['inventory'],
+    item: string,
+    count: number,
+) {
+    inventory[item] = Math.max(inventory[item] ?? 0, count);
+}
+
+export function applyApItemToTrackerInventory(
+    inventory: TrackerState['inventory'],
+    item: string,
+): void {
+    if (isArchipelagoCrystalLogicItem(item)) {
+        return;
+    }
+    const progressiveMinimum = apProgressiveItemMinimums[item];
+    if (progressiveMinimum) {
+        setTrackerInventoryAtLeast(
+            inventory,
+            progressiveMinimum[0],
+            progressiveMinimum[1],
+        );
+        return;
+    }
+    if (item.includes(sothItemReplacement)) {
+        addToTrackerInventory(inventory, sothItemReplacement);
+        return;
+    }
+    if (item.includes(triforceItemReplacement)) {
+        addToTrackerInventory(inventory, triforceItemReplacement);
+        return;
+    }
+    if (isApBottleSlotItem(item)) {
+        addToTrackerInventory(inventory, 'Empty Bottle');
+        return;
+    }
+    const normalizedItem = apItemAliases[item] ?? item;
+    const canAddDirectly =
+        normalizedItem === 'Progressive Pouch' ||
+        !normalizedItem.includes('Pouch') ||
+        !inventory['Progressive Pouch'];
+    if (canAddDirectly) {
+        addToTrackerInventory(inventory, normalizedItem);
+    }
+}
 
 const apProgressiveItemMinimums: Record<string, [item: string, count: number]> =
     {
@@ -641,54 +733,11 @@ export class APClientManager {
         ]);
     }
 
-    private addToInventory(
-        inventory: TrackerState['inventory'],
-        item: string,
-        count: number = 1,
-    ) {
-        inventory[item] ??= 0;
-        inventory[item] += count;
-    }
-
-    private setInventoryAtLeast(
-        inventory: TrackerState['inventory'],
-        item: string,
-        count: number,
-    ) {
-        inventory[item] = Math.max(inventory[item] ?? 0, count);
-    }
-
     private applyApItemToInventory(
         inventory: TrackerState['inventory'],
         item: string,
     ) {
-        // SSHD tracker logic follows actual crystal checks (plus starting packs),
-        // not shuffled AP crystal items. Counting AP crystal items here makes
-        // Batreaux thresholds drift away from the in-game / UT behavior.
-        if (isArchipelagoCrystalLogicItem(item)) {
-            return;
-        }
-        const progressiveMinimum = apProgressiveItemMinimums[item];
-        if (progressiveMinimum) {
-            this.setInventoryAtLeast(
-                inventory,
-                progressiveMinimum[0],
-                progressiveMinimum[1],
-            );
-        } else if (item.includes(sothItemReplacement)) {
-            this.addToInventory(inventory, sothItemReplacement);
-        } else if (item.includes(triforceItemReplacement)) {
-            this.addToInventory(inventory, triforceItemReplacement);
-        } else {
-            const normalizedItem = apItemAliases[item] ?? item;
-            const canAddDirectly =
-                normalizedItem === 'Progressive Pouch' ||
-                !normalizedItem.includes('Pouch') ||
-                !inventory['Progressive Pouch'];
-            if (canAddDirectly) {
-                this.addToInventory(inventory, normalizedItem);
-            }
-        }
+        applyApItemToTrackerInventory(inventory, item);
     }
 
     private rebuildInventory() {

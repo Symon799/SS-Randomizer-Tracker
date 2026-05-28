@@ -1,3 +1,5 @@
+import { isItem, itemMaxes } from '../logic/Inventory';
+
 export function reconstructApRequiredDungeons(
     requiredDungeons: string[],
     manualOverrides: Record<string, boolean>,
@@ -57,44 +59,85 @@ export function mergeWithManualOverrides(
     return result;
 }
 
+/**
+ * Adjust manual inventory deltas when AP syncs.
+ * Positive deltas from AP=0 (early manual mark) are cleared once AP catches up.
+ * Other deltas persist through AP updates.
+ */
 export function reconcileInventoryOverrides(
     previousAp: Readonly<Partial<Record<string, number>>>,
     nextAp: Readonly<Partial<Record<string, number>>>,
-    manualOverrides: Partial<Record<string, number>>,
+    manualDeltas: Partial<Record<string, number>>,
 ): Partial<Record<string, number>> {
     if (Object.keys(previousAp).length === 0) {
-        return { ...manualOverrides };
+        return { ...manualDeltas };
     }
 
-    const overrides = { ...manualOverrides };
+    const deltas = { ...manualDeltas };
     const items = new Set([
         ...Object.keys(previousAp),
         ...Object.keys(nextAp),
-        ...Object.keys(manualOverrides),
+        ...Object.keys(manualDeltas),
     ]);
 
     for (const item of items) {
-        if ((previousAp[item] ?? 0) !== (nextAp[item] ?? 0)) {
-            delete overrides[item];
+        const delta = deltas[item];
+        if (delta === undefined || delta <= 0) {
+            continue;
+        }
+        const prevAp = previousAp[item] ?? 0;
+        const nextApCount = nextAp[item] ?? 0;
+        if (prevAp === 0 && nextApCount > 0) {
+            delete deltas[item];
         }
     }
 
-    return overrides;
+    return deltas;
 }
 
 export function mergeInventoryWithManualOverrides(
     apInventory: Partial<Record<string, number>>,
-    manualOverrides: Partial<Record<string, number>>,
+    manualDeltas: Partial<Record<string, number>>,
 ): Partial<Record<string, number>> {
-    const merged: Partial<Record<string, number>> = { ...apInventory };
+    const itemIds = new Set([
+        ...Object.keys(apInventory),
+        ...Object.keys(manualDeltas),
+    ]);
+    const merged: Partial<Record<string, number>> = {};
 
-    for (const [item, count] of Object.entries(manualOverrides)) {
-        if (count !== undefined) {
-            merged[item] = count;
-        }
+    for (const item of itemIds) {
+        const apCount = apInventory[item] ?? 0;
+        const delta = manualDeltas[item] ?? 0;
+        const raw = apCount + delta;
+        const max = isItem(item) ? itemMaxes[item] : undefined;
+        merged[item] =
+            max !== undefined
+                ? Math.max(0, Math.min(max, raw))
+                : Math.max(0, raw);
     }
 
     return merged;
+}
+
+/** Convert legacy absolute overrides to deltas (one-time migration). */
+export function migrateAbsoluteInventoryOverridesToDeltas(
+    apInventory: Readonly<Partial<Record<string, number>>>,
+    manualOverrides: Partial<Record<string, number>>,
+): Partial<Record<string, number>> {
+    const deltas: Partial<Record<string, number>> = {};
+
+    for (const [item, value] of Object.entries(manualOverrides)) {
+        if (value === undefined) {
+            continue;
+        }
+        const apCount = apInventory[item] ?? 0;
+        const delta = value - apCount;
+        if (delta !== 0) {
+            deltas[item] = delta;
+        }
+    }
+
+    return deltas;
 }
 
 export function bootstrapManualCheckOverrides(

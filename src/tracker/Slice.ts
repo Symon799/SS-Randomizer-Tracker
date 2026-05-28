@@ -37,9 +37,13 @@ export interface TrackerState {
      */
     apInventory: Partial<Record<string, number>>;
     /**
-     * Manual item-count overrides that remain active until AP changes that item.
+     * Manual inventory deltas (display = apInventory + delta), persisted across AP sync.
      */
     manualInventoryOverrides: Partial<Record<string, number>>;
+    /**
+     * When false/undefined, {@link manualInventoryOverrides} are migrated from legacy absolutes.
+     */
+    inventoryOverrideDeltas?: boolean;
     /**
      * Whether this state has been modified.
      */
@@ -165,10 +169,16 @@ const trackerSlice = createSlice({
                 0,
                 Math.min(max, take ? count - 1 : count + 1),
             );
-            state.manualInventoryOverrides = {
-                ...state.manualInventoryOverrides,
-                [item]: newCount,
-            };
+            const apCount = state.apInventory[item] ?? 0;
+            const delta = newCount - apCount;
+            const overrides = { ...state.manualInventoryOverrides };
+            if (delta === 0) {
+                delete overrides[item];
+            } else {
+                overrides[item] = delta;
+            }
+            state.manualInventoryOverrides = overrides;
+            state.inventoryOverrideDeltas = true;
             state.inventory = mergeInventoryWithManualOverrides(
                 state.apInventory,
                 state.manualInventoryOverrides,
@@ -202,9 +212,16 @@ const trackerSlice = createSlice({
         ) => {
             const overrides = { ...state.manualInventoryOverrides };
             for (const { item, count } of action.payload) {
-                overrides[item] = count;
+                const apCount = state.apInventory[item] ?? 0;
+                const delta = count - apCount;
+                if (delta === 0) {
+                    delete overrides[item];
+                } else {
+                    overrides[item] = delta;
+                }
             }
             state.manualInventoryOverrides = overrides;
+            state.inventoryOverrideDeltas = true;
             state.inventory = mergeInventoryWithManualOverrides(
                 state.apInventory,
                 state.manualInventoryOverrides,

@@ -42,4 +42,20 @@ describe('migrateTrackerState', () => {
             ['Earth Temple', 'Sandship', 'Skyview'].sort(),
         );
     });
+
+    it('migrates legacy absolute inventory overrides to deltas', () => {
+        const migrated = migrateTrackerState(
+            makeTrackerState({
+                apInventory: { 'Progressive Sword': 2 },
+                manualInventoryOverrides: { 'Progressive Sword': 3 },
+                inventory: { 'Progressive Sword': 3 },
+            }),
+        );
+
+        expect(migrated.inventoryOverrideDeltas).toBe(true);
+        expect(migrated.manualInventoryOverrides).toEqual({
+            'Progressive Sword': 1,
+        });
+        expect(migrated.inventory['Progressive Sword']).toBe(3);
+    });
 });

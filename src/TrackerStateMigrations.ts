@@ -5,6 +5,7 @@ import {
     bootstrapManualCheckOverrides,
     mergeInventoryWithManualOverrides,
     mergeWithManualOverrides,
+    migrateAbsoluteInventoryOverridesToDeltas,
     reconstructApRequiredDungeons,
 } from './tracker/TrackerSync';
 
@@ -26,6 +27,14 @@ export function migrateTrackerState(
         draft.manualCheckedOverrides ??= {};
         draft.apInventory ??= { ...draft.inventory };
         draft.manualInventoryOverrides ??= {};
+        if (!draft.inventoryOverrideDeltas) {
+            draft.manualInventoryOverrides =
+                migrateAbsoluteInventoryOverridesToDeltas(
+                    draft.apInventory,
+                    draft.manualInventoryOverrides,
+                );
+            draft.inventoryOverrideDeltas = true;
+        }
         draft.inventory = mergeInventoryWithManualOverrides(
             draft.apInventory,
             draft.manualInventoryOverrides,

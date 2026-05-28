@@ -2,7 +2,9 @@ import { describe, expect, it } from 'vitest';
 import {
     AP_ITEM_ID_GRATITUDE_CRYSTAL,
     AP_ITEM_ID_GRATITUDE_CRYSTAL_PACK,
+    applyApItemToTrackerInventory,
     formatRequiredDungeonsDebugSummary,
+    isApBottleSlotItem,
     mergeApInventoryWithSeedItems,
     parseApCustomStartingItems,
     parseGratitudeCrystalCountsFromReceivedItems,
@@ -138,6 +140,31 @@ describe('parseGratitudeCrystalCountsFromReceivedItems', () => {
                 },
             ]),
         ).toEqual({ singles: 2, packs: 1 });
+    });
+});
+
+describe('applyApItemToTrackerInventory', () => {
+    it('counts filled bottle items as empty bottles', () => {
+        const inventory: Record<string, number> = {};
+        applyApItemToTrackerInventory(inventory, 'Bottle of Water');
+        applyApItemToTrackerInventory(inventory, 'Heart Potion Plus Plus');
+        expect(inventory['Empty Bottle']).toBe(2);
+        expect(inventory['Bottle of Water']).toBeUndefined();
+        expect(inventory['Heart Potion Plus Plus']).toBeUndefined();
+    });
+
+    it('counts empty bottle variants from AP', () => {
+        const inventory: Record<string, number> = {};
+        applyApItemToTrackerInventory(inventory, 'Empty Bottle');
+        applyApItemToTrackerInventory(inventory, 'Empty Bottle #2');
+        expect(inventory['Empty Bottle']).toBe(2);
+    });
+
+    it('maps bottle of mushroom spores alias', () => {
+        expect(isApBottleSlotItem('Bottle of Mushroom Spores')).toBe(true);
+        const inventory: Record<string, number> = {};
+        applyApItemToTrackerInventory(inventory, 'Bottle of Mushroom Spores');
+        expect(inventory['Empty Bottle']).toBe(1);
     });
 });
 

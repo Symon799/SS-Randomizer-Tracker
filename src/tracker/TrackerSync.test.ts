@@ -3,6 +3,7 @@ import {
     bootstrapManualCheckOverrides,
     mergeInventoryWithManualOverrides,
     mergeWithManualOverrides,
+    migrateAbsoluteInventoryOverridesToDeltas,
     reconcileInventoryOverrides,
     reconcileManualOverrides,
     reconstructApRequiredDungeons,
@@ -54,7 +55,7 @@ describe('bootstrapManualCheckOverrides', () => {
 });
 
 describe('reconcileInventoryOverrides', () => {
-    it('keeps manual overrides on the first AP delivery', () => {
+    it('keeps manual deltas on the first AP delivery', () => {
         expect(
             reconcileInventoryOverrides(
                 {},
@@ -64,25 +65,55 @@ describe('reconcileInventoryOverrides', () => {
         ).toEqual({ 'Skyview Boss Key': 1 });
     });
 
-    it('drops overrides for items the server changed', () => {
+    it('clears a positive delta from AP=0 once AP catches up', () => {
         expect(
             reconcileInventoryOverrides(
-                { 'Skyview Small Key': 0 },
-                { 'Skyview Small Key': 1 },
-                { 'Skyview Small Key': 2, 'Skyview Boss Key': 1 },
+                { 'Skyview Boss Key': 0 },
+                { 'Skyview Boss Key': 1 },
+                { 'Skyview Boss Key': 1, 'Skyview Small Key': 1 },
             ),
-        ).toEqual({ 'Skyview Boss Key': 1 });
+        ).toEqual({ 'Skyview Small Key': 1 });
+    });
+
+    it('keeps a positive delta when AP was already above zero', () => {
+        expect(
+            reconcileInventoryOverrides(
+                { 'Progressive Sword': 2 },
+                { 'Progressive Sword': 3 },
+                { 'Progressive Sword': 1 },
+            ),
+        ).toEqual({ 'Progressive Sword': 1 });
     });
 });
 
 describe('mergeInventoryWithManualOverrides', () => {
-    it('prefers manual overrides over AP values', () => {
+    it('adds manual deltas to AP counts', () => {
         expect(
             mergeInventoryWithManualOverrides(
                 { 'Skyview Small Key': 0, 'Skyview Boss Key': 0 },
                 { 'Skyview Small Key': 2 },
             ),
         ).toEqual({ 'Skyview Small Key': 2, 'Skyview Boss Key': 0 });
+    });
+
+    it('clamps merged counts to item maximums', () => {
+        expect(
+            mergeInventoryWithManualOverrides(
+                { 'Key Piece': 0 },
+                { 'Key Piece': 10 },
+            ),
+        ).toEqual({ 'Key Piece': 5 });
+    });
+});
+
+describe('migrateAbsoluteInventoryOverridesToDeltas', () => {
+    it('converts legacy absolute overrides to deltas', () => {
+        expect(
+            migrateAbsoluteInventoryOverridesToDeltas(
+                { 'Progressive Sword': 2 },
+                { 'Progressive Sword': 3 },
+            ),
+        ).toEqual({ 'Progressive Sword': 1 });
     });
 });
 
