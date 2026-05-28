@@ -269,12 +269,16 @@ describe('full logic tests', () => {
         click(true);
         expect(count()).toBe(2);
         click(false);
-        // Wrap around
-        click(false);
-        expect(count()).toBe(0);
-        // Wrap around
-        click(true);
         expect(count()).toBe(3);
+        click(false);
+        expect(count()).toBe(3);
+        click(true);
+        expect(count()).toBe(2);
+        click(true);
+        click(true);
+        expect(count()).toBe(0);
+        click(true);
+        expect(count()).toBe(0);
     });
 
     it('handles trick logic', () => {

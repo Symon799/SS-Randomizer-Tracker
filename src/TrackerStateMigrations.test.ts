@@ -10,6 +10,8 @@ function makeTrackerState(
         apCheckedChecks: [],
         manualCheckedOverrides: {},
         inventory: {},
+        apInventory: {},
+        manualInventoryOverrides: {},
         hasBeenModified: true,
         mappedExits: {},
         requiredDungeons: [],

@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import {
     bootstrapManualCheckOverrides,
+    mergeInventoryWithManualOverrides,
     mergeWithManualOverrides,
+    reconcileInventoryOverrides,
     reconcileManualOverrides,
     reconstructApRequiredDungeons,
 } from './TrackerSync';
@@ -48,6 +50,39 @@ describe('bootstrapManualCheckOverrides', () => {
                 {},
             ),
         ).toEqual({ 'manual-check': true });
+    });
+});
+
+describe('reconcileInventoryOverrides', () => {
+    it('keeps manual overrides on the first AP delivery', () => {
+        expect(
+            reconcileInventoryOverrides(
+                {},
+                { 'Skyview Small Key': 1 },
+                { 'Skyview Boss Key': 1 },
+            ),
+        ).toEqual({ 'Skyview Boss Key': 1 });
+    });
+
+    it('drops overrides for items the server changed', () => {
+        expect(
+            reconcileInventoryOverrides(
+                { 'Skyview Small Key': 0 },
+                { 'Skyview Small Key': 1 },
+                { 'Skyview Small Key': 2, 'Skyview Boss Key': 1 },
+            ),
+        ).toEqual({ 'Skyview Boss Key': 1 });
+    });
+});
+
+describe('mergeInventoryWithManualOverrides', () => {
+    it('prefers manual overrides over AP values', () => {
+        expect(
+            mergeInventoryWithManualOverrides(
+                { 'Skyview Small Key': 0, 'Skyview Boss Key': 0 },
+                { 'Skyview Small Key': 2 },
+            ),
+        ).toEqual({ 'Skyview Small Key': 2, 'Skyview Boss Key': 0 });
     });
 });
 

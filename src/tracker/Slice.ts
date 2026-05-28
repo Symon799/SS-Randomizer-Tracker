@@ -8,7 +8,9 @@ import { defaultRequiredDungeons } from '../logic/Locations';
 import { getInitialItems } from '../logic/TrackerModifications';
 import type { AllTypedOptions } from '../permalink/SettingsTypes';
 import {
+    mergeInventoryWithManualOverrides,
     mergeWithManualOverrides,
+    reconcileInventoryOverrides,
     reconcileManualOverrides,
 } from './TrackerSync';
 
@@ -27,9 +29,17 @@ export interface TrackerState {
      */
     manualCheckedOverrides: Record<string, boolean>;
     /**
-     * Items we've marked as acquired.
+     * Items we've marked as acquired (effective counts: AP + manual overrides).
      */
     inventory: Partial<Record<string, number>>;
+    /**
+     * Item counts last reported by Archipelago (merged with seed items).
+     */
+    apInventory: Partial<Record<string, number>>;
+    /**
+     * Manual item-count overrides that remain active until AP changes that item.
+     */
+    manualInventoryOverrides: Partial<Record<string, number>>;
     /**
      * Whether this state has been modified.
      */
@@ -89,6 +99,8 @@ const initialState: TrackerState = {
     apCheckedChecks: [],
     manualCheckedOverrides: {},
     inventory: {},
+    apInventory: {},
+    manualInventoryOverrides: {},
     hasBeenModified: false,
     mappedExits: {},
     requiredDungeons: defaultRequiredDungeons(),
@@ -105,11 +117,14 @@ const initialState: TrackerState = {
 export function createResetTrackerState(
     settings: AllTypedOptions,
 ): TrackerState {
+    const inventory = getInitialItems(settings);
     return migrateTrackerState(
         {
             ...initialState,
             settings,
-            inventory: getInitialItems(settings),
+            inventory,
+            apInventory: { ...inventory },
+            manualInventoryOverrides: {},
         },
         { shouldDefaultRequiredDungeons: true },
     );
@@ -146,14 +161,19 @@ const trackerSlice = createSlice({
 
             const max = itemMaxes[item];
             const count = state.inventory[item] ?? 0;
-            let newCount = take ? count - 1 : count + 1;
-            if (newCount < 0) {
-                newCount += max + 1;
-            } else if (newCount > max) {
-                newCount -= max + 1;
-            }
+            const newCount = Math.max(
+                0,
+                Math.min(max, take ? count - 1 : count + 1),
+            );
+            state.manualInventoryOverrides = {
+                ...state.manualInventoryOverrides,
+                [item]: newCount,
+            };
+            state.inventory = mergeInventoryWithManualOverrides(
+                state.apInventory,
+                state.manualInventoryOverrides,
+            );
             state.hasBeenModified = true;
-            state.inventory[item] = newCount;
         },
         clickCheckInternal: (
             state,
@@ -180,19 +200,34 @@ const trackerSlice = createSlice({
             state,
             action: PayloadAction<{ item: string; count: number }[]>,
         ) => {
+            const overrides = { ...state.manualInventoryOverrides };
             for (const { item, count } of action.payload) {
-                state.inventory[item] = count;
+                overrides[item] = count;
             }
+            state.manualInventoryOverrides = overrides;
+            state.inventory = mergeInventoryWithManualOverrides(
+                state.apInventory,
+                state.manualInventoryOverrides,
+            );
             state.hasBeenModified = true;
         },
         replaceItemCounts: (
             state,
             action: PayloadAction<{ item: string; count: number }[]>,
         ) => {
-            state.inventory = {};
-            for (const { item, count } of action.payload) {
-                state.inventory[item] = count;
-            }
+            const nextAp = Object.fromEntries(
+                action.payload.map(({ item, count }) => [item, count]),
+            );
+            state.manualInventoryOverrides = reconcileInventoryOverrides(
+                state.apInventory,
+                nextAp,
+                state.manualInventoryOverrides,
+            );
+            state.apInventory = nextAp;
+            state.inventory = mergeInventoryWithManualOverrides(
+                state.apInventory,
+                state.manualInventoryOverrides,
+            );
             state.hasBeenModified = true;
         },
         syncApCheckedChecks: (state, action: PayloadAction<string[]>) => {

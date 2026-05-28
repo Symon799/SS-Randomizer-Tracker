@@ -3,6 +3,7 @@ import { defaultRequiredDungeons } from './logic/Locations';
 import type { TrackerState } from './tracker/Slice';
 import {
     bootstrapManualCheckOverrides,
+    mergeInventoryWithManualOverrides,
     mergeWithManualOverrides,
     reconstructApRequiredDungeons,
 } from './tracker/TrackerSync';
@@ -23,6 +24,12 @@ export function migrateTrackerState(
 
         draft.apCheckedChecks ??= [];
         draft.manualCheckedOverrides ??= {};
+        draft.apInventory ??= { ...draft.inventory };
+        draft.manualInventoryOverrides ??= {};
+        draft.inventory = mergeInventoryWithManualOverrides(
+            draft.apInventory,
+            draft.manualInventoryOverrides,
+        );
         draft.apRequiredDungeons ??= [];
         draft.manualRequiredDungeonOverrides ??= {};
 

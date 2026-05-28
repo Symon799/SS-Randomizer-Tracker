@@ -30,6 +30,8 @@ export type SavedTrackerState = Pick<
     | 'apCheckedChecks'
     | 'manualCheckedOverrides'
     | 'inventory'
+    | 'apInventory'
+    | 'manualInventoryOverrides'
     | 'mappedExits'
     | 'requiredDungeons'
     | 'apRequiredDungeons'
@@ -53,6 +55,8 @@ function pickSavedTrackerState(state: TrackerState): SavedTrackerState {
         apCheckedChecks: state.apCheckedChecks,
         manualCheckedOverrides: state.manualCheckedOverrides,
         inventory: state.inventory,
+        apInventory: state.apInventory,
+        manualInventoryOverrides: state.manualInventoryOverrides,
         mappedExits: state.mappedExits,
         requiredDungeons: state.requiredDungeons,
         apRequiredDungeons: state.apRequiredDungeons,

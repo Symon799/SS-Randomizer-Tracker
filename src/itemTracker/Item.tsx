@@ -1,12 +1,12 @@
 import type { CSSProperties } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import Tooltip from '../additionalComponents/Tooltip';
 import type { InventoryItem } from '../logic/Inventory';
 import {
     locationsForItemSelector,
     rawItemCountSelector,
 } from '../tracker/Selectors';
-// import { clickItem } from '../tracker/Slice';
+import { clickItem } from '../tracker/Slice';
 import { addDividers } from '../utils/React';
 import { BasicItem } from './BasicItem';
 import allImages from './Images';
@@ -30,7 +30,7 @@ function Item({
     children?: React.ReactNode;
     tooltipLabel?: string;
 }) {
-    // const dispatch = useDispatch();
+    const dispatch = useDispatch();
     const count = useSelector(rawItemCountSelector(itemName));
 
     let itemImages: string[];
@@ -44,8 +44,8 @@ function Item({
         itemImages = images;
     }
 
-    const handleClick = () => {
-        // dispatch(clickItem({ item: itemName, take }));
+    const handleClick = (take: boolean) => {
+        dispatch(clickItem({ item: itemName, take }));
     };
 
     const relevantLocations = useSelector(locationsForItemSelector(itemName));
