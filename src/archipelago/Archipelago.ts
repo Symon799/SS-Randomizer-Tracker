@@ -764,26 +764,9 @@ export class APClientManager {
             this.applyApItemToInventory(nextInventory, item);
         }
 
-        const slotDataLocationToItemMap = this.getSlotDataLocationToItemMap();
-        const reconstructedSelfLocations = new Set<number>();
         for (const locationId of this.checkedLocationIds) {
-            const itemId = slotDataLocationToItemMap[locationId];
-            if (itemId === undefined) {
-                continue;
-            }
-
-            const item = this.idToItem[itemId];
-            if (item === undefined) {
-                continue;
-            }
-
-            reconstructedSelfLocations.add(locationId);
-            this.applyApItemToInventory(nextInventory, item);
-        }
-
-        for (const [locationId, scoutedItem] of this
-            .scoutedSelfItemsByLocation) {
-            if (reconstructedSelfLocations.has(locationId)) {
+            const scoutedItem = this.scoutedSelfItemsByLocation.get(locationId);
+            if (scoutedItem === undefined) {
                 continue;
             }
             if (
@@ -849,33 +832,6 @@ export class APClientManager {
 
         inventory[GRATITUDE_CRYSTAL_DATA_STORAGE_KEY] = parsed.singles;
         inventory[GRATITUDE_CRYSTAL_PACK_DATA_STORAGE_KEY] = parsed.packs;
-    }
-
-    private getSlotDataLocationToItemMap(): Record<number, number> {
-        const slotData = this.connectedData?.slot_data as SlotData | undefined;
-        const rawLocationToItemMap = slotData?.location_to_item_map;
-        if (
-            rawLocationToItemMap === undefined ||
-            typeof rawLocationToItemMap !== 'object' ||
-            rawLocationToItemMap === null
-        ) {
-            return {};
-        }
-
-        const locationToItemMap: Record<number, number> = {};
-        for (const [locationId, itemId] of Object.entries(
-            rawLocationToItemMap,
-        )) {
-            const parsedLocationId = Number(locationId);
-            if (
-                !Number.isFinite(parsedLocationId) ||
-                typeof itemId !== 'number'
-            ) {
-                continue;
-            }
-            locationToItemMap[parsedLocationId] = itemId;
-        }
-        return locationToItemMap;
     }
 
     private processReceivedItems(items: NetworkItem[]) {
