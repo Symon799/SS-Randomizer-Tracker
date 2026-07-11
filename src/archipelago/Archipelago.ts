@@ -149,7 +149,7 @@ const apProgressiveItemMinimums: Record<string, [item: string, count: number]> =
         'Mogma Mitts': ['Progressive Mitts', 2],
         'Iron Bow': ['Progressive Bow', 2],
         'Sacred Bow': ['Progressive Bow', 3],
-        'Song of the Hero': [sothItemReplacement, 3],
+        'Song of the Hero': [sothItemReplacement, 4],
     };
 
 export const apAbsoluteProgressiveInventoryItems = new Set(

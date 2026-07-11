@@ -40,6 +40,9 @@ export const sothItems = [
 
 export const sothItemReplacement = 'Song of the Hero';
 
+/** Fourth progressive part used by the SSHD dump to derive the completed song. */
+export const fullSongOfTheHeroPart = itemName(sothItems[0], 4);
+
 /** Virtual requirement bit used by the SSHD dump for the Skyloft trial gate. */
 export const fullSongOfTheHeroRequirement = '\\Full Song of the Hero';
 
@@ -149,8 +152,11 @@ export function getTooltipOpaqueBits(
             continue;
         }
         if (item === sothItemReplacement) {
-            for (let i = 1; i <= count; i++) {
+            for (let i = 1; i <= Math.min(count, sothItems.length); i++) {
                 set(sothItems[i - 1]);
+            }
+            if (count > sothItems.length) {
+                set(fullSongOfTheHeroPart);
             }
         } else if (item === triforceItemReplacement) {
             for (let i = 1; i <= count; i++) {

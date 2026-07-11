@@ -171,7 +171,8 @@ describe('SSHD generated dump', () => {
         const inventoryRequirements = mapInventory(logic, {
             "Goddess's Harp": 1,
             'Progressive Sword': 1,
-            'Song of the Hero': 3,
+            'Song of the Hero': 4,
+            '\\Skyloft\\Upper Skyloft_NIGHT': 1,
         });
         const bits = mergeRequirements(
             logic.numRequirements,
@@ -182,11 +183,15 @@ describe('SSHD generated dump', () => {
 
         const fullSongBit = logic.itemBits['\\Full Song of the Hero'];
         expect(reachable.test(fullSongBit)).toBe(true);
+        const goddessSilentRealmBit =
+            logic.itemBits["\\Skyloft\\The Goddess's Silent Realm"];
+        expect(reachable.test(goddessSilentRealmBit)).toBe(true);
 
         const withoutSong = mapInventory(logic, {
             "Goddess's Harp": 1,
             'Progressive Sword': 1,
-            'Song of the Hero': 2,
+            'Song of the Hero': 3,
+            '\\Skyloft\\Upper Skyloft_NIGHT': 1,
         });
         const unreachable = computeLeastFixedPoint(
             'test',
@@ -197,5 +202,6 @@ describe('SSHD generated dump', () => {
             ),
         );
         expect(unreachable.test(fullSongBit)).toBe(false);
+        expect(unreachable.test(goddessSilentRealmBit)).toBe(false);
     });
 });

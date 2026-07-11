@@ -142,6 +142,9 @@ function getReadableItemName(logic: Logic, item: string) {
     if (item === '\\Full Song of the Hero') {
         return 'Full Song of the Hero';
     }
+    if (item === 'Faron Song of the Hero Part x 4') {
+        return 'Full Song of the Hero';
+    }
 
     if (item in prettyItemNames) {
         return prettyItemNames[item][1];

@@ -166,6 +166,17 @@ describe('applyApItemToTrackerInventory', () => {
         applyApItemToTrackerInventory(inventory, 'Bottle of Mushroom Spores');
         expect(inventory['Empty Bottle']).toBe(1);
     });
+
+    it('requires four Song of the Hero parts for the completed song', () => {
+        const inventory: Record<string, number> = {};
+        for (let i = 0; i < 3; i++) {
+            applyApItemToTrackerInventory(inventory, 'Song of the Hero Part');
+        }
+        expect(inventory['Song of the Hero']).toBe(3);
+
+        applyApItemToTrackerInventory(inventory, 'Song of the Hero');
+        expect(inventory['Song of the Hero']).toBe(4);
+    });
 });
 
 describe('mergeApInventoryWithSeedItems', () => {
@@ -189,10 +200,7 @@ describe('mergeApInventoryWithSeedItems', () => {
 
     it('adds non-progressive stackables on top of seed items once', () => {
         expect(
-            mergeApInventoryWithSeedItems(
-                { Whip: 0 },
-                { Whip: 1 },
-            ).Whip,
+            mergeApInventoryWithSeedItems({ Whip: 0 }, { Whip: 1 }).Whip,
         ).toBe(1);
     });
 });

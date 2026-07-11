@@ -36,7 +36,7 @@ export const itemMaxes = {
     "Farore's Courage": 1,
     "Nayru's Wisdom": 1,
     "Din's Power": 1,
-    'Song of the Hero': 3,
+    'Song of the Hero': 4,
     Triforce: 3,
 
     "Cawlin's Letter": 1,

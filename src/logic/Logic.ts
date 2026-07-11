@@ -22,9 +22,7 @@ import { TimeOfDay, type TTimeOfDay } from './Mappers';
 import {
     cubeCheckToCubeCollected,
     dungeonCompletionItems,
-    fullSongOfTheHeroRequirement,
     mapToCubeCollectedRequirement,
-    sothItems,
 } from './TrackerModifications';
 import type {
     RawArea,
@@ -1030,24 +1028,6 @@ export function parseLogic(raw: RawLogic): Logic {
             cubeOriginalItem,
             newBuilder.singleBit(cubeCollectedItem),
         );
-    }
-
-    // SSHD dump models the completed Song of the Hero as `\Full Song of the Hero`
-    // requiring `Faron Song of the Hero Part x 4`, but the tracker inventory only
-    // tracks the three regional parts (and stacks them as Song of the Hero).
-    if (itemBits[fullSongOfTheHeroRequirement] !== undefined) {
-        let allPartsExpr = newBuilder.true();
-        let hasAllParts = true;
-        for (const part of sothItems) {
-            if (itemBits[part] === undefined) {
-                hasAllParts = false;
-                break;
-            }
-            allPartsExpr = allPartsExpr.and(newBuilder.singleBit(part));
-        }
-        if (hasAllParts) {
-            newBuilder.addAlternative(fullSongOfTheHeroRequirement, allPartsExpr);
-        }
     }
 
     // check for orphaned locations. This again should probably not be in here
