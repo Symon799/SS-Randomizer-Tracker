@@ -17,6 +17,37 @@ function makeSettings(
 }
 
 describe('getInitialItems', () => {
+    it('keeps Sailcloth for old worlds and unshuffled Sailcloth seeds', () => {
+        expect(getInitialItems(makeSettings({}))['Sailcloth']).toBe(1);
+        expect(
+            getInitialItems(makeSettings({ 'randomize-sailcloth': false }))[
+                'Sailcloth'
+            ],
+        ).toBe(1);
+    });
+
+    it('starts without Sailcloth when it is randomized', () => {
+        expect(
+            getInitialItems(makeSettings({ 'randomize-sailcloth': true }))[
+                'Sailcloth'
+            ] ?? 0,
+        ).toBe(0);
+    });
+
+    it('uses the resolved Loftwing start option', () => {
+        expect(getInitialItems(makeSettings({}))['Loftwing']).toBe(1);
+        expect(
+            getInitialItems(makeSettings({ 'randomize-loftwing': 'on' }))[
+                'Loftwing'
+            ],
+        ).toBe(1);
+        expect(
+            getInitialItems(makeSettings({ 'randomize-loftwing': 'off' }))[
+                'Loftwing'
+            ] ?? 0,
+        ).toBe(0);
+    });
+
     it('starts without a progressive sword when starting-sword is no_sword', () => {
         expect(
             getInitialItems(makeSettings({ 'starting-sword': 'no_sword' }))[

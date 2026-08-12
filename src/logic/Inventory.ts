@@ -1,6 +1,7 @@
 // The order here defines the order of items in requirement tooltips too
 export const itemMaxes = {
     Sailcloth: 1,
+    Loftwing: 1,
 
     'Emerald Tablet': 1,
     'Ruby Tablet': 1,

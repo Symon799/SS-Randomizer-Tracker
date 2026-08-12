@@ -76,7 +76,15 @@ export function getInitialItems(
         items[item] ??= 0;
         items[item] += count;
     };
-    add('Sailcloth');
+    // Older APWorlds always start with the Sailcloth. Newer worlds expose
+    // option_randomize_sailcloth and precollect it only when shuffle is off.
+    if (settings['randomize-sailcloth'] !== true) {
+        add('Sailcloth');
+    }
+    // Older APWorlds do not expose this option and always start with Loftwing.
+    if (settings['randomize-loftwing'] !== 'off') {
+        add('Loftwing');
+    }
     if (settings['starting-tablet-count'] === 3) {
         add('Emerald Tablet');
         add('Ruby Tablet');
@@ -144,11 +152,7 @@ export function getTooltipOpaqueBits(
 
     // All actual inventory items are shown in the tooltips
     for (const [item, count] of Object.entries(itemMaxes)) {
-        if (
-            count === undefined ||
-            item === 'Sailcloth' ||
-            item === 'Tumbleweed'
-        ) {
+        if (count === undefined || item === 'Tumbleweed') {
             continue;
         }
         if (item === sothItemReplacement) {

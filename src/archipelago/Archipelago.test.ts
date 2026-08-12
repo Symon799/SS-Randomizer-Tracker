@@ -144,6 +144,20 @@ describe('parseGratitudeCrystalCountsFromReceivedItems', () => {
 });
 
 describe('applyApItemToTrackerInventory', () => {
+    it('maps a dungeon key ring to every small key for that dungeon', () => {
+        const inventory: Record<string, number> = {};
+        applyApItemToTrackerInventory(inventory, 'Fire Sanctuary Key Ring');
+        expect(inventory['Fire Sanctuary Small Key']).toBe(3);
+    });
+
+    it('maps the Skeleton Key to all dungeon and Lanayru Caves keys', () => {
+        const inventory: Record<string, number> = {};
+        applyApItemToTrackerInventory(inventory, 'Skeleton Key');
+        expect(inventory['Skyview Small Key']).toBe(2);
+        expect(inventory['Fire Sanctuary Small Key']).toBe(3);
+        expect(inventory['Lanayru Caves Small Key']).toBe(2);
+    });
+
     it('counts filled bottle items as empty bottles', () => {
         const inventory: Record<string, number> = {};
         applyApItemToTrackerInventory(inventory, 'Bottle of Water');

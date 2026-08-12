@@ -42,6 +42,21 @@ const apItemAliases: Record<string, string> = {
     'Bottle of Mushroom Spores': 'Mushroom Spores',
 };
 
+const apKeyRingInventory: Record<string, [item: string, count: number]> = {
+    'Skyview Temple Key Ring': ['Skyview Small Key', 2],
+    'Lanayru Mining Facility Key Ring': [
+        'Lanayru Mining Facility Small Key',
+        1,
+    ],
+    'Ancient Cistern Key Ring': ['Ancient Cistern Small Key', 2],
+    'Fire Sanctuary Key Ring': ['Fire Sanctuary Small Key', 3],
+    'Sandship Key Ring': ['Sandship Small Key', 2],
+    'Sky Keep Key Ring': ['Sky Keep Small Key', 1],
+    'Lanayru Caves Key Ring': ['Lanayru Caves Small Key', 2],
+};
+
+const allSmallKeyInventory = Object.values(apKeyRingInventory);
+
 /**
  * AP item names that fill a bottle slot (SSHD logic `\filledbottletypes`).
  * Receiving any of these grants an Empty Bottle in the tracker inventory.
@@ -100,6 +115,17 @@ export function applyApItemToTrackerInventory(
     item: string,
 ): void {
     if (isArchipelagoCrystalLogicItem(item)) {
+        return;
+    }
+    if (item === 'Skeleton Key') {
+        for (const [smallKey, count] of allSmallKeyInventory) {
+            setTrackerInventoryAtLeast(inventory, smallKey, count);
+        }
+        return;
+    }
+    const keyRing = apKeyRingInventory[item];
+    if (keyRing) {
+        setTrackerInventoryAtLeast(inventory, keyRing[0], keyRing[1]);
         return;
     }
     const progressiveMinimum = apProgressiveItemMinimums[item];
@@ -161,6 +187,8 @@ export const apAbsoluteInventoryMaximumItems = new Set<string>([
     'Empty Bottle',
     'Progressive Pouch',
     'Progressive Wallet',
+    'Sailcloth',
+    'Loftwing',
 ]);
 
 export function mergeApInventoryWithSeedItems(
@@ -431,6 +459,22 @@ function optionIndicesToOptions(
 ): AllTypedOptions {
     const settings: Partial<Record<OptionsCommand, OptionValue>> =
         defaultSettings(optionDefs);
+    const randomizeSailcloth =
+        loadedOptions.randomize_sailcloth ??
+        loadedOptions.option_randomize_sailcloth;
+    if (randomizeSailcloth !== undefined) {
+        settings['randomize-sailcloth'] =
+            randomizeSailcloth === 1 || randomizeSailcloth === 'on';
+    }
+    const randomizeLoftwing =
+        loadedOptions.randomize_loftwing ??
+        loadedOptions.option_randomize_loftwing;
+    if (randomizeLoftwing !== undefined) {
+        settings['randomize-loftwing'] =
+            randomizeLoftwing === 1 || randomizeLoftwing === 'on'
+                ? 'on'
+                : 'off';
+    }
     // Excluded locations are handled differently.
     settings['excluded-locations'] = [];
     for (const option of optionDefs) {
@@ -795,7 +839,7 @@ export class APClientManager {
             return;
         }
 
-        this.setInventoryAtLeast(inventory, 'Progressive Sword', parsed);
+        setTrackerInventoryAtLeast(inventory, 'Progressive Sword', parsed);
     }
 
     private syncGratitudeCrystalCounts() {

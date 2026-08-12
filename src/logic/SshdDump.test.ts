@@ -163,6 +163,36 @@ describe('SSHD generated dump', () => {
         ).not.toBe('false');
     });
 
+    it('requires Loftwing for sky islands and keeps Sailcloth separate', () => {
+        const raw = load(
+            fs.readFileSync('testData/sshd-dump.yaml', 'utf8'),
+        ) as RawLogic;
+        const logic = parseLogic(raw);
+
+        const beedlesIsland = formatExpr(
+            logic,
+            logic.rawStaticRequirements[
+                logic.itemBits["\\Sky\\Beedle's Island_DAY"]
+            ],
+        );
+        const faronPillar = formatExpr(
+            logic,
+            logic.rawStaticRequirements[
+                logic.itemBits['\\Sky\\Faron Pillar_DAY']
+            ],
+        );
+
+        expect(beedlesIsland).toContain('Loftwing');
+        expect(faronPillar).toContain('Loftwing');
+        expect(faronPillar).toContain('Sailcloth');
+
+        const beedlesIslandArea =
+            raw.areas.sub_areas.Sky.sub_areas["Beedle's Island"];
+        expect(beedlesIslandArea.exits?.['\\Sky\\The Sky']).toContain(
+            'Loftwing',
+        );
+    });
+
     it('opens Goddess Silent Realm when harp, sword, and full song are owned', () => {
         const raw = load(
             fs.readFileSync('testData/sshd-dump.yaml', 'utf8'),

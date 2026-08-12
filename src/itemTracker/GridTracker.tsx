@@ -3,16 +3,14 @@ import { useSelector } from 'react-redux';
 import noTablets from '../assets/tablets/no_tablets.png';
 import { tumbleweedSelector } from '../customization/Selectors';
 import { useDraggable } from '../dragAndDrop/DragAndDrop';
-import {
-    rawItemCountSelector,
-} from '../tracker/Selectors';
+import { rawItemCountSelector } from '../tracker/Selectors';
 // import { clickItem } from '../tracker/Slice';
 import styles from './GridTracker.module.css';
 import Item from './Item';
 import { CounterItem } from './items/CounterItem';
 import counterStyles from './items/CounterItem.module.css';
-import { GratitudeCrystals } from './items/sidequest/GratitudeCrystals';
 import { ProgressiveItem } from './items/ProgressiveItem';
+import { GratitudeCrystals } from './items/sidequest/GratitudeCrystals';
 
 export const GRID_TRACKER_ASPECT_RATIO = 1.063;
 
@@ -119,7 +117,10 @@ export default function GridTracker({ width }: { width: number }) {
                 </div>
             </div>
             <div>
-                <ProgressiveItem itemName="Progressive Bow" imgWidth={imgWidth} />
+                <ProgressiveItem
+                    itemName="Progressive Bow"
+                    imgWidth={imgWidth}
+                />
             </div>
             <div>
                 <Item itemName="Clawshots" imgWidth={imgWidth} />
@@ -144,6 +145,12 @@ export default function GridTracker({ width }: { width: number }) {
             </div>
             <div>
                 <Item itemName="Spiral Charge" imgWidth={imgWidth} />
+            </div>
+            <div>
+                <Item itemName="Sailcloth" imgWidth={imgWidth} grid />
+            </div>
+            <div>
+                <Item itemName="Loftwing" imgWidth={imgWidth} grid />
             </div>
             <div>
                 <CounterItem itemName="Progressive Pouch" imgWidth={imgWidth} />

@@ -250,11 +250,7 @@ export function mapInventory(logic: Logic, itemCounts: Record<string, number>) {
     const trySet = (item: string) => b.trySet(item, b.true());
 
     for (const [item, count] of Object.entries(itemCounts)) {
-        if (
-            count === undefined ||
-            item === 'Sailcloth' ||
-            item === 'Tumbleweed'
-        ) {
+        if (count === undefined || item === 'Tumbleweed') {
             continue;
         }
         if (item === sothItemReplacement) {

@@ -11,6 +11,12 @@ export default function SongBlock({ width: width }: { width: number }) {
         left: width / 13.5,
     };
 
+    const loftwingStyle: CSSProperties = {
+        position: 'absolute',
+        top: width * 0.03,
+        left: width * 0.58,
+    };
+
     const earringsStyle: CSSProperties = {
         position: 'relative',
         bottom: width / 4.05,
@@ -95,6 +101,7 @@ export default function SongBlock({ width: width }: { width: number }) {
     const powerWidth = width / 7;
     const sothWidth = width / 2.62;
     const sailclothWidth = width / 5.2;
+    const loftwingWidth = width / 3.2;
     const scaleWidth = width / 5.2;
     const earringsWidth = width / 5.2;
     const mittsWidth = width / 5.2;
@@ -104,11 +111,14 @@ export default function SongBlock({ width: width }: { width: number }) {
     const amberWidth = width / 5.57;
 
     return (
-        <div>
+        <div style={{ position: 'relative' }}>
             <img src={songBlock} alt="" width={width} draggable={false} />
 
             <div style={sailclothStyle}>
                 <Item itemName="Sailcloth" imgWidth={sailclothWidth} />
+            </div>
+            <div style={loftwingStyle}>
+                <Item itemName="Loftwing" imgWidth={loftwingWidth} />
             </div>
             <div style={earringsStyle}>
                 <Item itemName="Fireshield Earrings" imgWidth={earringsWidth} />

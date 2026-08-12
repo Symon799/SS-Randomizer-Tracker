@@ -259,6 +259,7 @@ items:
   - Life Tree Fruit
   - Life Tree Seedling
   - Lizard Tail
+  - Loftwing
   - Map
   - Master Sword
   - Mogma Mitts
@@ -10655,25 +10656,25 @@ areas:
           allowed_time_of_day: 3
           entrances: []
           exits:
-            \Sky\Faron Pillar: Emerald Tablet
-            \Sky\Eldin Pillar: Ruby Tablet
-            \Sky\Lanayru Pillar: Amber Tablet
-            \Sky\Bamboo Island: 'True'
-            \Sky\Island near Bamboo Island: 'True'
-            \Sky\Beedle's Island: 'True'
-            \Sky\Northeast Island: 'True'
-            \Sky\Lumpy Pumpkin Exterior: 'True'
-            \Sky\Island Closest to Faron Pillar: 'True'
-            \Sky\Volcanic Island: 'True'
-            \Sky\Orielle's Island: 'True'
-            \Sky\Fun Fun Island: 'True'
-            \Sky\Triple Island: 'True'
+            \Sky\Faron Pillar: Loftwing & Emerald Tablet & Sailcloth
+            \Sky\Eldin Pillar: Loftwing & Ruby Tablet & Sailcloth
+            \Sky\Lanayru Pillar: Loftwing & Amber Tablet & Sailcloth
+            \Sky\Bamboo Island: Loftwing
+            \Sky\Island near Bamboo Island: Loftwing
+            \Sky\Beedle's Island: Loftwing
+            \Sky\Northeast Island: Loftwing
+            \Sky\Lumpy Pumpkin Exterior: Loftwing
+            \Sky\Island Closest to Faron Pillar: Loftwing
+            \Sky\Volcanic Island: Loftwing
+            \Sky\Orielle's Island: Loftwing
+            \Sky\Fun Fun Island: Loftwing
+            \Sky\Triple Island: Loftwing
             \Sky\Inside the Thunderhead: >-
-              (\Goddess's Harp & Ballad of the Goddess & \Skyloft\Central Skyloft) | \SSHD
-              Setting\open_thunderhead == on
-            \Skyloft\Upper Skyloft: 'True'
-            \Skyloft\Central Skyloft: 'True'
-            \Skyloft\Skyloft Village: 'True'
+              Loftwing & ((\Goddess's Harp & Ballad of the Goddess & \Skyloft\Central Skyloft) | \SSHD
+              Setting\open_thunderhead == on)
+            \Skyloft\Upper Skyloft: Loftwing & Sailcloth
+            \Skyloft\Central Skyloft: Loftwing & Sailcloth
+            \Skyloft\Skyloft Village: Loftwing & Sailcloth
           sub_areas: {}
           locations:
             The Sky - Form a Swirrell Ring above Volcanic Island: 'True'
@@ -10833,7 +10834,7 @@ areas:
           entrances: []
           exits:
             \Skyloft\Beedle's Airshop: Night
-            \Sky\The Sky: Day | \SSHD Setting\natural_night_connections == off
+            \Sky\The Sky: Loftwing & (Day | \SSHD Setting\natural_night_connections == off)
           sub_areas: {}
           locations:
             Beedle's Island - Crystal on Airshop Propeller: Night & \Beetle

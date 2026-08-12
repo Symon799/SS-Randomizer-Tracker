@@ -58,7 +58,9 @@ function requireFile(filePath, description) {
 }
 
 function readYaml(filePath) {
-    return yaml.load(fs.readFileSync(filePath, 'utf8'));
+    // Upstream occasionally contains a duplicated metadata key. Its own YAML
+    // loader accepts the last value, so mirror that behavior for generated data.
+    return yaml.load(fs.readFileSync(filePath, 'utf8'), { json: true });
 }
 
 function parsePythonStringList(value) {

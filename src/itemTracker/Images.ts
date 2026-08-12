@@ -13,6 +13,7 @@ import gustBellows from '../assets/Gust_Bellows_Icon.png';
 import noGustBellows from '../assets/Gust_Bellows_Silhouette.png';
 import hookBeetle from '../assets/Hook_Beetle_Icon.png';
 import ironBow from '../assets/Iron_Bow_Icon.png';
+import loftwing from '../assets/Loftwing.png';
 import quickBeetle from '../assets/Quick_Beetle_Icon.png';
 import sacredBow from '../assets/Sacred_Bow_Icon.png';
 import scattershot from '../assets/Scattershot_Icon.png';
@@ -84,6 +85,7 @@ import noSailclothGrid from '../assets/main quest/no_sailcloth_grid.png';
 import noScaleGrid from '../assets/main quest/no_scale_grid.png';
 import noTadtones from '../assets/main quest/no_tadtones.png';
 import tadtones from '../assets/main quest/tadtones.png';
+import noLoftwing from '../assets/no_Loftwing.png';
 import noSpiralCharge from '../assets/no_bird_statuette.png';
 import noBottle from '../assets/no_bottle.png';
 import noPouch from '../assets/no_pouch.png';
@@ -244,6 +246,7 @@ const images: Images = {
     "Din's Power": [noSong, power],
     'Song of the Hero': [noSoth, soth1, soth2, soth, soth],
     Sailcloth: [noSailcloth, sailcloth],
+    Loftwing: [noLoftwing, loftwing],
     "Water Dragon's Scale": [noScale, scale],
     'Fireshield Earrings': [noEarrings, earrings],
     'Progressive Mitts': [noMitts, diggingMitts, mogmaMitts],
@@ -300,6 +303,7 @@ const images: Images = {
         fullTriforceGrid,
     ],
     'Sailcloth Grid': [noSailclothGrid, sailcloth],
+    'Loftwing Grid': [noLoftwing, loftwing],
     'Extra Wallet': [extraWallet],
     'Wooden Shield': [woodenShield],
     'Hylian Shield': [hylianShield],

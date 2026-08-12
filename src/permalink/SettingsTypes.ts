@@ -48,7 +48,11 @@ export type OptionsCommand = string;
 export interface AllTypedOptions
     extends Omit<
         GeneratedOptions,
-        'rupeesanity' | 'shopsanity' | 'randomize-entrances' | 'logic-mode'
+        | 'rupeesanity'
+        | 'shopsanity'
+        | 'randomize-entrances'
+        | 'logic-mode'
+        | 'starting-sword'
     > {
     [command: string]: OptionValue | undefined;
 
@@ -86,6 +90,17 @@ export interface AllTypedOptions
         | 'Normal'
         | 'Beatable Only'
         | 'Beatable Then Banned';
+
+    // The SSHD APWorld uses backend tokens while legacy tracker data uses labels.
+    'starting-sword':
+        | GeneratedOptions['starting-sword']
+        | 'no_sword'
+        | 'practice_sword'
+        | 'goddess_sword'
+        | 'goddess_longsword'
+        | 'goddess_white_sword'
+        | 'master_sword'
+        | 'true_master_sword';
 }
 
 export type TypedOptions = AllTypedOptions;

@@ -159,10 +159,6 @@ const trackerSlice = createSlice({
             if (!isItem(item)) {
                 throw new Error(`bad item ${item as string}`);
             }
-            if (item === 'Sailcloth') {
-                return;
-            }
-
             const max = itemMaxes[item];
             const count = state.inventory[item] ?? 0;
             const newCount = Math.max(
